@@ -23,8 +23,6 @@ ui_*.h
 *.idb
 *.suo
 *.unsuccessfulbuild
-/Debug
-/x64
-*.blend1
 *.vcxproj.user
-__pycache__
+*/x64
+*/Debug
