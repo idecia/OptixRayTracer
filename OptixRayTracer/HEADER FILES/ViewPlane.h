@@ -13,4 +13,4 @@ struct ViewPlane {
 
 
 ViewPlane createViewPlane(int heightResolution, int widthResolution, float pixelSize);
-RT_HOSTDEVICE  optix::float2 samplePixel(ViewPlane &viewPlane, int i, int j); optix::float2 samplePixel(ViewPlane &viewPlane, int i, int j);
+RT_HOSTDEVICE float2 samplePixel(ViewPlane &viewPlane, int i, int j); 

@@ -99,7 +99,7 @@ void Camera::loadFromXML(xml_node<>* camera){
 void computeUVW(Camera &camera, float3 eye, float3 lookAt, float3 up) {
 
 	float3 w = normalize(eye - lookAt);
-	float3 u = normalize(cross(up, u));
+	float3 u = normalize(cross(up, w));
 	float3 v = cross(w, u);
 	camera.w = w;
 	camera.u = u;

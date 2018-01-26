@@ -62,6 +62,6 @@ struct Camera {
 
 
 Camera createCamera(float3 eye, float3 lookAt, float3 up, float distance);
-RT_HOSTDEVICE  optix::Ray generateRay(Camera &camera, float2 point);
+RT_HOSTDEVICE Ray generateRay(Camera &camera, float2 point);
 
 #endif // CAMERA_H_INCLUDED
