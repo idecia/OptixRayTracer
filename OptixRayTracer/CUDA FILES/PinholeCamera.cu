@@ -1,11 +1,10 @@
 
 #include "Camera.h"
 #include "ViewPlane.h"
+#include "Ray.h"
 
-	
 #include <optix.h>
 #include <optixu/optixu_math_namespace.h>
-
 
 using namespace optix;
 
@@ -15,18 +14,13 @@ rtDeclareVariable(Camera, camera, , );
 rtDeclareVariable(ViewPlane, viewPlane, , );
 rtDeclareVariable(rtObject, topObject, , );
 
-struct Payload {
-
-	float3 color;
-
-};
 
 RT_PROGRAM void pinholeCamera(void) {
 
 	float2 sample = samplePixel(viewPlane, index.x , index.y);
-	Ray ray = generateRay(camera, sample   );
-	Payload payload;
+	Ray ray = generateRay(camera, sample);
+	RadianceRayPayload payload;
 	rtTrace(topObject, ray, payload);
 	outputBuffer[index] = payload.color;
 
-}
+}                                                                                                                                                                                                 

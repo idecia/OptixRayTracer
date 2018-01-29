@@ -54,9 +54,9 @@ struct Camera {
 	float3 up;
 	float distance;
 
-	float3 u;
-	float3 v;
-	float3 w;
+	float3 U;
+	float3 V;
+	float3 W;
 
 };
 

@@ -182,6 +182,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HEADER FILES\Camera.h" />
+    <ClInclude Include="HEADER FILES\Ray.h" />
     <ClInclude Include="HEADER FILES\sutil\Arcball.h" />
     <ClInclude Include="HEADER FILES\sutil\glext.h" />
     <ClInclude Include="HEADER FILES\sutil\GL\glew.h" />

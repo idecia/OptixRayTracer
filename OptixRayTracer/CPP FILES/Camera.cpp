@@ -1,6 +1,7 @@
-  #include "Camera.h"
-  #include <string>
-  #include <math.h>
+#include "Camera.h"
+#include "Ray.h"
+#include <string>
+#include <math.h>
 
 /*
   #define PI 3.14159265
@@ -98,33 +99,37 @@ void Camera::loadFromXML(xml_node<>* camera){
 
 void computeUVW(Camera &camera, float3 eye, float3 lookAt, float3 up) {
 
-	float3 w = normalize(eye - lookAt);
-	float3 u = normalize(cross(up, w));
-	float3 v = cross(w, u);
-	camera.w = w;
-	camera.u = u;
-	camera.v = v;
+	float3 W = normalize(eye - lookAt);
+	float3 U = normalize(cross(up, w));
+	float3 V = cross(w, u);
+	camera.W = W;
+	camera.U = U;
+	camera.V = V;
+}
+
+RT_HOSTDEVICE float3 computeRayDirection(Camera &camera, float2 point) {
+
+	float3 direction = point.x * camera.U + point.y * camera.V - camera.distance * camera.W;
+	direction = normalize(direction);
+	return direction;
+
 }
 
 Camera cameraCreate(float3 eye, float3 lookAt, float3 up, float distance) {
 	
-
 	Camera camera;
-	camera.eye = eye;
-	camera.lookAt = lookAt;	
-	camera.up = up;
+	camera.eye      = eye;
+	camera.lookAt   = lookAt;	
+	camera.up       = up;
 	camera.distance = distance;
 	computeUVW(camera, eye, lookAt, up);
-
 	return camera;
 }
 
-RT_HOSTDEVICE optix::Ray generateRay(Camera &camera, float2 point) {
+RT_HOSTDEVICE Ray generateRay(Camera &camera, float2 point) {
 
-	float3 direction = point.x * camera.u + point.y * camera.v - camera.distance * camera.w;
-	direction = normalize(direction);
-
-	optix::Ray ray = make_Ray(camera.eye, direction, 0, 0.05f, RT_DEFAULT_MAX);
+	float3 direction = computeRayDirection(camera, point);
+	optix::Ray ray = make_Ray(camera.eye, direction, RADIANCE_RAY, 0.05f, RT_DEFAULT_MAX);
 	return ray;
 }
 
