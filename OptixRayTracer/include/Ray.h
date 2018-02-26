@@ -1,8 +1,6 @@
-#ifndef RAY_H_INCLUDED
-#define RAY_H_INCLUDED
+#pragma once
 
 #include <optixu/optixu_math_namespace.h>
-
 using namespace optix;
 
 enum RayType {
@@ -21,4 +19,3 @@ struct ShadowRayPayload {
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef CAMERA_H_INCLUDED
-#define CAMERA_H_INCLUDED
+#pragma once
 
 #include <optix_world.h>
 
@@ -16,12 +15,10 @@ public:
 	float distance;
 
 	Camera(float3 eye, float3 lookAt, float3 up, float distance);
-	RT_HOSTDEVICE Ray generateRay(const float2 &sample);
+	RT_HOSTDEVICE Ray GenerateRay(const float2 &sample);
 
 private:
 
-	void computeUVW(float3 lookAt, float3 up, float distance);
+	void ComputeUVW(float3 lookAt, float3 up, float distance);
 
 };
-
-#endif
