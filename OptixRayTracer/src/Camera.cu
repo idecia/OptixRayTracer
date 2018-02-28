@@ -21,7 +21,7 @@ struct Payload {
 RT_PROGRAM void pinhole(void) {
 
 	float2 sample = //TODO
-		Ray ray = camera.generateRay(sample);
+		Ray ray = camera.generateRay(	);
 	Payload payload;
 	rtTrace(root, ray, payload);
 	film.put(sample, payload.color)

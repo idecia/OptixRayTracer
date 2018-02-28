@@ -164,39 +164,39 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CPP FILES\Camera.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="CPP FILES\optixHello.cpp" />
-    <CudaCompile Include="CUDA FILES\PinholeCamera.cu">
+    <CudaCompile Include="src\Camera.cu">
       <FileType>CppCode</FileType>
     </CudaCompile>
-    <ClCompile Include="CPP FILES\ViewPlane.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\Arcball.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\glew.c" />
-    <ClCompile Include="HEADER FILES\sutil\HDRLoader.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\Mesh.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\OptiXMesh.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\PPMLoader.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\rply-1.01\rply.c" />
-    <ClCompile Include="HEADER FILES\sutil\sutil.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\tinyobjloader\tiny_obj_loader.cc" />
+    <ClCompile Include="src\ViewPlane.cpp" />
+    <ClCompile Include="include\sutil\Arcball.cpp" />
+    <ClCompile Include="include\sutil\glew.c" />
+    <ClCompile Include="include\sutil\HDRLoader.cpp" />
+    <ClCompile Include="include\sutil\Mesh.cpp" />
+    <ClCompile Include="include\sutil\OptiXMesh.cpp" />
+    <ClCompile Include="include\sutil\PPMLoader.cpp" />
+    <ClCompile Include="include\sutil\rply-1.01\rply.c" />
+    <ClCompile Include="include\sutil\sutil.cpp" />
+    <ClCompile Include="include\sutil\tinyobjloader\tiny_obj_loader.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HEADER FILES\Camera.h" />
-    <ClInclude Include="HEADER FILES\Ray.h" />
-    <ClInclude Include="HEADER FILES\sutil\Arcball.h" />
-    <ClInclude Include="HEADER FILES\sutil\glext.h" />
-    <ClInclude Include="HEADER FILES\sutil\GL\glew.h" />
-    <ClInclude Include="HEADER FILES\sutil\GL\glxew.h" />
-    <ClInclude Include="HEADER FILES\sutil\GL\wglew.h" />
-    <ClInclude Include="HEADER FILES\sutil\HDRLoader.h" />
-    <ClInclude Include="HEADER FILES\sutil\Mesh.h" />
-    <ClInclude Include="HEADER FILES\sutil\OptiXMesh.h" />
-    <ClInclude Include="HEADER FILES\sutil\PPMLoader.h" />
-    <ClInclude Include="HEADER FILES\sutil\rply-1.01\rply.h" />
-    <ClInclude Include="HEADER FILES\sutil\sutil.h" />
-    <ClInclude Include="HEADER FILES\sutil\sutilapi.h" />
-    <ClInclude Include="HEADER FILES\sutil\tinyobjloader\tiny_obj_loader.h" />
-    <ClInclude Include="HEADER FILES\ViewPlane.h" />
+    <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\Ray.h" />
+    <ClInclude Include="include\sutil\Arcball.h" />
+    <ClInclude Include="include\sutil\glext.h" />
+    <ClInclude Include="include\sutil\GL\glew.h" />
+    <ClInclude Include="include\sutil\GL\glxew.h" />
+    <ClInclude Include="include\sutil\GL\wglew.h" />
+    <ClInclude Include="include\sutil\HDRLoader.h" />
+    <ClInclude Include="include\sutil\Mesh.h" />
+    <ClInclude Include="include\sutil\OptiXMesh.h" />
+    <ClInclude Include="include\sutil\PPMLoader.h" />
+    <ClInclude Include="include\sutil\rply-1.01\rply.h" />
+    <ClInclude Include="include\sutil\sutil.h" />
+    <ClInclude Include="include\sutil\sutilapi.h" />
+    <ClInclude Include="include\sutil\tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="include\ViewPlane.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="CUDA Files\draw_color.cu" />
