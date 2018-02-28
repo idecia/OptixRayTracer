@@ -52,7 +52,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 8.0.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA $(CUDA_VERSION).props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -96,19 +96,19 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\HEADER FILES;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\include\optixu;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\SDK\support\freeglut\include;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\;$(CUDA_PATH)\include;$(OPTIX_PATH)\include\optixu;$(FREEGLUT_PATH)\include;$(OPTIX_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;cuda.lib;optix.1.lib;optixu.1.lib;freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\lib\x64;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\lib64;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\SDK\support\freeglut\win64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\x64;$(OPTIX_PATH)\lib64;$(FREEGLUT_PATH)\win64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>echo copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
-copy "C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\bin64\optix.1.dll" "$(OutDir)"
-copy "C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\SDK\support\freeglut\win64\Release\freeglut.dll" "$(OutDir)"
+copy "$(OPTIX_PATH)\bin64\optix.1.dll" "$(OutDir)"
+copy "$(FREEGLUT_PATH)\win64\Release\freeglut.dll" "$(OutDir)"
 </Command>
     </PostBuildEvent>
     <CudaCompile>
@@ -164,7 +164,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="CPP FILES\optixHello.cpp" />
     <CudaCompile Include="src\Camera.cu">
       <FileType>CppCode</FileType>
@@ -181,8 +180,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="include\sutil\tinyobjloader\tiny_obj_loader.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Camera.h" />
-    <ClInclude Include="include\Ray.h" />
+    <ClInclude Include="core\Camera.h" />
+    <ClInclude Include="core\optix_global.h" />
+    <ClInclude Include="core\Ray.h" />
     <ClInclude Include="include\sutil\Arcball.h" />
     <ClInclude Include="include\sutil\glext.h" />
     <ClInclude Include="include\sutil\GL\glew.h" />
@@ -203,6 +203,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 8.0.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA $(CUDA_VERSION).targets" />
   </ImportGroup>
 </Project>

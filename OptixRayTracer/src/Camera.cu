@@ -7,23 +7,36 @@
 using namespace optix;
 
 rtBuffer<float3, 2>   outputBuffer;
-rtDeclareVariable(uint2, index, rtLaunchIndex, );
+rtBuffer<RNG, 2> rngs;
+rtDeclareVariable(uint2, idx, rtLaunchIndex, );
 rtDeclareVariable(Camera, camera, , );
 rtDeclareVariable(Film, film, , );
 rtDeclareVariable(rtObject, root, , );
 
 struct Payload {
 
+	RNG rng;
 	float3 color;
 
 };
 
 RT_PROGRAM void pinhole(void) {
+<<<<<<< HEAD
 
 	float2 sample = //TODO
 		Ray ray = camera.generateRay(	);
+=======
+>>>>>>> 4743077a2593963d2e14eda0243ae15e8d101e76
 	Payload payload;
-	rtTrace(root, ray, payload);
-	film.put(sample, payload.color)
+	payload.rng = rngs[idx];
+	Random2D sampler(&payload.rng, 1u);
+	float2 sample;
+	while (sampler.Next2D(&sample)) {
+		float2 filmSample = film.Sample(idx, sample)
+		Ray ray = camera.GenerateRay(filmSample);
+		rtTrace(root, ray, payload);
+		film.PutSample(filmSample, payload.color)
+	}
+	rngs[index] = payload.rng;
 
 }

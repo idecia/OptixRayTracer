@@ -1,9 +1,6 @@
-#ifndef RAY_H_INCLUDED
-#define RAY_H_INCLUDED
+#pragma once
 
-#include <optixu/optixu_math_namespace.h>
-
-using namespace optix;
+#include "core/optix_global.h"
 
 enum RayType {
 	RADIANCE_RAY,
@@ -21,4 +18,3 @@ struct ShadowRayPayload {
 };
 
 
-#endif
