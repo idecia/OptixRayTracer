@@ -3,8 +3,8 @@
 #include "core/optix_global.h"
 
 enum RayType {
-	RADIANCE_RAY,
-	SHADOW_RAY
+	RADIANCE,
+	SHADOW
 };
 
 struct RadianceRayPayload {
@@ -15,6 +15,11 @@ struct RadianceRayPayload {
 struct ShadowRayPayload {
 	float3 color;
 	int recursionDepth;
+};
+
+struct HitRecord {
+	float3 position;
+	float3 normal;
 };
 
 

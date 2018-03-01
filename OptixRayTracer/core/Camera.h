@@ -9,9 +9,7 @@ class Camera {
 public:
 
 	RT_FUNCTION Camera();
-
 	RT_FUNCTION Camera(const float3 &eye, const float3 &lookAt, const float3 &up, float distance);
-	
 	RT_FUNCTION Ray GenerateRay(const float2 &sample) const;
 
 private:
@@ -40,7 +38,7 @@ RT_FUNCTION Ray Camera::GenerateRay(const float2 &sample) const {
 
 	float3 dir = sample.x * U + sample.y * V - distance * W;
 	dir = normalize(dir);
-	Ray ray = make_Ray(eye, dir, RADIANCE_RAY, 0.05f, RT_DEFAULT_MAX);
+	Ray ray = make_Ray(eye, dir, RayType::RADIANCE, 0.05f, RT_DEFAULT_MAX);
 	return ray;
 }
 

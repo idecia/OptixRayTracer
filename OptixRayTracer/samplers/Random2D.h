@@ -8,9 +8,7 @@ class Random2D {
 public:
 
 	RT_FUNCTION Random2D();
-
 	RT_FUNCTION Random2D(RNG *rng, uint32_t totalSamples);
-
 	RT_FUNCTION bool Next2D(float2 &sample); 
 
 

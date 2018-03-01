@@ -8,13 +8,9 @@ class Film {
 public:
 
 	RT_FUNCTION Film();
-
 	RT_FUNCTION Film(int xResolution, int yResolution);
-
 	RT_FUNCTION float2 Sample(const uint2 &pixelIdx, const float2 &uniformSample);
-
 	RT_FUNCTION float GetAspectRatio();
- 
 	RT_FUNCTION_DEVICE void PutSample(const float2 &sample, const float3 &color) ;
 
 private:
@@ -54,8 +50,8 @@ rtBuffer<float3, 2>   output;
 RT_FUNCTION_DEVICE void Film::PutSample(const float2 &sample, const float3 &color)  {
 
 	uint2 pixelIdx;
-	pixelIdx.x = (uint1)sample.x;
-	pixelIdx.y = (uint1)sample.y;
+	pixelIdx.x = (uint1) sample.x;
+	pixelIdx.y = (uint1) sample.y;
 	output[pixelIdx] = color;
 
 }
