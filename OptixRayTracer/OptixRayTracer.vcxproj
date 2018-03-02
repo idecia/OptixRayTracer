@@ -96,7 +96,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\HEADER FILES;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\include\optixu;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\SDK\support\freeglut\include;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\include\optixu;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\SDK\support\freeglut\include;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -166,6 +166,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   <ItemGroup>
     <ClCompile Include="CPP FILES\Camera.cpp" />
     <ClCompile Include="CPP FILES\optixHello.cpp" />
+    <ClCompile Include="src\Random2D.cpp" />
+    <ClCompile Include="src\RNG.cpp" />
     <CudaCompile Include="CUDA FILES\PinholeCamera.cu">
       <FileType>CppCode</FileType>
     </CudaCompile>
@@ -197,6 +199,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="HEADER FILES\sutil\sutilapi.h" />
     <ClInclude Include="HEADER FILES\sutil\tinyobjloader\tiny_obj_loader.h" />
     <ClInclude Include="HEADER FILES\ViewPlane.h" />
+    <ClInclude Include="core\RNG.h" />
+    <ClInclude Include="samplers\Random2D.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="CUDA Files\draw_color.cu" />

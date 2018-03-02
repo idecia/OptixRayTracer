@@ -21,6 +21,7 @@ struct Payload {
 };
 
 RT_PROGRAM void pinhole(void) {
+
 	Payload payload;
 	payload.rng = rngs[idx];
 	Random2D sampler(&payload.rng, 1u);
