@@ -96,19 +96,19 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\include\optixu;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\SDK\support\freeglut\include;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\;$(CUDA_PATH)\include;$(OPTIX_PATH)\include\optixu;$(FREEGLUT_PATH)\include;$(OPTIX_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;cuda.lib;optix.1.lib;optixu.1.lib;freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\lib\x64;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\lib64;C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\SDK\support\freeglut\win64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\x64;$(OPTIX_PATH)\lib64;$(FREEGLUT_PATH)\win64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>echo copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
-copy "C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\bin64\optix.1.dll" "$(OutDir)"
-copy "C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1\SDK\support\freeglut\win64\Release\freeglut.dll" "$(OutDir)"
+copy "$(OPTIX_PATH)\bin64\optix.1.dll" "$(OutDir)"
+copy "$(FREEGLUT_PATH)\win64\Release\freeglut.dll" "$(OutDir)"
 </Command>
     </PostBuildEvent>
     <CudaCompile>
@@ -164,43 +164,30 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CPP FILES\Camera.cpp" />
+    <ClCompile Include="core\main.cpp" />
     <ClCompile Include="CPP FILES\optixHello.cpp" />
-    <ClCompile Include="src\Random2D.cpp" />
-    <ClCompile Include="src\RNG.cpp" />
-    <CudaCompile Include="CUDA FILES\PinholeCamera.cu">
+    <CudaCompile Include="cameras\Pinhole.cu" />
+    <CudaCompile Include="shapes\Sphere.cu" />
+    <CudaCompile Include="src\Camera.cu">
       <FileType>CppCode</FileType>
     </CudaCompile>
-    <ClCompile Include="CPP FILES\ViewPlane.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\Arcball.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\glew.c" />
-    <ClCompile Include="HEADER FILES\sutil\HDRLoader.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\Mesh.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\OptiXMesh.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\PPMLoader.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\rply-1.01\rply.c" />
-    <ClCompile Include="HEADER FILES\sutil\sutil.cpp" />
-    <ClCompile Include="HEADER FILES\sutil\tinyobjloader\tiny_obj_loader.cc" />
+    <ClCompile Include="src\ViewPlane.cpp" />
+    <CudaCompile Include="tracers\Whitted.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HEADER FILES\Camera.h" />
-    <ClInclude Include="HEADER FILES\Ray.h" />
-    <ClInclude Include="HEADER FILES\sutil\Arcball.h" />
-    <ClInclude Include="HEADER FILES\sutil\glext.h" />
-    <ClInclude Include="HEADER FILES\sutil\GL\glew.h" />
-    <ClInclude Include="HEADER FILES\sutil\GL\glxew.h" />
-    <ClInclude Include="HEADER FILES\sutil\GL\wglew.h" />
-    <ClInclude Include="HEADER FILES\sutil\HDRLoader.h" />
-    <ClInclude Include="HEADER FILES\sutil\Mesh.h" />
-    <ClInclude Include="HEADER FILES\sutil\OptiXMesh.h" />
-    <ClInclude Include="HEADER FILES\sutil\PPMLoader.h" />
-    <ClInclude Include="HEADER FILES\sutil\rply-1.01\rply.h" />
-    <ClInclude Include="HEADER FILES\sutil\sutil.h" />
-    <ClInclude Include="HEADER FILES\sutil\sutilapi.h" />
-    <ClInclude Include="HEADER FILES\sutil\tinyobjloader\tiny_obj_loader.h" />
-    <ClInclude Include="HEADER FILES\ViewPlane.h" />
+    <ClInclude Include="cameras\Pinhole.h" />
+    <ClInclude Include="core\Payload.h" />
     <ClInclude Include="core\RNG.h" />
+    <ClInclude Include="films\Film.h" />
+    <ClInclude Include="brdfs\Lambertian.h" />
+    <ClInclude Include="core\optix_global.h" />
+    <ClInclude Include="geometry\MatteSphere.h" />
+    <ClInclude Include="lights\PointLight.h" />
+    <ClInclude Include="core\Ray.h" />
+    <ClInclude Include="include\ViewPlane.h" />
+    <ClInclude Include="materials\Matte.h" />
     <ClInclude Include="samplers\Random2D.h" />
+    <ClInclude Include="shapes\Sphere.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="CUDA Files\draw_color.cu" />
