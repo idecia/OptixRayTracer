@@ -8,13 +8,14 @@ public:
 
 	RT_FUNCTION Sphere();
 	RT_FUNCTION Sphere(const float3 &center, float radius);
-	RT_FUNCTION float3 NormalAt(const float3 &point);
+	RT_FUNCTION float3 NormalAt(const float3 &point) const;
 	RT_FUNCTION float3 GetCenter() const;
 	RT_FUNCTION float GetRadius() const;
-	RT_FUNCTION_HOST Geometry getOptixGeometry(Context context);
+	RT_FUNCTION_HOST Geometry GetOptixGeometry(Context context);
 	
 
 private:
+
 	float3 center;
 	float radius;
 	Geometry optixGeometry;
@@ -29,7 +30,7 @@ RT_FUNCTION Sphere::Sphere(const float3 &center, float radius)
 
 }
 
-RT_FUNCTION float3 Sphere::NormalAt(const float3 &point) {
+RT_FUNCTION float3 Sphere::NormalAt(const float3 &point) const {
 	return (point - center) / radius;
 }
 
@@ -41,16 +42,16 @@ RT_FUNCTION float Sphere::GetRadius() const {
 	return radius;
 }
 
-RT_FUNCTION_HOST Geometry Sphere::getOptixGeometry(Context context) {
+RT_FUNCTION_HOST Geometry Sphere::GetOptixGeometry(Context context) {
 
-	if (geometry == NULL) {
-		geometry = context->createGeometry();
-		geometry->setPrimitiveCount(1u);
+	if (optixGeometry == NULL) {
+		optixGeometry = context->createGeometry();
+		optixGeometry->setPrimitiveCount(1u);
 		const char* path = "/Sphere.cu";
-		geometry->setBoundingBoxProgram(context->createProgramFromPTXString(path, "boundingBox"));
-		geometry->setIntersectionProgram(context->createProgramFromPTXString(path, "intersect"));
-		geometry["sphere"]->setUserData(sizeOf(Sphere), this);
+		optixGeometry->setBoundingBoxProgram(context->createProgramFromPTXFile(path, "boundingBox"));
+		optixGeometry->setIntersectionProgram(context->createProgramFromPTXFile(path, "intersect"));
+		optixGeometry["sphere"]->setUserData(sizeof(Sphere), this);
 	}
-	return geometry;
+	return optixGeometry;
 
 }

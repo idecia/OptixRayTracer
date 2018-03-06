@@ -3,6 +3,7 @@
 #include "core/Payload.h"
 #include "cameras/Pinhole.h"
 #include "films/Film.h"
+#include "core/RNG.h"
 
 
 using namespace optix;
@@ -18,7 +19,7 @@ rtDeclareVariable(rtObject, root, , );
 RT_PROGRAM void pinhole(void) {
 
 	RadiancePayload radiancePayload;
-	radiancePayload.color = make_float3(0.f);
+	radiancePayload.color = make_float3(0.0f);
 	radiancePayload.depth = 0;
 	radiancePayload.rng = rngs[pixelIdx];
 

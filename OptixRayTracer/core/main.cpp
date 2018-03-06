@@ -1,11 +1,17 @@
 
-#include "optix_global.h"
 #include "films/Film.h"
 #include "cameras/Pinhole.h"
 #include "lights/PointLight.h"
 #include "core/RNG.h"
 #include "core/Ray.h"
-
+#include "shapes/Sphere.h"
+#include "brdfs/Lambertian.h"
+#include "materials/Matte.h"
+#include "geometry/MatteSphere.h"
+#include "helpers/sutil/sutil.h"
+#include "helpers/sutil/GL/glew.h"
+#include "helpers/freeglut/include/GL/freeglut.h"
+#include "core/optix_global.h"
 
 Context CreateContext() {
 
@@ -20,8 +26,8 @@ Context CreateContext() {
 Pinhole CreateCamera(Context context) {
 
 	float3 eye = make_float3(50.0f, 52.0f, 295.6f);
-	float3 lookAt = normalize(make_float3(0.0f, -0.042612.0f, -1.0f));
-	float3 up = make_float3(0.0f, 1.0f, 0.f);
+	float3 lookAt = normalize(optix::make_float3(0.0f, -0.042612f, -1.0f));
+	float3 up = make_float3(0.0f, 1.0f, 0.0f);
 	float distance = 1.0f;
 	Pinhole camera(eye, lookAt, up, distance);
 	camera.OptixSetup(context);
@@ -54,16 +60,16 @@ void CreateLights(Context context) {
 }
 	
 
-void createGeometry() {
+void CreateGeometry(Context context) {
 
-	Sphere left(make_float3(1e5 + 1, 40.8, 81.6), 1e5);
-	Sphere right(make_float3(-1e5 + 99, 40.8, 81.6), 1e5);
-	Sphere back(make_float3(50, 40.8, 1e5), 1e5);
-	Sphere front(make_float3(50, 40.8, -1e5 + 170), 1e5);
-	Sphere bottom(make_float3(50, 1e5, 81.6), 1e5);
-	Sphere top(make_float3(50, -1e5 + 81.6, 81.6), 1e5);
-	Sphere floorleft(make_float3(27, 16.5, 47), 16.5);
-	Sphere floorright(make_float3(73, 16.5, 78), 16.5);
+	Sphere left(      make_float3(1e5  + 1,         40.8,       81.6),   1e5);
+	Sphere right(     make_float3(-1e5 + 99,        40.8,       81.6),   1e5);
+	Sphere back(      make_float3(       50,        40.8,        1e5),   1e5);
+	Sphere front(     make_float3(       50,        40.8, -1e5 + 170),   1e5);
+	Sphere bottom(    make_float3(       50,         1e5,       81.6),   1e5);
+	Sphere top(       make_float3(       50, -1e5 + 81.6,       81.6),   1e5);
+	Sphere floorleft( make_float3(       27,        16.5,         47),   16.5);
+	Sphere floorright(make_float3(       73,        16.5,         78),   16.5);
 
 	Lambertian whiteBRDF(make_float3(0.75, 0.75, 0.75));
 	Lambertian redBRDF(make_float3(0.75, 0.25, 0.25));
@@ -83,20 +89,19 @@ void createGeometry() {
 	MatteSphere floorrightwhite(&floorright, &white);
 
 	GeometryGroup geometryGroup = context->createGeometryGroup();
-	geometrygroup->setChildCount(8u);
-	geometrygroup->setChild(0, leftred.getOptixGeometry(context));
-	geometrygroup->setChild(1, rightviolet.getOptixGeometry(context));
-	geometrygroup->setChild(2, backwhite.getOptixGeometry(context));
-	geometrygroup->setChild(3, frontwhite.getOptixGeometry(context));
-	geometrygroup->setChild(4, bottomwhite.getOptixGeometry(context));
-	geometrygroup->setChild(5, topwhite.getOptixGeometry(context));
-	geometrygroup->setChild(6, floorleftwhite.getOptixGeometry(context));
-	geometrygroup->setChild(7, floorrightwhite.getOptixGeometry(context));
+	geometryGroup->setChildCount(8u);
+	geometryGroup->setChild(0, leftred.GetOptixGeometry(context));
+	geometryGroup->setChild(1, rightviolet.GetOptixGeometry(context));
+	geometryGroup->setChild(2, backwhite.GetOptixGeometry(context));
+	geometryGroup->setChild(3, frontwhite.GetOptixGeometry(context));
+	geometryGroup->setChild(4, bottomwhite.GetOptixGeometry(context));
+	geometryGroup->setChild(5, topwhite.GetOptixGeometry(context));
+	geometryGroup->setChild(6, floorleftwhite.GetOptixGeometry(context));
+	geometryGroup->setChild(7, floorrightwhite.GetOptixGeometry(context));
 
-	geometrygroup->setAcceleration(context->createAcceleration("NoAccel"));
+	geometryGroup->setAcceleration(context->createAcceleration("NoAccel"));
 
 	context["root"]->set(geometryGroup);
-	context["top_shadower"]->set(geometrygroup);
 
 }
 	
@@ -106,8 +111,8 @@ void CreateRNGS(Context context, int width, int height) {
 	Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
 	RNGBuffer->setFormat(RT_FORMAT_USER);
 	RNGBuffer->setElementSize(sizeof(RNG));
-	RNGBuffer->setSize(width, height)
-	RNG* rng = (RNG*)rngs->map();
+	RNGBuffer->setSize(width, height);
+	RNG* rng = (RNG*)RNGBuffer->map();
 	for (unsigned int i = 0; i < width * height; i++) {
 		rng[i] = RNG(0u, i);
 	}
@@ -115,9 +120,21 @@ void CreateRNGS(Context context, int width, int height) {
 	context["rngs"]->setBuffer(RNGBuffer);
 }
 
-
+void glutInitialize(int* argc, char** argv,int width, int height)
+{
+	glutInit(argc, argv);
+	glutInitDisplayMode(GLUT_RGB | GLUT_ALPHA | GLUT_DEPTH | GLUT_DOUBLE);
+	glutInitWindowSize(width, height);
+	glutInitWindowPosition(100, 100);
+	glutCreateWindow("OptixRayTracer");
+	glutHideWindow();
+}
 
 int main(int argc, char* argv[]) {
+
+	int width = 512;
+	int height = 512;
+	glutInitialize(&argc, argv,width,height);
 
 	Context context = CreateContext();
 	Pinhole camera = CreateCamera(context);
@@ -125,15 +142,16 @@ int main(int argc, char* argv[]) {
 	CreateLights(context);
 	CreateGeometry(context);
 
-	int width = 512;
-	int height = 512;
 	CreateRNGS(context, width, height);
-	rtContextValidate(context);
-	rtContextLaunch2D(0, width, height);
 
-	RTBuffer image = Film.getBuffer();
+	context->validate();
+	//context->launch(0, width, height);
 
-	rtContextDestroy(context);
+	Buffer bufferImage = film.GetBuffer(context);
+    sutil::displayBufferGL(bufferImage);
+
+	context->destroy();
+	
 
 }
 

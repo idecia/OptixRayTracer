@@ -1,19 +1,19 @@
 #include "lights/PointLight.h"
 #include "core/Ray.h"
-#include "cameras/Pinhole"
+#include "cameras/Pinhole.h"
+#include "core/Payload.h"
+#include "brdfs/Lambertian.h"
 #include "core/optix_global.h"
 
 
 rtDeclareVariable(uint2, pixelIdx, rtLaunchIndex, );
-rtDeclareVariable(Pinhole, camera, , )
-rtDeclareVariable(HitRecord, hit, , )
+rtDeclareVariable(Pinhole, camera, , );
+rtDeclareVariable(HitRecord, hit, attribute hit, );
 rtDeclareVariable(Ray, ray, rtCurrentRay, );
 rtDeclareVariable(Lambertian, brdf, , );
 rtDeclareVariable(ShadowPayload, shadowPayload, rtPayload, );
 rtDeclareVariable(RadiancePayload, radiancePayload, rtPayload, );
-
-
-rtBuffer<PointLight>     lights;
+rtBuffer<PointLight> lights;
 
 RT_PROGRAM void closestHit() {
 
@@ -28,7 +28,7 @@ RT_PROGRAM void closestHit() {
 		L = normalize(L);
 		ShadowPayload shadowPayload;
 		shadowPayload.attenuation = 1.0f;
-		Ray shadowRay = make_Ray(hit.position, L, RayType::RADIANCE, shadowPayload, 0.05, LDist);
+		Ray shadowRay = make_Ray(hit.position, L, RayType::SHADOW, shadowPayload, 0.05, LDist);
 		rtTrace(root, shadowRay, shadowPaylod);
 		if (shadowPayload.attenuation > 0.0f) {
 			float nDotl = dot(hit.normal, L);
@@ -46,7 +46,6 @@ RT_PROGRAM void anyHit() {
 	rtTerminateRay();
 
 }
-
 
 RT_PROGRAM void miss() {
 
