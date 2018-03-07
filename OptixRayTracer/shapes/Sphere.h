@@ -2,6 +2,11 @@
 
 #include "core/optix_global.h"
 
+#include <optixu/optixpp_namespace.h>
+#include <optixu/optixu_math_stream_namespace.h>
+
+using namespace optix;
+
 class Sphere {
 
 public:

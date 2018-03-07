@@ -1,4 +1,5 @@
 #include "core/optix_global.h"
+#include "core/RNG.H"
 
 struct RadiancePayload {
 

@@ -16,7 +16,7 @@ private:
 
 	RNG* rng;
 	uint32_t totalSamples;
-	unint32_t generatedSamples;
+	uint32_t generatedSamples;
 };
 
 

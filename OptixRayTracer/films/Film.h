@@ -4,6 +4,7 @@
 #include "core/optix_global.h"
 
 
+
 class Film {
 
 public:
@@ -70,8 +71,8 @@ rtBuffer<float3, 2>   output;
 RT_FUNCTION_DEVICE void Film::PutSample(const float2 &sample, const float3 &color)  {
 
 	uint2 pixelIdx;
-	pixelIdx.x = (uint1) sample.x;
-	pixelIdx.y = (uint1) sample.y;
+	pixelIdx.x = (unsigned int) sample.x;
+	pixelIdx.y = (unsigned int) sample.y;
 	output[pixelIdx] = color;
 
 }

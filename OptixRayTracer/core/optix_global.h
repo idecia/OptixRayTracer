@@ -1,7 +1,6 @@
 #pragma once 
 
-#include <optix_world.h>
-using namespace optix;
+
 
 #ifndef RT_FUNCTION
    #define RT_FUNCTION __forceinline__ __host__ __device__ 

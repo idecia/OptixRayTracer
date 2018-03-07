@@ -1,6 +1,7 @@
 
 #include "films/Film.h"
 #include "cameras/Pinhole.h"
+#include "core/optix_global.h"
 #include "lights/PointLight.h"
 #include "core/RNG.h"
 #include "core/Ray.h"
@@ -11,7 +12,6 @@
 #include "helpers/sutil/sutil.h"
 #include "helpers/sutil/GL/glew.h"
 #include "helpers/freeglut/include/GL/freeglut.h"
-#include "core/optix_global.h"
 
 Context CreateContext() {
 
@@ -25,8 +25,8 @@ Context CreateContext() {
 
 Pinhole CreateCamera(Context context) {
 
-	float3 eye = make_float3(50.0f, 52.0f, 295.6f);
-	float3 lookAt = normalize(optix::make_float3(0.0f, -0.042612f, -1.0f));
+	float3 eye = make_float3(50.0f, 40.8f, 168.0f);
+	float3 lookAt = normalize(make_float3(50.0f, 40.8f, 0.0f));
 	float3 up = make_float3(0.0f, 1.0f, 0.0f);
 	float distance = 1.0f;
 	Pinhole camera(eye, lookAt, up, distance);
@@ -45,7 +45,7 @@ Film CreateFilm(Context context) {
 
 void CreateLights(Context context) {
 
-	float3 position = make_float3(0.0f, 0.0f, 0.0f);
+	float3 position = make_float3(50.0f, 80.0f, 81.6f);
 	float3 color = make_float3(1.0f, 1.0f, 1.0f);
 	PointLight light1(position, color);
 
@@ -62,12 +62,12 @@ void CreateLights(Context context) {
 
 void CreateGeometry(Context context) {
 
-	Sphere left(      make_float3(1e5  + 1,         40.8,       81.6),   1e5);
-	Sphere right(     make_float3(-1e5 + 99,        40.8,       81.6),   1e5);
-	Sphere back(      make_float3(       50,        40.8,        1e5),   1e5);
-	Sphere front(     make_float3(       50,        40.8, -1e5 + 170),   1e5);
-	Sphere bottom(    make_float3(       50,         1e5,       81.6),   1e5);
-	Sphere top(       make_float3(       50, -1e5 + 81.6,       81.6),   1e5);
+	Sphere left(      make_float3(-1e5  + 1,        40.8,       81.6),   1e5);
+	Sphere right(     make_float3( 1e5 + 99,        40.8,       81.6),   1e5);
+	Sphere back(      make_float3(       50,        40.8,       -1e5),   1e5);   
+	Sphere front(     make_float3(       50,        40.8,  1e5 + 170),   1e5);
+	Sphere bottom(    make_float3(       50,        -1e5,       81.6),   1e5);
+	Sphere top(       make_float3(       50,  1e5 + 81.6,       81.6),   1e5);
 	Sphere floorleft( make_float3(       27,        16.5,         47),   16.5);
 	Sphere floorright(make_float3(       73,        16.5,         78),   16.5);
 

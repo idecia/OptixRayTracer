@@ -1,7 +1,8 @@
 #pragma once
 
-#include <curand_kernel.h>
+#include <stdint.h>
 #include "core/optix_global.h"
+#include <curand_kernel.h>
 
 class RNG {
 

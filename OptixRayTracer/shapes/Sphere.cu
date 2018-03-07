@@ -2,6 +2,10 @@
 #include "core/Ray.h"
 #include "shapes/Sphere.h"
 
+#include <optix_world.h>
+
+using namespace optix;
+
 
 rtDeclareVariable(Sphere, sphere, , );
 rtDeclareVariable(HitRecord, hit, attribute hit, );
