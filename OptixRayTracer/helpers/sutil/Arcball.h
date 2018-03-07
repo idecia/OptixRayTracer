@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2017 NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,7 +29,6 @@
 #pragma once
 
 #include <optixu/optixu_matrix_namespace.h>
-#include <sutilapi.h>
 
 namespace sutil 
 {
@@ -41,16 +40,16 @@ class Arcball
   //
 public:
 
-  SUTILAPI Arcball( const optix::float2& center, float radius )
+   Arcball( const optix::float2& center, float radius )
     : m_center(center), m_radius(radius)
   {}
   
-  SUTILAPI Arcball() 
+   Arcball() 
     : m_center( optix::make_float2( 0.5f ) ), m_radius(0.45f)
   {}
 
   // Return incremental rotation.  Does not save state.
-  SUTILAPI optix::Matrix4x4 rotate(const optix::float2& from, const optix::float2& to) const;
+   optix::Matrix4x4 rotate(const optix::float2& from, const optix::float2& to) const;
 
 private:
 

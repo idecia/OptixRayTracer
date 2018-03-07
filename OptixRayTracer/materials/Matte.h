@@ -16,14 +16,13 @@ public:
 private:
 
 	Lambertian *brdf;
-	Material optixMaterial;
 
 };
 
 RT_FUNCTION Matte::Matte() { }
 
 RT_FUNCTION Matte::Matte(Lambertian *brdf) 
-	:brdf(brdf), optixMaterial(NULL) {
+	:brdf(brdf) {
 
 }
 
@@ -35,15 +34,13 @@ RT_FUNCTION Lambertian* Matte::GetBRDF() const {
 
 RT_FUNCTION_HOST Material Matte::GetOptixMaterial(Context context) {
 
-	if (optixMaterial == NULL) {
-		const char* path = "./Whitted.ptx";
-		Program closestHitRadiance = context->createProgramFromPTXFile(path, "closestHit");
-		Program anyHit = context->createProgramFromPTXFile(path, "anyHit");
-		optixMaterial = context->createMaterial();
-		optixMaterial->setClosestHitProgram(RayType::RADIANCE, closestHitRadiance);
-		optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
-		optixMaterial["brdf"]->setUserData(sizeof(Lambertian), brdf);
-	}
+	const char* path = "./Whitted.ptx";
+	Program closestHitRadiance = context->createProgramFromPTXFile(path, "closestHit");
+	Program anyHit = context->createProgramFromPTXFile(path, "anyHit");
+	Material optixMaterial = context->createMaterial();
+	optixMaterial->setClosestHitProgram(RayType::RADIANCE, closestHitRadiance);
+	optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
+	optixMaterial["brdf"]->setUserData(sizeof(Lambertian), brdf);
 	return optixMaterial;
 
 }

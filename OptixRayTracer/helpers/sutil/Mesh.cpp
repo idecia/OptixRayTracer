@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2017 NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -262,7 +262,7 @@ void applyLoadXForm( Mesh& mesh, const float* load_xform )
     float3* positions = reinterpret_cast<float3*>( mesh.positions );
     for( int32_t i = 0; i < mesh.num_vertices; ++i )
     {
-      const float3 v = optix::make_float3( mat*optix::make_float4( positions[i], 1.0f ) );
+      const float3 v = make_float3( mat*make_float4( positions[i], 1.0f ) );
       positions[i] = v; 
       mesh.bbox_min[0] = std::min<float>( mesh.bbox_min[0], v.x );
       mesh.bbox_min[1] = std::min<float>( mesh.bbox_min[1], v.y );
@@ -277,7 +277,7 @@ void applyLoadXForm( Mesh& mesh, const float* load_xform )
       mat = mat.inverse().transpose();
       float3* normals = reinterpret_cast<float3*>( mesh.normals );
       for( int32_t i = 0; i < mesh.num_vertices; ++i )
-        normals[i] = optix::make_float3( mat*optix::make_float4( normals[i], 1.0f ) );
+        normals[i] = make_float3( mat*make_float4( normals[i], 1.0f ) );
     }
   }
 }
@@ -646,7 +646,7 @@ void printMeshInfo( const Mesh& mesh, std::ostream& out )
 }
 
 
-SUTILAPI void allocMesh( Mesh& mesh )
+ void allocMesh( Mesh& mesh )
 {
 
   if( mesh.num_vertices == 0 || mesh.num_triangles == 0 )
@@ -665,7 +665,7 @@ SUTILAPI void allocMesh( Mesh& mesh )
 }
 
 
-SUTILAPI void freeMesh( Mesh& mesh )
+ void freeMesh( Mesh& mesh )
 {
   delete [] mesh.positions;
   delete [] mesh.normals;

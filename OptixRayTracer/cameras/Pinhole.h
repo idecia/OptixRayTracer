@@ -1,11 +1,9 @@
 #pragma once
 
-
-#include <optixu/optixpp_namespace.h>
-#include <optixu/optixu_math_stream_namespace.h>
-
-using namespace optix;
 #include "core/optix_global.h"
+#include "core/Ray.h"
+#include "sutil.h"
+
 
 class Pinhole {
 
@@ -42,7 +40,7 @@ RT_FUNCTION Ray Pinhole::GenerateRay(const float2 &sample) const {
 
 	float3 dir = sample.x * U + sample.y * V - distance * W;
 	dir = normalize(dir);
-	Ray ray = make_Ray(eye, dir, RayType::RADIANCE, 0.05f, RT_DEFAULT_MAX);
+	Ray ray = make_Ray(eye, dir, RayType::RADIANCE, 0.1f, RT_DEFAULT_MAX);
 	return ray;
 }
 

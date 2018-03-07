@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2017 NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -42,12 +42,12 @@
 // Creates a TextureSampler object for the given PPM file.  If filename is 
 // empty or PPMLoader fails, a 1x1 texture is created with the provided default
 // texture color.
-SUTILAPI optix::TextureSampler loadPPMTexture( optix::Context context,
+ optix::TextureSampler loadPPMTexture( optix::Context context,
                                              const std::string& ppm_filename,
                                              const optix::float3& default_color );
 
 // Creates a Buffer object for the given cubemap files.
-SUTILAPI optix::Buffer loadPPMCubeBuffer( optix::Context context,
+ optix::Buffer loadPPMCubeBuffer( optix::Context context,
                                           const std::vector<std::string>& filenames );
 
 //-----------------------------------------------------------------------------
@@ -59,17 +59,17 @@ SUTILAPI optix::Buffer loadPPMCubeBuffer( optix::Context context,
 class PPMLoader
 {
 public:
-  SUTILAPI PPMLoader( const std::string& filename, const bool vflip = false );
-  SUTILAPI ~PPMLoader();
+   PPMLoader( const std::string& filename, const bool vflip = false );
+   ~PPMLoader();
 
-  SUTILAPI optix::TextureSampler loadTexture( optix::Context context,
+   optix::TextureSampler loadTexture( optix::Context context,
                                               const optix::float3& default_color,
                                               bool linearize_gamma = false);
 
-  SUTILAPI bool           failed() const;
-  SUTILAPI unsigned int   width() const;
-  SUTILAPI unsigned int   height() const;
-  SUTILAPI unsigned char* raster() const;
+   bool           failed() const;
+   unsigned int   width() const;
+   unsigned int   height() const;
+   unsigned char* raster() const;
 
 private:
   unsigned int   m_nx;

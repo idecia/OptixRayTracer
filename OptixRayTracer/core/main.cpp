@@ -12,6 +12,7 @@
 #include "helpers/sutil/sutil.h"
 #include "helpers/sutil/GL/glew.h"
 #include "helpers/freeglut/include/GL/freeglut.h"
+#include <iostream>
 
 Context CreateContext() {
 
@@ -25,8 +26,8 @@ Context CreateContext() {
 
 Pinhole CreateCamera(Context context) {
 
-	float3 eye = make_float3(50.0f, 40.8f, 168.0f);
-	float3 lookAt = normalize(make_float3(50.0f, 40.8f, 0.0f));
+	float3 eye = make_float3(50.0f, 40.8f, 140.0f);
+	float3 lookAt = make_float3(50.0f, 40.8f, 0.0f);
 	float3 up = make_float3(0.0f, 1.0f, 0.0f);
 	float distance = 1.0f;
 	Pinhole camera(eye, lookAt, up, distance);
@@ -35,9 +36,9 @@ Pinhole CreateCamera(Context context) {
 
 }
 
-Film CreateFilm(Context context) {
+Film CreateFilm(Context context, int width, int height) {
 
-	Film film(640, 480);
+	Film film(width, height);
 	film.OptixSetup(context);
 	return film;
 
@@ -45,7 +46,7 @@ Film CreateFilm(Context context) {
 
 void CreateLights(Context context) {
 
-	float3 position = make_float3(50.0f, 80.0f, 81.6f);
+	float3 position = make_float3(50.0f, 70.0f, 81.6f);
 	float3 color = make_float3(1.0f, 1.0f, 1.0f);
 	PointLight light1(position, color);
 
@@ -65,7 +66,7 @@ void CreateGeometry(Context context) {
 	Sphere left(      make_float3(-1e5  + 1,        40.8,       81.6),   1e5);
 	Sphere right(     make_float3( 1e5 + 99,        40.8,       81.6),   1e5);
 	Sphere back(      make_float3(       50,        40.8,       -1e5),   1e5);   
-	Sphere front(     make_float3(       50,        40.8,  1e5 + 170),   1e5);
+	Sphere front(     make_float3(       50,        40.8,  1e5 + 163),   1e5);
 	Sphere bottom(    make_float3(       50,        -1e5,       81.6),   1e5);
 	Sphere top(       make_float3(       50,  1e5 + 81.6,       81.6),   1e5);
 	Sphere floorleft( make_float3(       27,        16.5,         47),   16.5);
@@ -132,25 +133,33 @@ void glutInitialize(int* argc, char** argv,int width, int height)
 
 int main(int argc, char* argv[]) {
 
-	int width = 512;
-	int height = 512;
-	glutInitialize(&argc, argv,width,height);
+	try {
+		int width = 500;
+		int height = 500;
+		//glutInitialize(&argc, argv,width,height);
+		sutil::initGlut(&argc, argv);
 
-	Context context = CreateContext();
-	Pinhole camera = CreateCamera(context);
-	Film film = CreateFilm(context);
-	CreateLights(context);
-	CreateGeometry(context);
+		Context context = CreateContext();
+		Pinhole camera = CreateCamera(context);
+		Film film = CreateFilm(context,width, height);
+		CreateLights(context);
+		CreateRNGS(context, width, height);
+		CreateGeometry(context);
 
-	CreateRNGS(context, width, height);
+		context->setPrintEnabled(true);
+		context->validate();
+		context->launch(0, width, height);
 
-	context->validate();
-	//context->launch(0, width, height);
+		Buffer bufferImage = film.GetBuffer(context);
+		sutil::displayBufferPPM("image", bufferImage);
+		sutil::displayBufferGlut("dd", bufferImage->get());
+		sutil::displayBufferGL(bufferImage);
 
-	Buffer bufferImage = film.GetBuffer(context);
-    sutil::displayBufferGL(bufferImage);
-
-	context->destroy();
+		context->destroy();
+	}
+	catch (optix::Exception e) {
+		std::cout << e.getErrorString();
+	}
 	
 
 }

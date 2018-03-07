@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2017 NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,7 +32,6 @@
 #include <optixu/optixpp_namespace.h>
 #include <vector>
 
-#include "sutilapi.h"
 
 
 // Default catch block
@@ -52,12 +51,6 @@
       throw sutil::APIError( code, __FILE__, __LINE__ );           \
   } while(0)
 
-enum bufferPixelFormat
-{
-    BUFFER_PIXEL_FORMAT_DEFAULT, // The default depending on the buffer type
-    BUFFER_PIXEL_FORMAT_RGB,     // The buffer is RGB or RGBA
-    BUFFER_PIXEL_FORMAT_BGR,     // The buffer is BGR or BGRA
-};
 
 namespace sutil
 {
@@ -73,11 +66,11 @@ struct APIError
 };
 
 // Display error message
-void SUTILAPI reportErrorMessage(
+void  reportErrorMessage(
         const char* message);               // Error mssg to be displayed
 
 // Queries provided RTcontext for last error message, displays it, then exits.
-void SUTILAPI handleError(
+void  handleError(
         RTcontext context,                  // Context associated with the error
         RTresult code,                      // Code returned by OptiX API call
         const char* file,                   // Filename for error reporting
@@ -85,88 +78,76 @@ void SUTILAPI handleError(
 
 // Query top level samples directory.
 // The pointer returned may point to a static array.
-SUTILAPI const char* samplesDir();
+ const char* samplesDir();
 
 // Query directory containing PTX files for compiled sample CUDA files.
 // The pointer returned may point to a static array.
-SUTILAPI const char* samplesPTXDir();
+ const char* samplesPTXDir();
 
 // Create an output buffer with given specifications
-optix::Buffer SUTILAPI createOutputBuffer(
+optix::Buffer  createOutputBuffer(
         optix::Context context,             // optix context
         RTformat format,                    // Pixel format (must be ubyte4 for pbo)
         unsigned width,                     // Buffer width
         unsigned height,                    // Buffer height
-        bool use_pbo);                      // Buffer type                    
-
-// Create an input/output buffer with given specifications
-optix::Buffer SUTILAPI createInputOutputBuffer(
-    optix::Context context,             // optix context
-    RTformat format,                    // Pixel format (must be ubyte4 for pbo)
-    unsigned width,                     // Buffer width
-    unsigned height,                    // Buffer height
-    bool use_pbo);                      // Buffer type                    
+        bool use_pbo );                     // Use GL interop PBO
 
 // Resize a Buffer and its underlying GLBO if necessary
-void SUTILAPI resizeBuffer(
+void  resizeBuffer(
         optix::Buffer buffer,               // Buffer to be modified
         unsigned width,                     // New buffer width
         unsigned height );                  // New buffer height
 
 // Initialize GLUT.  Should be called before any GLUT display functions.
-void SUTILAPI initGlut(
+void  initGlut(
         int* argc,                          // Pointer to main argc param
         char** argv);                       // Pointer to main argv param
 
 // Create GLUT window and display contents of the buffer.
-void SUTILAPI displayBufferGlut(
+void  displayBufferGlut(
         const char* window_title,           // Window title
         optix::Buffer buffer);              // Buffer to be displayed
 
 // Create GLUT window and display contents of the buffer (C API version).
-void SUTILAPI displayBufferGlut(
+void  displayBufferGlut(
         const char* window_title,           // Window title
         RTbuffer buffer);                   // Buffer to be displayed
 
 // Write the contents of the Buffer to a PPM image file
-void SUTILAPI displayBufferPPM(
+void  displayBufferPPM(
         const char* filename,               // Image file to be created
         optix::Buffer buffer);              // Buffer to be displayed
 
 // Write the contents of the Buffer to a PPM image file (C API version).
-void SUTILAPI displayBufferPPM(
+void  displayBufferPPM(
         const char* filename,               // Image file to be created
         RTbuffer buffer);                   // Buffer to be displayed
 
-// Display contents of buffer, where the OpenGL/GLUT context is managed by caller.
-void SUTILAPI displayBufferGL(
-        optix::Buffer buffer,       // Buffer to be displayed
-        bufferPixelFormat format = BUFFER_PIXEL_FORMAT_DEFAULT, // The pixel format of the buffer or 0 to use the default for the pixel type
-        bool disable_srgb_conversion = false);
 
+// Display contents of buffer, where the OpenGL/GLUT context is managed by caller.
+void  displayBufferGL(
+        optix::Buffer buffer ); // Buffer to be displayed
+        
 // Display frames per second, where the OpenGL/GLUT context
 // is managed by the caller.
-void SUTILAPI displayFps( unsigned total_frame_count );
-
-// Display a short string starting at x,y.
-void SUTILAPI displayText(const char* text, float x, float y);
+void  displayFps( unsigned total_frame_count );
 
 // Create on OptiX TextureSampler for the given image file.  If the filename is
 // empty or if loading the file fails, return 1x1 texture with default color.
-optix::TextureSampler SUTILAPI loadTexture(
+optix::TextureSampler  loadTexture(
         optix::Context context,             // Context used for object creation 
         const std::string& filename,        // File to load
         optix::float3 default_color);       // Default color in case of file failure
 
 
 // Creates a Buffer object for the given cubemap files.
-optix::Buffer SUTILAPI loadCubeBuffer(
+optix::Buffer  loadCubeBuffer(
         optix::Context context,             // Context used for object creation
         const std::vector<std::string>& filenames ); // Files to be loaded 
 
 
 // Calculate appropriate U,V,W for pinhole_camera shader.
-void SUTILAPI calculateCameraVariables(
+void  calculateCameraVariables(
         optix::float3 eye,                  // Camera eye position
         optix::float3 lookat,               // Point in scene camera looks at
         optix::float3 up,                   // Up direction
@@ -178,23 +159,17 @@ void SUTILAPI calculateCameraVariables(
 		bool fov_is_vertical = false );
 
 // Blocking sleep call
-void SUTILAPI sleep(
+void  sleep(
         int seconds );                      // Number of seconds to sleep
 
 // Parse the string of the form <width>x<height> and return numeric values.
-void SUTILAPI parseDimensions(
+void  parseDimensions(
         const char* arg,                    // String of form <width>x<height>
         int& width,                         // [out] width
         int& height );                      // [in]  height
 
 // Get current time in seconds for benchmarking/timing purposes.
-double SUTILAPI currentTime();
-
-// Get PTX, either pre-compiled with NVCC or JIT compiled by NVRTC.
-SUTILAPI const char* getPtxString(
-        const char* sample,                 // Name of the sample, used to locate the input file. NULL = only search the common /cuda dir
-        const char* filename,               // Cuda C input file name
-        const char** log = NULL );          // (Optional) pointer to compiler log string. If *log == NULL there is no output. Only valid until the next getPtxString call
+double  currentTime();
 
 } // end namespace sutil
 

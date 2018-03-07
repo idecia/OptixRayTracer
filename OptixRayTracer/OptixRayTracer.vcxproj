@@ -96,7 +96,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\;$(CUDA_PATH)\include;$(OPTIX_PATH)\include\optixu;$(FREEGLUT_PATH)\include;$(OPTIX_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\;$(CUDA_PATH)\include;$(OPTIX_PATH)\include\optixu;$(FREEGLUT_PATH)\include;$(OPTIX_PATH)\include;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\helpers\sutil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -165,15 +165,52 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="core\main.cpp" />
+    <ClCompile Include="helpers\sutil\Arcball.cpp" />
+    <ClCompile Include="helpers\sutil\glew.c" />
+    <ClCompile Include="helpers\sutil\HDRLoader.cpp" />
+    <ClCompile Include="helpers\sutil\Mesh.cpp" />
+    <ClCompile Include="helpers\sutil\OptiXMesh.cpp" />
+    <ClCompile Include="helpers\sutil\PPMLoader.cpp" />
+    <ClCompile Include="helpers\sutil\rply-1.01\rply.c" />
+    <ClCompile Include="helpers\sutil\sutil.cpp" />
+    <ClCompile Include="helpers\sutil\tinyobjloader\tiny_obj_loader.cc" />
     <CudaCompile Include="cameras\Pinhole.cu" />
+    <CudaCompile Include="shapes\Sphere.cu" />
+    <CudaCompile Include="tracers\Whitted.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="brdfs\Lambertian.h" />
     <ClInclude Include="cameras\Pinhole.h" />
     <ClInclude Include="core\Payload.h" />
     <ClInclude Include="core\RNG.h" />
     <ClInclude Include="films\Film.h" />
     <ClInclude Include="core\optix_global.h" />
     <ClInclude Include="core\Ray.h" />
+    <ClInclude Include="geometry\MatteSphere.h" />
+    <ClInclude Include="helpers\freeglut\include\GL\freeglut.h" />
+    <ClInclude Include="helpers\freeglut\include\GL\freeglut_ext.h" />
+    <ClInclude Include="helpers\freeglut\include\GL\freeglut_std.h" />
+    <ClInclude Include="helpers\freeglut\include\GL\glut.h" />
+    <ClInclude Include="helpers\sutil\Arcball.h" />
+    <ClInclude Include="helpers\sutil\glext.h" />
+    <ClInclude Include="helpers\sutil\GL\glew.h" />
+    <ClInclude Include="helpers\sutil\GL\glxew.h" />
+    <ClInclude Include="helpers\sutil\GL\wglew.h" />
+    <ClInclude Include="helpers\sutil\HDRLoader.h" />
+    <ClInclude Include="helpers\sutil\Mesh.h" />
+    <ClInclude Include="helpers\sutil\OptiXMesh.h" />
+    <ClInclude Include="helpers\sutil\PPMLoader.h" />
+    <ClInclude Include="helpers\sutil\rply-1.01\rply.h" />
+    <ClInclude Include="helpers\sutil\sutil.h" />
+    <ClInclude Include="helpers\sutil\tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="lights\PointLight.h" />
+    <ClInclude Include="materials\Matte.h" />
+    <ClInclude Include="samplers\Random2D.h" />
+    <ClInclude Include="shapes\Sphere.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="lib\freeglut.dll" />
+    <None Include="lib\optix.1.dll" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

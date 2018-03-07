@@ -11,7 +11,7 @@ rtDeclareVariable(Sphere, sphere, , );
 rtDeclareVariable(HitRecord, hit, attribute hit, );
 rtDeclareVariable(Ray, ray, rtCurrentRay, );
 
-RT_FUNCTION void setIntersectionRecord(float t) {
+RT_FUNCTION void setHitRecord(float t) {
 
 	hit.position = ray.origin + t * ray.direction;
 	hit.normal = sphere.NormalAt(hit.position);
@@ -21,7 +21,7 @@ RT_FUNCTION void setIntersectionRecord(float t) {
 RT_PROGRAM void intersect(int primIdx) {
 		
 	float3 center = sphere.GetCenter();
-	float radius  = sphere.getRadius();
+	float radius  = sphere.GetRadius();
 	float3 O = ray.origin - center;
 	float b = dot(O, ray.direction);
 	float c = dot(O, O) - radius * radius;
@@ -48,7 +48,7 @@ RT_PROGRAM void intersect(int primIdx) {
 RT_PROGRAM void boundingBox(int, float result[6]) {
 
 	float3 center = sphere.GetCenter();
-    float3 radius3f = make_float3(sphere.getRadius());
+    float3 radius3f = make_float3(sphere.GetRadius());
 	optix::Aabb* aabb = (optix::Aabb*) result;
     aabb->m_min = center - radius3f;
     aabb->m_max = center + radius3f;

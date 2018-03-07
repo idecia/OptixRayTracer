@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2017 NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,7 +28,6 @@
 
 #pragma once
 
-#include <sutilapi.h>
 
 #include <cstring>
 #include <iostream>
@@ -92,13 +91,13 @@ struct Mesh
 
 // Allocates memory for mesh using std lib new.
 // Assumes num_vertices, has_normals, has_texcoords, num_triangles initialized.
-SUTILAPI void allocMesh( Mesh& mesh );
+ void allocMesh( Mesh& mesh );
 
 // Calls std lib delete on non-null arrays in mesh
-SUTILAPI void freeMesh( Mesh& mesh );
+ void freeMesh( Mesh& mesh );
 
-SUTILAPI void printMaterialInfo( const MaterialParams& mat, std::ostream& out = std::cout );
-SUTILAPI void printMeshInfo    ( const Mesh& mesh,          std::ostream& out = std::cout );
+ void printMaterialInfo( const MaterialParams& mat, std::ostream& out = std::cout );
+ void printMeshInfo    ( const Mesh& mesh,          std::ostream& out = std::cout );
 
 
 //------------------------------------------------------------------------------
@@ -109,10 +108,10 @@ SUTILAPI void printMeshInfo    ( const Mesh& mesh,          std::ostream& out = 
 class MeshLoader
 {
 public:
-  SUTILAPI MeshLoader( const std::string& filename );
-  SUTILAPI ~MeshLoader();
-  SUTILAPI void scanMesh( Mesh& mesh );
-  SUTILAPI void loadMesh( Mesh& mesh, const float* load_xform=0 );
+   MeshLoader( const std::string& filename );
+   ~MeshLoader();
+   void scanMesh( Mesh& mesh );
+   void loadMesh( Mesh& mesh, const float* load_xform=0 );
 
 private:
   class Impl;
@@ -128,7 +127,7 @@ private:
 
 
 // Load mesh using std lib new for allocations
-SUTILAPI void loadMesh( const std::string& filename, Mesh& mesh, const float* load_xform=0 );
+ void loadMesh( const std::string& filename, Mesh& mesh, const float* load_xform=0 );
 
 
 

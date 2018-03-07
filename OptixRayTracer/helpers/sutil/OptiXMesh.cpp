@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2017 NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -108,12 +108,16 @@ void createMaterialPrograms(
     optix::Program&        any_hit
     )
 {
-  const char *ptx = sutil::getPtxString( NULL, "phong.cu" );
+  const std::string path = std::string( sutil::samplesPTXDir() ) + 
+                          "/cuda_compile_ptx_generated_phong.cu.ptx";
+  const std::string closest_name = use_textures ?
+                                   "closest_hit_radiance_textured" :
+                                   "closest_hit_radiance";
 
   if( !closest_hit )
-    closest_hit = context->createProgramFromPTXString( ptx, use_textures ? "closest_hit_radiance_textured" : "closest_hit_radiance" );
+      closest_hit = context->createProgramFromPTXFile( path, closest_name );
   if( !any_hit )
-    any_hit     = context->createProgramFromPTXString( ptx, "any_hit_shadow" );
+      any_hit     = context->createProgramFromPTXFile( path, "any_hit_shadow" );
 }
 
 
@@ -147,13 +151,17 @@ optix::Material createOptiXMaterial(
 
 optix::Program createBoundingBoxProgram( optix::Context context )
 {
-  return context->createProgramFromPTXString( sutil::getPtxString( NULL, "triangle_mesh.cu" ), "mesh_bounds" );
+  std::string path = std::string( sutil::samplesPTXDir() ) +
+                     "/cuda_compile_ptx_generated_triangle_mesh.cu.ptx";
+  return context->createProgramFromPTXFile( path, "mesh_bounds" );
 }
 
 
 optix::Program createIntersectionProgram( optix::Context context )
 {
-  return context->createProgramFromPTXString( sutil::getPtxString( NULL, "triangle_mesh.cu" ), "mesh_intersect" );
+  std::string path = std::string( sutil::samplesPTXDir() ) +
+                     "/cuda_compile_ptx_generated_triangle_mesh.cu.ptx";
+  return context->createProgramFromPTXFile( path, "mesh_intersect" );
 }
 
 

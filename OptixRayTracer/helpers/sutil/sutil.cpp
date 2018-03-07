@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2017 NVIDIA CORPORATION. All rights reserved.
+/* 
+ * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -38,22 +38,16 @@
 #  include <GL/glut.h>
 #endif
 
-#include <sutil/sutil.h>
-#include <sutil/HDRLoader.h>
-#include <sutil/PPMLoader.h>
-#include <sampleConfig.h>
+#include <sutil.h>
+#include <HDRLoader.h>
+#include <PPMLoader.h>
 
 #include <optixu/optixu_math_namespace.h>
-
-#include <nvrtc.h>
 
 #include <cstring>
 #include <iostream>
 #include <fstream>
 #include <stdint.h>
-#include <sstream>
-#include <map>
-#include <memory>
 
 #if defined(_WIN32)
 #    ifndef WIN32_LEAN_AND_MEAN
@@ -61,7 +55,7 @@
 #    endif
 #    include<windows.h>
 #    include<mmsystem.h>
-#else // Apple and Linux both use this
+#else // Apple and Linux both use this 
 #    include<sys/time.h>
 #    include <unistd.h>
 #    include <dirent.h>
@@ -75,61 +69,9 @@ namespace
 {
 
 // Global variables for GLUT display functions
-RTcontext g_context                  = 0;
-RTbuffer  g_image_buffer             = 0;
-bufferPixelFormat g_image_buffer_format = BUFFER_PIXEL_FORMAT_DEFAULT;
-bool      g_glut_initialized         = false;
-bool      g_disable_srgb_conversion  = false;
-
-
-// Converts the buffer format to gl format
-GLenum glFormatFromBufferFormat(bufferPixelFormat pixel_format, RTformat buffer_format)
-{
-    if (buffer_format == RT_FORMAT_UNSIGNED_BYTE4)
-    {
-        switch (pixel_format)
-        {
-        case BUFFER_PIXEL_FORMAT_DEFAULT:
-            return GL_BGRA;
-        case BUFFER_PIXEL_FORMAT_RGB:
-            return GL_RGBA;
-        case BUFFER_PIXEL_FORMAT_BGR:
-            return GL_BGRA;
-        default:
-            throw Exception("Unknown buffer pixel format");
-        }
-    }
-    else if (buffer_format == RT_FORMAT_FLOAT4)
-    {
-        switch (pixel_format)
-        {
-        case BUFFER_PIXEL_FORMAT_DEFAULT:
-            return GL_RGBA;
-        case BUFFER_PIXEL_FORMAT_RGB:
-            return GL_RGBA;
-        case BUFFER_PIXEL_FORMAT_BGR:
-            return GL_BGRA;
-        default:
-            throw Exception("Unknown buffer pixel format");
-        }
-    }
-    else if (buffer_format == RT_FORMAT_FLOAT3)
-        switch (pixel_format)
-        {
-        case BUFFER_PIXEL_FORMAT_DEFAULT:
-            return GL_RGB;
-        case BUFFER_PIXEL_FORMAT_RGB:
-            return GL_RGB;
-        case BUFFER_PIXEL_FORMAT_BGR:
-            return GL_BGR;
-        default:
-            throw Exception("Unknown buffer pixel format");
-        }
-    else if (buffer_format == RT_FORMAT_FLOAT)
-        return GL_LUMINANCE;
-    else
-        throw Exception("Unknown buffer format");
-}
+RTcontext g_context           = 0;
+RTbuffer  g_image_buffer      = 0;
+bool      g_glut_initialized  = false;
 
 
 void keyPressed(unsigned char key, int x, int y)
@@ -144,6 +86,58 @@ void keyPressed(unsigned char key, int x, int y)
 }
 
 
+void display()
+{
+    RTsize buffer_width, buffer_height;
+    RT_CHECK_ERROR( rtBufferGetSize2D( g_image_buffer, &buffer_width, &buffer_height) );
+    const GLsizei width  = static_cast<GLsizei>(buffer_width);
+    const GLsizei height = static_cast<GLsizei>(buffer_height);
+
+    RTformat buffer_format;
+    RT_CHECK_ERROR( rtBufferGetFormat( g_image_buffer, &buffer_format ) );
+
+    GLenum gl_data_type;
+    GLenum gl_format;
+
+    switch (buffer_format) {
+        case RT_FORMAT_UNSIGNED_BYTE4:
+            gl_data_type = GL_UNSIGNED_BYTE;
+            gl_format    = GL_BGRA;
+            break;
+
+        case RT_FORMAT_FLOAT:
+            gl_data_type = GL_FLOAT;
+            gl_format    = GL_LUMINANCE;
+            break;
+
+        case RT_FORMAT_FLOAT3:
+            gl_data_type = GL_FLOAT;
+            gl_format    = GL_RGB;
+            break;
+
+        case RT_FORMAT_FLOAT4:
+            gl_data_type = GL_FLOAT;
+            gl_format    = GL_RGBA;
+            break;
+
+        default:
+            fprintf(stderr, "Unrecognized buffer data type or format.\n");
+            exit(2);
+            break;
+    }
+
+    GLvoid* imageData = 0;
+    RT_CHECK_ERROR( rtBufferMap( g_image_buffer, &imageData ) );
+
+    glDrawPixels(width, height, gl_format, gl_data_type, imageData);  // Using default glPixelStore unpack alignment of 4.
+
+    // Now unmap the buffer
+    RT_CHECK_ERROR( rtBufferUnmap( g_image_buffer ) );
+
+    glutSwapBuffers();
+}
+
+
 void checkBuffer( RTbuffer buffer )
 {
     // Check to see if the buffer is two dimensional
@@ -155,114 +149,11 @@ void checkBuffer( RTbuffer buffer )
     // Check to see if the buffer is of type float{1,3,4} or uchar4
     RTformat format;
     RT_CHECK_ERROR( rtBufferGetFormat(buffer, &format) );
-    if( RT_FORMAT_FLOAT  != format &&
+    if( RT_FORMAT_FLOAT  != format && 
             RT_FORMAT_FLOAT4 != format &&
             RT_FORMAT_FLOAT3 != format &&
             RT_FORMAT_UNSIGNED_BYTE4 != format )
-        throw Exception( "Attempting to display buffer with format not float, float3, float4, or uchar4");
-}
-
-
-void displayBuffer()
-{
-    optix::Buffer buffer = Buffer::take( g_image_buffer );
-
-    // Query buffer information
-    RTsize buffer_width_rts, buffer_height_rts;
-    buffer->getSize( buffer_width_rts, buffer_height_rts );
-    uint32_t width  = static_cast<int>(buffer_width_rts);
-    uint32_t height = static_cast<int>(buffer_height_rts);
-    RTformat buffer_format = buffer->getFormat();
-
-    GLboolean use_SRGB = GL_FALSE;
-    if( !g_disable_srgb_conversion && (buffer_format == RT_FORMAT_FLOAT4 || buffer_format == RT_FORMAT_FLOAT3) )
-    {
-        glGetBooleanv( GL_FRAMEBUFFER_SRGB_CAPABLE_EXT, &use_SRGB );
-        if( use_SRGB )
-            glEnable(GL_FRAMEBUFFER_SRGB_EXT);
-    }
-
-    static unsigned int gl_tex_id = 0;
-    if( !gl_tex_id )
-    {
-        glGenTextures( 1, &gl_tex_id );
-        glBindTexture( GL_TEXTURE_2D, gl_tex_id );
-
-        // Change these to GL_LINEAR for super- or sub-sampling
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-        // GL_CLAMP_TO_EDGE for linear filtering, not relevant for nearest.
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    }
-
-    glBindTexture( GL_TEXTURE_2D, gl_tex_id );
-
-    // send PBO or host-mapped image data to texture
-    const unsigned pboId = buffer->getGLBOId();
-    GLvoid* imageData = 0;
-    if( pboId )
-        glBindBuffer( GL_PIXEL_UNPACK_BUFFER, pboId );
-    else
-        imageData = buffer->map( 0, RT_BUFFER_MAP_READ );
-
-    RTsize elmt_size = buffer->getElementSize();
-    if      ( elmt_size % 8 == 0) glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
-    else if ( elmt_size % 4 == 0) glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    else if ( elmt_size % 2 == 0) glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
-    else                          glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    GLenum pixel_format = glFormatFromBufferFormat(g_image_buffer_format, buffer_format);
-
-    if( buffer_format == RT_FORMAT_UNSIGNED_BYTE4)
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, pixel_format, GL_UNSIGNED_BYTE, imageData);
-    else if(buffer_format == RT_FORMAT_FLOAT4)
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, width, height, 0, pixel_format, GL_FLOAT, imageData );
-    else if(buffer_format == RT_FORMAT_FLOAT3)
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB32F_ARB, width, height, 0, pixel_format, GL_FLOAT, imageData );
-    else if(buffer_format == RT_FORMAT_FLOAT)
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_LUMINANCE32F_ARB, width, height, 0, pixel_format, GL_FLOAT, imageData );
-    else
-        throw Exception( "Unknown buffer format" );
-
-    if( pboId )
-        glBindBuffer( GL_PIXEL_UNPACK_BUFFER, 0 );
-    else
-        buffer->unmap();
-
-    // 1:1 texel to pixel mapping with glOrtho(0, 1, 0, 1, -1, 1) setup:
-    // The quad coordinates go from lower left corner of the lower left pixel
-    // to the upper right corner of the upper right pixel.
-    // Same for the texel coordinates.
-
-    glEnable(GL_TEXTURE_2D);
-
-    glBegin(GL_QUADS);
-    glTexCoord2f( 0.0f, 0.0f );
-    glVertex2f( 0.0f, 0.0f );
-
-    glTexCoord2f( 1.0f, 0.0f );
-    glVertex2f( 1.0f, 0.0f);
-
-    glTexCoord2f( 1.0f, 1.0f );
-    glVertex2f( 1.0f, 1.0f );
-
-    glTexCoord2f(0.0f, 1.0f );
-    glVertex2f( 0.0f, 1.0f );
-    glEnd();
-
-    glDisable(GL_TEXTURE_2D);
-
-    if ( use_SRGB )
-        glDisable(GL_FRAMEBUFFER_SRGB_EXT);
-}
-
-
-void displayBufferSwap()
-{
-    displayBuffer();
-    glutSwapBuffers();
+        throw Exception( "Attempting to diaplay buffer with format not float, float3, float4, or uchar4");
 }
 
 
@@ -298,7 +189,7 @@ bool dirExists( const char* path )
     DIR* dir = opendir( path );
     if( dir == NULL )
         return false;
-
+    
     closedir(dir);
     return true;
 #endif
@@ -343,8 +234,8 @@ const char* sutil::samplesDir()
     }
 
     // Return hardcoded path if it exists.
-    if( dirExists( SAMPLES_DIR ) )
-        return SAMPLES_DIR;
+//    if( dirExists( SAMPLES_DIR ) )
+//		return SAMPLES_DIR;
 
     // Last resort.
     return ".";
@@ -363,21 +254,22 @@ const char* sutil::samplesPTXDir()
     }
 
     // Return hardcoded path if it exists.
-    if( dirExists(SAMPLES_PTX_DIR) )
-        return SAMPLES_PTX_DIR;
+   // if( dirExists(SAMPLES_PTX_DIR) )
+     //   return SAMPLES_PTX_DIR;
 
     // Last resort.
     return ".";
 }
 
-optix::Buffer createBufferImpl(
+
+optix::Buffer sutil::createOutputBuffer(
         optix::Context context,
         RTformat format,
         unsigned width,
         unsigned height,
-        bool use_pbo,
-        RTbuffertype buffer_type)
+        bool use_pbo )
 {
+    
     optix::Buffer buffer;
     if( use_pbo )
     {
@@ -392,37 +284,18 @@ optix::Buffer createBufferImpl(
         glBufferData( GL_ARRAY_BUFFER, elmt_size * width * height, 0, GL_STREAM_DRAW);
         glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
-        buffer = context->createBufferFromGLBO(buffer_type, vbo);
+        buffer = context->createBufferFromGLBO(RT_BUFFER_OUTPUT, vbo);
         buffer->setFormat( format );
         buffer->setSize( width, height );
     }
     else
     {
-        buffer = context->createBuffer( buffer_type, format, width, height );
+        buffer = context->createBuffer( RT_BUFFER_OUTPUT, format, width, height );
     }
 
     return buffer;
 }
 
-optix::Buffer sutil::createOutputBuffer(
-    optix::Context context,
-    RTformat format,
-    unsigned width,
-    unsigned height,
-    bool use_pbo)
-{
-    return createBufferImpl(context, format, width, height, use_pbo, RT_BUFFER_OUTPUT);
-}
-
-
-optix::Buffer SUTILAPI sutil::createInputOutputBuffer(optix::Context context, 
-    RTformat format, 
-    unsigned width, 
-    unsigned height, 
-    bool use_pbo)
-{
-    return createBufferImpl(context, format, width, height, use_pbo, RT_BUFFER_INPUT_OUTPUT);
-}
 
 void sutil::resizeBuffer( optix::Buffer buffer, unsigned width, unsigned height )
 {
@@ -473,21 +346,18 @@ void sutil::displayBufferGlut( const char* window_title, RTbuffer buffer )
     GLsizei width  = static_cast<int>( buffer_width );
     GLsizei height = static_cast<int>( buffer_height );
     glutSetWindowTitle(window_title);
-    glutReshapeWindow( width, height );
+    glutReshapeWindow( width, height ); 
 
     // Init state
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, 1, 0, 1, -1, 1 );
-
+    gluOrtho2D(0, width, 0, height);
+    
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    glViewport(0, 0, width, height);
-
     glutKeyboardFunc(keyPressed);
-    glutDisplayFunc(displayBufferSwap);
-    glutSwapBuffers();
+    glutDisplayFunc(display);
 
     glutMainLoop();
 }
@@ -594,14 +464,143 @@ void sutil::displayBufferPPM( const char* filename, RTbuffer buffer)
 }
 
 
-void sutil::displayBufferGL( optix::Buffer buffer, bufferPixelFormat format, bool disable_srgb_conversion )
+void sutil::displayBufferGL( optix::Buffer buffer )
 {
-    g_image_buffer = buffer->get();
-    g_image_buffer_format = format;
-    g_disable_srgb_conversion = disable_srgb_conversion;
-    displayBuffer();
-}
+    // Query buffer information
+    RTsize buffer_width_rts, buffer_height_rts;
+    buffer->getSize( buffer_width_rts, buffer_height_rts );
+    uint32_t width  = static_cast<int>(buffer_width_rts);
+    uint32_t height = static_cast<int>(buffer_height_rts);
+    RTformat buffer_format = buffer->getFormat();
+    
+    GLboolean use_SRGB = GL_FALSE;
+    if( buffer_format == RT_FORMAT_FLOAT4 || buffer_format == RT_FORMAT_FLOAT3 )
+    {
+        glGetBooleanv( GL_FRAMEBUFFER_SRGB_CAPABLE_EXT, &use_SRGB );
+        if( use_SRGB )
+            glEnable(GL_FRAMEBUFFER_SRGB_EXT);
+    }
 
+    // Check if we have a GL interop display buffer
+    const unsigned pboId = buffer->getGLBOId();
+    if( pboId )
+    {
+        static unsigned int gl_tex_id = 0;
+        if( !gl_tex_id )
+        {
+            glGenTextures( 1, &gl_tex_id );
+            glBindTexture( GL_TEXTURE_2D, gl_tex_id );
+
+            // Change these to GL_LINEAR for super- or sub-sampling
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+            // GL_CLAMP_TO_EDGE for linear filtering, not relevant for nearest.
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+
+        glBindTexture( GL_TEXTURE_2D, gl_tex_id );
+
+        // send PBO to texture
+        glBindBuffer( GL_PIXEL_UNPACK_BUFFER, pboId );
+
+        RTsize elmt_size = buffer->getElementSize();
+        if      ( elmt_size % 8 == 0) glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
+        else if ( elmt_size % 4 == 0) glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        else if ( elmt_size % 2 == 0) glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+        else                          glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+        if( buffer_format == RT_FORMAT_UNSIGNED_BYTE4)
+            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, 0);
+        else if(buffer_format == RT_FORMAT_FLOAT4)
+            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+        else if(buffer_format == RT_FORMAT_FLOAT3)
+            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB32F_ARB, width, height, 0, GL_RGB, GL_FLOAT, 0);
+        else if(buffer_format == RT_FORMAT_FLOAT)
+            glTexImage2D( GL_TEXTURE_2D, 0, GL_LUMINANCE32F_ARB, width, height, 0, GL_LUMINANCE, GL_FLOAT, 0);
+        else
+          throw Exception( "Unknown buffer format" );
+
+        glBindBuffer( GL_PIXEL_UNPACK_BUFFER, 0 );
+
+        // 1:1 texel to pixel mapping with glOrtho(0, 1, 0, 1, -1, 1) setup:
+        // The quad coordinates go from lower left corner of the lower left pixel 
+        // to the upper right corner of the upper right pixel. 
+        // Same for the texel coordinates.
+
+        glEnable(GL_TEXTURE_2D);
+
+        glBegin(GL_QUADS);
+        glTexCoord2f( 0.0f, 0.0f );
+        glVertex2f( 0.0f, 0.0f );
+
+        glTexCoord2f( 1.0f, 0.0f );
+        glVertex2f( 1.0f, 0.0f);
+
+        glTexCoord2f( 1.0f, 1.0f );
+        glVertex2f( 1.0f, 1.0f );
+
+        glTexCoord2f(0.0f, 1.0f );
+        glVertex2f( 0.0f, 1.0f );
+        glEnd();
+
+        glDisable(GL_TEXTURE_2D);
+    }
+    else
+    {
+        GLvoid* imageData = buffer->map( 0, RT_BUFFER_MAP_READ );
+        GLenum gl_data_type = GL_FALSE;
+        GLenum gl_format = GL_FALSE;
+
+        switch (buffer_format)
+        {
+            case RT_FORMAT_UNSIGNED_BYTE4:
+                gl_data_type = GL_UNSIGNED_BYTE;
+                gl_format    = GL_BGRA;
+                break;
+
+            case RT_FORMAT_FLOAT:
+                gl_data_type = GL_FLOAT;
+                gl_format    = GL_LUMINANCE;
+                break;
+
+            case RT_FORMAT_FLOAT3:
+                gl_data_type = GL_FLOAT;
+                gl_format    = GL_RGB;
+                break;
+
+            case RT_FORMAT_FLOAT4:
+                gl_data_type = GL_FLOAT;
+                gl_format    = GL_RGBA;
+                break;
+
+            default:
+                fprintf(stderr, "Unrecognized buffer data type or format.\n");
+                exit(2);
+                break;
+        }
+
+        RTsize elmt_size = buffer->getElementSize();
+        int align = 1;
+        if      ((elmt_size % 8) == 0) align = 8; 
+        else if ((elmt_size % 4) == 0) align = 4;
+        else if ((elmt_size % 2) == 0) align = 2;
+        glPixelStorei(GL_UNPACK_ALIGNMENT, align);
+
+        glDrawPixels(
+                static_cast<GLsizei>( width ),
+                static_cast<GLsizei>( height ),
+                gl_format,
+                gl_data_type,
+                imageData
+                );
+        buffer->unmap();
+    }
+
+    if ( use_SRGB )
+        glDisable(GL_FRAMEBUFFER_SRGB_EXT);
+}
 
 namespace
 {
@@ -657,12 +656,6 @@ void sutil::displayFps( unsigned int frame_count )
 }
 
 
-void sutil::displayText(const char* text, float x, float y)
-{
-  drawText(text, x, y, GLUT_BITMAP_8_BY_13);
-}
-
-
 optix::TextureSampler sutil::loadTexture( optix::Context context,
         const std::string& filename, optix::float3 default_color )
 {
@@ -695,22 +688,22 @@ void sutil::calculateCameraVariables( float3 eye, float3 lookat, float3 up,
     float ulen, vlen, wlen;
     W = lookat - eye; // Do not normalize W -- it implies focal length
 
-    wlen = length( W );
+    wlen = length( W ); 
     U = normalize( cross( W, up ) );
     V = normalize( cross( U, W  ) );
 
-    if ( fov_is_vertical ) {
-        vlen = wlen * tanf( 0.5f * fov * M_PIf / 180.0f );
-        V *= vlen;
-        ulen = vlen * aspect_ratio;
-        U *= ulen;
-    }
-    else {
-        ulen = wlen * tanf( 0.5f * fov * M_PIf / 180.0f );
-        U *= ulen;
-        vlen = ulen / aspect_ratio;
-        V *= vlen;
-    }
+	if ( fov_is_vertical ) {
+		vlen = wlen * tanf( 0.5f * fov * M_PIf / 180.0f );
+		V *= vlen;
+		ulen = vlen * aspect_ratio;
+		U *= ulen;
+	}
+	else {
+		ulen = wlen * tanf( 0.5f * fov * M_PIf / 180.0f );
+		U *= ulen;
+		vlen = ulen / aspect_ratio;
+		V *= vlen;
+	}
 }
 
 
@@ -752,18 +745,18 @@ double sutil::currentTime()
 
     // inv_freq is 1 over the number of ticks per second.
     static double inv_freq;
-    static bool freq_initialized = false;
-    static BOOL use_high_res_timer = 0;
+    static bool freq_initialized = 0;
+    static bool use_high_res_timer = 0;
 
-    if ( !freq_initialized )
+    if(!freq_initialized)
     {
         LARGE_INTEGER freq;
         use_high_res_timer = QueryPerformanceFrequency( &freq );
         inv_freq = 1.0/freq.QuadPart;
-        freq_initialized = true;
+        freq_initialized = 1;
     }
 
-    if ( use_high_res_timer )
+    if (use_high_res_timer)
     {
         LARGE_INTEGER c_time;
         if( QueryPerformanceCounter( &c_time ) )
@@ -782,7 +775,7 @@ double sutil::currentTime()
 
     return  tv.tv_sec+ tv.tv_usec * 1.0e-6;
 
-#endif
+#endif 
 }
 
 
@@ -795,181 +788,3 @@ void sutil::sleep( int seconds )
 #endif
 }
 
-
-#define STRINGIFY(x) STRINGIFY2(x)
-#define STRINGIFY2(x) #x
-#define LINE_STR STRINGIFY(__LINE__)
-
-// Error check/report helper for users of the C API
-#define NVRTC_CHECK_ERROR( func )                                  \
-  do {                                                             \
-    nvrtcResult code = func;                                       \
-    if( code != NVRTC_SUCCESS )                                    \
-      throw Exception( "ERROR: " __FILE__ "(" LINE_STR "): " +     \
-          std::string( nvrtcGetErrorString( code ) ) );            \
-  } while( 0 )
-
-static bool readSourceFile( std::string &str, const std::string &filename )
-{
-    // Try to open file
-    std::ifstream file( filename.c_str() );
-    if( file.good() )
-    {
-        // Found usable source file
-        std::stringstream source_buffer;
-        source_buffer << file.rdbuf();
-        str = source_buffer.str();
-        return true;
-    }
-    return false;
-}
-
-#if CUDA_NVRTC_ENABLED
-
-static void getCuStringFromFile( std::string &cu, const char* sample_name, const char* filename )
-{
-    std::vector<std::string> source_locations;
-
-    std::string base_dir = std::string( sutil::samplesDir() );
-
-    // Potential source locations (in priority order)
-    if( sample_name )
-        source_locations.push_back( base_dir + "/" + sample_name + "/" + filename );
-    source_locations.push_back( base_dir + "/cuda/" + filename );
-
-    for( std::vector<std::string>::const_iterator it = source_locations.begin(); it != source_locations.end(); ++it ) {
-        // Try to get source code from file
-        if( readSourceFile( cu, *it ) )
-            return;
-    }
-
-    // Wasn't able to find or open the requested file
-    throw Exception( "Couldn't open source file " + std::string( filename ) );
-}
-
-static std::string g_nvrtcLog;
-
-static void getPtxFromCuString( std::string &ptx, const char* sample_name, const char* cu_source, const char* name, const char** log_string )
-{
-    // Create program
-    nvrtcProgram prog = 0;
-    NVRTC_CHECK_ERROR( nvrtcCreateProgram( &prog, cu_source, name, 0, NULL, NULL ) );
-
-    // Gather NVRTC options
-    std::vector<const char *> options;
-
-    std::string base_dir = std::string( sutil::samplesDir() );
-
-    // Set sample dir as the primary include path
-    std::string sample_dir;
-    if( sample_name )
-    {
-        sample_dir = std::string( "-I" ) + base_dir + "/" + sample_name;
-        options.push_back( sample_dir.c_str() );
-    }
-
-    // Collect include dirs
-    std::vector<std::string> include_dirs;
-    const char *abs_dirs[] = { SAMPLES_ABSOLUTE_INCLUDE_DIRS };
-    const char *rel_dirs[] = { SAMPLES_RELATIVE_INCLUDE_DIRS };
-
-    const size_t n_abs_dirs = sizeof( abs_dirs ) / sizeof( abs_dirs[0] );
-    for( size_t i = 0; i < n_abs_dirs; i++ )
-        include_dirs.push_back(std::string( "-I" ) + abs_dirs[i]);
-    const size_t n_rel_dirs = sizeof( rel_dirs ) / sizeof( rel_dirs[0] );
-    for( size_t i = 0; i < n_rel_dirs; i++ )
-        include_dirs.push_back(std::string( "-I" ) + base_dir + rel_dirs[i]);
-    for( std::vector<std::string>::const_iterator it = include_dirs.begin(); it != include_dirs.end(); ++it )
-        options.push_back( it->c_str() );
-
-    // Collect NVRTC options
-    const char *compiler_options[] = { CUDA_NVRTC_OPTIONS };
-    const size_t n_compiler_options = sizeof( compiler_options ) / sizeof( compiler_options[0] );
-    for( size_t i = 0; i < n_compiler_options - 1; i++ )
-        options.push_back( compiler_options[i] );
-
-    // JIT compile CU to PTX
-    const nvrtcResult compileRes = nvrtcCompileProgram( prog, (int) options.size(), options.data() );
-
-    // Retrieve log output
-    size_t log_size = 0;
-    NVRTC_CHECK_ERROR( nvrtcGetProgramLogSize( prog, &log_size ) );
-    g_nvrtcLog.resize( log_size );
-    if( log_size > 1 )
-    {
-        NVRTC_CHECK_ERROR( nvrtcGetProgramLog( prog, &g_nvrtcLog[0] ) );
-        if( log_string )
-            *log_string = g_nvrtcLog.c_str();
-    }
-    if( compileRes != NVRTC_SUCCESS )
-        throw Exception( "NVRTC Compilation failed.\n" + g_nvrtcLog );
-
-    // Retrieve PTX code
-    size_t ptx_size = 0;
-    NVRTC_CHECK_ERROR( nvrtcGetPTXSize( prog, &ptx_size ) );
-    ptx.resize( ptx_size );
-    NVRTC_CHECK_ERROR( nvrtcGetPTX( prog, &ptx[0] ) );
-
-    // Cleanup
-    NVRTC_CHECK_ERROR( nvrtcDestroyProgram( &prog ) );
-}
-
-#else // CUDA_NVRTC_ENABLED
-
-static void getPtxStringFromFile( std::string &ptx, const char* sample_name, const char* filename )
-{
-    std::string source_filename;
-    if (sample_name)
-        source_filename = std::string( sutil::samplesPTXDir() ) + "/" + std::string( sample_name ) + "_generated_" + std::string( filename ) + ".ptx";
-    else
-        source_filename = std::string( sutil::samplesPTXDir() ) + "/cuda_compile_ptx_generated_" + std::string( filename ) + ".ptx";
-
-    // Try to open source PTX file
-    if (!readSourceFile( ptx, source_filename ))
-        throw Exception( "Couldn't open source file " + source_filename );
-}
-
-#endif // CUDA_NVRTC_ENABLED
-
-struct PtxSourceCache
-{
-    std::map<std::string, std::string *> map;
-    ~PtxSourceCache()
-    {
-        for( std::map<std::string, std::string *>::const_iterator it = map.begin(); it != map.end(); ++it )
-            delete it->second;
-    }
-};
-static PtxSourceCache g_ptxSourceCache;
-
-const char* sutil::getPtxString(
-    const char* sample,
-    const char* filename,
-    const char** log )
-{
-    if (log)
-        *log = NULL;
-
-    std::string *ptx, cu;
-    std::string key = std::string( filename ) + ";" + ( sample ? sample : "" );
-    std::map<std::string, std::string *>::iterator elem = g_ptxSourceCache.map.find( key );
-
-    if( elem == g_ptxSourceCache.map.end() )
-    {
-        ptx = new std::string();
-#if CUDA_NVRTC_ENABLED
-        getCuStringFromFile( cu, sample, filename );
-        getPtxFromCuString( *ptx, sample, cu.c_str(), filename, log );
-#else
-        getPtxStringFromFile( *ptx, sample, filename );
-#endif
-        std::pair<std::string, std::string *> elem( key, ptx );
-        g_ptxSourceCache.map.insert( elem );
-    }
-    else
-    {
-        ptx = elem->second;
-    }
-
-    return ptx->c_str();
-}
