@@ -134,8 +134,8 @@ void glutInitialize(int* argc, char** argv,int width, int height)
 int main(int argc, char* argv[]) {
 
 	try {
-		int width = 500;
-		int height = 500;
+		int width = 760;
+		int height = 550;
 		//glutInitialize(&argc, argv,width,height);
 		sutil::initGlut(&argc, argv);
 
