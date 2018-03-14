@@ -175,6 +175,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="helpers\sutil\sutil.cpp" />
     <ClCompile Include="helpers\sutil\tinyobjloader\tiny_obj_loader.cc" />
     <CudaCompile Include="cameras\Pinhole.cu" />
+    <CudaCompile Include="shapes\Parallelogram.cu" />
     <CudaCompile Include="shapes\Sphere.cu" />
     <CudaCompile Include="tracers\Whitted.cu" />
   </ItemGroup>
@@ -186,6 +187,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="films\Film.h" />
     <ClInclude Include="core\optix_global.h" />
     <ClInclude Include="core\Ray.h" />
+    <ClInclude Include="geometry\MatteParallelogram.h" />
     <ClInclude Include="geometry\MatteSphere.h" />
     <ClInclude Include="helpers\freeglut\include\GL\freeglut.h" />
     <ClInclude Include="helpers\freeglut\include\GL\freeglut_ext.h" />
@@ -203,10 +205,14 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="helpers\sutil\rply-1.01\rply.h" />
     <ClInclude Include="helpers\sutil\sutil.h" />
     <ClInclude Include="helpers\sutil\tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="lights\AreaLight.h" />
     <ClInclude Include="lights\PointLight.h" />
     <ClInclude Include="materials\Matte.h" />
+    <ClInclude Include="samplers\Hemisphere.h" />
     <ClInclude Include="samplers\Random2D.h" />
+    <ClInclude Include="shapes\Parallelogram.h" />
     <ClInclude Include="shapes\Sphere.h" />
+    <CudaCompile Include="tracers\PathTracer.cu" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\freeglut.dll" />

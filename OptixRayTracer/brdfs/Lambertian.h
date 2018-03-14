@@ -42,13 +42,13 @@ RT_FUNCTION float Lambertian::Pdf(const BRDFQueryRecord &record) const {
 RT_FUNCTION float3 Lambertian::Sample(BRDFQueryRecord &record, const float2 &sample) const {
 
 	//TODO: sample hemisphere using sample
-	//return M_1_PIf * color;  <-- This is the correct term
-	return color;
+	return M_1_PIf * color;  //<-- This is the correct term
+	//return color;
 }
 
 RT_FUNCTION float3 Lambertian::Eval(const BRDFQueryRecord &record) const {
 
-	//return M_1_PIf * color;  <-- This is the correct term
-	return color;
+	return M_1_PIf * color; // <-- This is the correct term
+	//return color;
 }
 

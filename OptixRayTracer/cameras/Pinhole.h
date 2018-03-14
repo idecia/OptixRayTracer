@@ -40,7 +40,7 @@ RT_FUNCTION Ray Pinhole::GenerateRay(const float2 &sample) const {
 
 	float3 dir = sample.x * U + sample.y * V - distance * W;
 	dir = normalize(dir);
-	Ray ray = make_Ray(eye, dir, RayType::RADIANCE, 0.1f, RT_DEFAULT_MAX);
+	Ray ray = make_Ray(eye, dir, RayType::RADIANCE, 0.5f, RT_DEFAULT_MAX);
 	return ray;
 }
 

@@ -21,7 +21,7 @@ RT_PROGRAM void closestHit() {
 
 	//float3 color = make_float3(0.0f);
 	BRDFQueryRecord  dummy;
-	float3 color = brdf.Eval(dummy) * 0.1; //simulate ambient light
+	float3 color = brdf.Eval(dummy) * 0.1; //simulate ambient light}
 	unsigned int numLights = lights.size();
 	for (unsigned int i = 0; i < numLights; i++) {
 

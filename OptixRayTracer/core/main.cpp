@@ -3,12 +3,15 @@
 #include "cameras/Pinhole.h"
 #include "core/optix_global.h"
 #include "lights/PointLight.h"
+#include "lights/AreaLight.h"
 #include "core/RNG.h"
 #include "core/Ray.h"
 #include "shapes/Sphere.h"
+#include "shapes/Parallelogram.h"
 #include "brdfs/Lambertian.h"
 #include "materials/Matte.h"
 #include "geometry/MatteSphere.h"
+#include "geometry/MatteParallelogram.h"
 #include "helpers/sutil/sutil.h"
 #include "helpers/sutil/GL/glew.h"
 #include "helpers/freeglut/include/GL/freeglut.h"
@@ -26,7 +29,7 @@ Context CreateContext() {
 
 Pinhole CreateCamera(Context context) {
 
-	float3 eye = make_float3(50.0f, 40.8f, 140.0f);
+	float3 eye = make_float3(50.0f, 40.8f, 160.0f);
 	float3 lookAt = make_float3(50.0f, 40.8f, 0.0f);
 	float3 up = make_float3(0.0f, 1.0f, 0.0f);
 	float distance = 1.0f;
@@ -46,6 +49,7 @@ Film CreateFilm(Context context, int width, int height) {
 
 void CreateLights(Context context) {
 
+	/*Point Light
 	float3 position = make_float3(50.0f, 70.0f, 81.6f);
 	float3 color = make_float3(1.0f, 1.0f, 1.0f);
 	PointLight light1(position, color);
@@ -58,19 +62,42 @@ void CreateLights(Context context) {
 	memcpy(lightBuffer->map(), lights, sizeof(lights));
 	lightBuffer->unmap();
 	context["lights"]->setBuffer(lightBuffer);
+	*/
+
+	/*Area Light */
+
+	float3 p0 = make_float3(40, 80, 95);
+	float3 p1 = make_float3(80, 80, 95);
+	float3 p2 = make_float3(40, 80, 75);
+	Parallelogram parallelogram(p0, p1, p2, false);
+	float3 color = make_float3(45.0f, 45.0f, 45.0f);
+	AreaLight light1(parallelogram, color);
+
+	AreaLight lights[] = { light1 };
+
+
+	Buffer lightBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
+		RT_FORMAT_USER, sizeof(lights) / sizeof(AreaLight));
+	lightBuffer->setElementSize(sizeof(AreaLight));
+	memcpy(lightBuffer->map(), lights, sizeof(lights));
+	lightBuffer->unmap();
+	context["lights"]->setBuffer(lightBuffer);
+
+
+
 }
 	
 
 void CreateGeometry(Context context) {
 
-	Sphere left(      make_float3(-1e5  + 1,        40.8,       81.6),   1e5);
-	Sphere right(     make_float3( 1e5 + 99,        40.8,       81.6),   1e5);
-	Sphere back(      make_float3(       50,        40.8,       -1e5),   1e5);   
-	Sphere front(     make_float3(       50,        40.8,  1e5 + 163),   1e5);
-	Sphere bottom(    make_float3(       50,        -1e5,       81.6),   1e5);
-	Sphere top(       make_float3(       50,  1e5 + 81.6,       81.6),   1e5);
-	Sphere floorleft( make_float3(       27,        16.5,         47),   16.5);
-	Sphere floorright(make_float3(       73,        16.5,         78),   16.5);
+	Sphere left(make_float3(-1e5 + 1, 40.8, 81.6), 1e5);
+	Sphere right(make_float3(1e5 + 99, 40.8, 81.6), 1e5);
+	Sphere back(make_float3(50, 40.8, -1e5), 1e5);
+	Sphere front(make_float3(50, 40.8, 1e5 + 163), 1e5);
+	Sphere bottom(make_float3(50, -1e5, 81.6), 1e5);
+	Sphere top(make_float3(50, 1e5 + 81.6, 81.6), 1e5);
+	Sphere floorleft(make_float3(27, 16.5, 47), 16.5);
+	Sphere floorright(make_float3(73, 16.5, 78), 16.5);
 
 	Lambertian whiteBRDF(make_float3(0.75, 0.75, 0.75));
 	Lambertian redBRDF(make_float3(0.75, 0.25, 0.25));
@@ -89,8 +116,14 @@ void CreateGeometry(Context context) {
 	MatteSphere floorleftwhite(&floorleft, &white);
 	MatteSphere floorrightwhite(&floorright, &white);
 
+	float3 p0 = make_float3(20, 20, 10);
+	float3 p1 = make_float3(80, 20, 10);
+	float3 p2 = make_float3(20, 40, 10);
+	Parallelogram parallelogram(p0, p1, p2, true);
+	MatteParallelogram test(&parallelogram, &violet);
+
 	GeometryGroup geometryGroup = context->createGeometryGroup();
-	geometryGroup->setChildCount(8u);
+	geometryGroup->setChildCount(9u);
 	geometryGroup->setChild(0, leftred.GetOptixGeometry(context));
 	geometryGroup->setChild(1, rightviolet.GetOptixGeometry(context));
 	geometryGroup->setChild(2, backwhite.GetOptixGeometry(context));
@@ -99,6 +132,7 @@ void CreateGeometry(Context context) {
 	geometryGroup->setChild(5, topwhite.GetOptixGeometry(context));
 	geometryGroup->setChild(6, floorleftwhite.GetOptixGeometry(context));
 	geometryGroup->setChild(7, floorrightwhite.GetOptixGeometry(context));
+	geometryGroup->setChild(8, test.GetOptixGeometry(context));
 
 	geometryGroup->setAcceleration(context->createAcceleration("NoAccel"));
 
@@ -134,8 +168,8 @@ void glutInitialize(int* argc, char** argv,int width, int height)
 int main(int argc, char* argv[]) {
 
 	try {
-		int width = 500;
-		int height = 500;
+		int width = 760;
+		int height = 550;
 		//glutInitialize(&argc, argv,width,height);
 		sutil::initGlut(&argc, argv);
 

@@ -34,7 +34,8 @@ RT_FUNCTION Lambertian* Matte::GetBRDF() const {
 
 RT_FUNCTION_HOST Material Matte::GetOptixMaterial(Context context) {
 
-	const char* path = "./Whitted.ptx";
+	//const char* path = "./Whitted.ptx";
+	const char* path = "./PathTracer.ptx";
 	Program closestHitRadiance = context->createProgramFromPTXFile(path, "closestHit");
 	Program anyHit = context->createProgramFromPTXFile(path, "anyHit");
 	Material optixMaterial = context->createMaterial();
