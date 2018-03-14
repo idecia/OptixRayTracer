@@ -8,7 +8,7 @@
 #include "core/optix_global.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 5
+#define MAX_DEPTH 10
 
 rtDeclareVariable(uint2, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(Pinhole, camera, , );
@@ -22,11 +22,11 @@ rtBuffer<AreaLight> lights;
 
 RT_PROGRAM void closestHit() {
 
-	//float3 color = make_float3(0.0f);
+	float3 color = make_float3(0.0f);
 	BRDFQueryRecord  dummy;
 
 	//ambient light
-	float3 color = brdf.Eval(dummy) * 0.1; 
+	//float3 color = brdf.Eval(dummy) * 0.1; 
 
 	//direct light
 	unsigned int numLights = lights.size();
@@ -56,7 +56,7 @@ RT_PROGRAM void closestHit() {
 	}
 	color /= (float)nSamples;
 	
-
+	/*
 	//indirect light
 	if (radiancePayload.depth < MAX_DEPTH) {
 
@@ -75,8 +75,8 @@ RT_PROGRAM void closestHit() {
 		rtTrace(root, radianceRay, pl);
 		color += BRDF * nDotl * pl.color / pdf;
 
-	}
-
+	}*/
+	
 	radiancePayload.color = color;
 
 	

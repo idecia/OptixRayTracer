@@ -20,7 +20,7 @@ rtDeclareVariable(rtObject, root, , );
 
 RT_PROGRAM void pinhole(void) {
 
-	int nSamples = 1000;
+	int nSamples = 200;
 
 	RadiancePayload radiancePayload;
 	radiancePayload.rng = rngs[pixelIdx];
