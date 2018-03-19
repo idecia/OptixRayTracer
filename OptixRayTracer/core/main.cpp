@@ -82,7 +82,7 @@ void CreateLights(Context context) {
 	Parallelogram parallelogram(
 		make_float3(343.0f, 540.0f, 227.0f),
 		make_float3(213.0f, 540.0f, 227.0f),
-		make_float3(343.0f, 540.0f, 332.0f), true);
+		make_float3(343.0f, 540.0f, 332.0f), false);
 
 	AreaLight light1(parallelogram, 4.5*make_float3(15.0f, 15.0f, 5.0f));
 

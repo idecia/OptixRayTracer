@@ -56,7 +56,7 @@ RT_PROGRAM void closestHit() {
 	}
 	color /= (float)nSamples;
 	
-	/*
+	
 	//indirect light
 	if (radiancePayload.depth < MAX_DEPTH) {
 
@@ -75,7 +75,7 @@ RT_PROGRAM void closestHit() {
 		rtTrace(root, radianceRay, pl);
 		color += BRDF * nDotl * pl.color / pdf;
 
-	}*/
+	}
 	
 	radiancePayload.color = color;
 
