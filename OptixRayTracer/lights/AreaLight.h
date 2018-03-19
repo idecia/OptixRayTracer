@@ -47,7 +47,7 @@ RT_FUNCTION float3 AreaLight::GetColor() const {
 	return color;
 }
 
-RT_FUNCTION float AreaLight::	Pdf(const float3 &point) const {
+RT_FUNCTION float AreaLight::Pdf(const float3 &point) const {
 
 	float area = parallelogram.GetArea();
 	return 1.0f / area;

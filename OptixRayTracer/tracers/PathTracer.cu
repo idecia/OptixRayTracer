@@ -8,7 +8,7 @@
 #include "core/optix_global.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 10
+#define MAX_DEPTH 5
 
 rtDeclareVariable(uint2, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(Pinhole, camera, , );
@@ -30,7 +30,7 @@ RT_PROGRAM void closestHit() {
 
 	//direct light
 	unsigned int numLights = lights.size();
-	int nSamples = 1;
+	int nSamples = 1 ;
 	Random2D sampler(&radiancePayload.rng, nSamples);
 	for (unsigned int i = 0; i < numLights; i++) {
 		AreaLight light = lights[i];
@@ -42,7 +42,7 @@ RT_PROGRAM void closestHit() {
 			L = normalize(L);
 			ShadowPayload shadowPayload;
 			shadowPayload.attenuation = 1.0f;
-			Ray shadowRay = make_Ray(hit.position, L, RayType::SHADOW, 0.5, LDist);
+			Ray shadowRay = make_Ray(hit.position, L, RayType::SHADOW, 0.1, LDist);
 			rtTrace(root, shadowRay, shadowPayload);
 			if (shadowPayload.attenuation > 0.0f) {
 				float nDotl  = fmaxf(dot(hit.normal, L), 0.0f);
@@ -56,7 +56,7 @@ RT_PROGRAM void closestHit() {
 	}
 	color /= (float)nSamples;
 	
-	/*
+	
 	//indirect light
 	if (radiancePayload.depth < MAX_DEPTH) {
 
@@ -64,6 +64,7 @@ RT_PROGRAM void closestHit() {
 		Onb onb(hit.normal);
 		float3 direction;
 		hsSampler.Next3D(&direction);
+		//cosine_sample_hemisphere(radiancePayload.rng.RandomFloat(), radiancePayload.rng.RandomFloat(), direction);
 		onb.inverse_transform(direction);
 		float nDotl = fmaxf(dot(hit.normal, direction), 0.0f);
 		float3 BRDF = brdf.Eval(dummy);
@@ -73,9 +74,10 @@ RT_PROGRAM void closestHit() {
 		pl.depth = radiancePayload.depth + 1;
 		pl.rng = radiancePayload.rng;
 		rtTrace(root, radianceRay, pl);
-		color += BRDF * nDotl * pl.color / pdf;
+	    color += BRDF * nDotl * pl.color / pdf;
+		//color += BRDF * pl.color;
 
-	}*/
+	}
 	
 	radiancePayload.color = color;
 
