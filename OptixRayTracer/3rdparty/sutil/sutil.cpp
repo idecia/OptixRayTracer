@@ -235,7 +235,7 @@ const char* sutil::samplesDir()
 
     // Return hardcoded path if it exists.
 //    if( dirExists( SAMPLES_DIR ) )
-//		return SAMPLES_DIR;
+//      return SAMPLES_DIR;
 
     // Last resort.
     return ".";
@@ -692,18 +692,18 @@ void sutil::calculateCameraVariables( float3 eye, float3 lookat, float3 up,
     U = normalize( cross( W, up ) );
     V = normalize( cross( U, W  ) );
 
-	if ( fov_is_vertical ) {
-		vlen = wlen * tanf( 0.5f * fov * M_PIf / 180.0f );
-		V *= vlen;
-		ulen = vlen * aspect_ratio;
-		U *= ulen;
-	}
-	else {
-		ulen = wlen * tanf( 0.5f * fov * M_PIf / 180.0f );
-		U *= ulen;
-		vlen = ulen / aspect_ratio;
-		V *= vlen;
-	}
+   if ( fov_is_vertical ) {
+      vlen = wlen * tanf( 0.5f * fov * M_PIf / 180.0f );
+      V *= vlen;
+      ulen = vlen * aspect_ratio;
+      U *= ulen;
+   }
+   else {
+      ulen = wlen * tanf( 0.5f * fov * M_PIf / 180.0f );
+      U *= ulen;
+      vlen = ulen / aspect_ratio;
+      V *= vlen;
+   }
 }
 
 

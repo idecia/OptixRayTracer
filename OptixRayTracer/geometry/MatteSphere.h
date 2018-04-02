@@ -8,30 +8,30 @@ class MatteSphere {
 
 public:
 
-	RT_FUNCTION MatteSphere();
-	RT_FUNCTION MatteSphere(Sphere* sphere, Matte* material);
-	RT_FUNCTION_HOST GeometryInstance GetOptixGeometry(Context context);
+   RT_FUNCTION MatteSphere();
+   RT_FUNCTION MatteSphere(Sphere* sphere, Matte* material);
+   RT_FUNCTION_HOST GeometryInstance GetOptixGeometry(Context context);
 
 private:
 
-	Sphere* sphere;
-	Matte* material;
+   Sphere* sphere;
+   Matte* material;
 
 };
 
 RT_FUNCTION MatteSphere::MatteSphere() { }
 
 RT_FUNCTION MatteSphere::MatteSphere(Sphere* sphere, Matte* material)
-	: sphere(sphere), material(material) {
+   : sphere(sphere), material(material) {
 
 
 }
 
 RT_FUNCTION_HOST GeometryInstance MatteSphere::GetOptixGeometry(Context context) {
 
-	Geometry geometry = sphere->GetOptixGeometry(context);
-	Material  matte = material->GetOptixMaterial(context);
-	GeometryInstance optixGeometryInstance = context->createGeometryInstance(geometry, &matte, &matte + 1);
-	return optixGeometryInstance;
+   Geometry geometry = sphere->GetOptixGeometry(context);
+   Material  matte = material->GetOptixMaterial(context);
+   GeometryInstance optixGeometryInstance = context->createGeometryInstance(geometry, &matte, &matte + 1);
+   return optixGeometryInstance;
 
 }

@@ -3,16 +3,16 @@
 
 struct RadiancePayload {
 
-	RNG rng;
-	float3 color;
-	int depth;
+   RNG rng;
+   float3 color;
+   int depth;
 
 };
 
 struct ShadowPayload {
 
-	float attenuation;
+   float attenuation;
 
-	
+   
 };
 

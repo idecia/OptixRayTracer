@@ -156,7 +156,7 @@ void  calculateCameraVariables(
         optix::float3& U,                   // [out] U coord for camera program
         optix::float3& V,                   // [out] V coord for camera program
         optix::float3& W,                   // [out] W coord for camera program
-		bool fov_is_vertical = false );
+      bool fov_is_vertical = false );
 
 // Blocking sleep call
 void  sleep(
