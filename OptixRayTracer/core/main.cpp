@@ -17,6 +17,11 @@
 #include "helpers/freeglut/include/GL/freeglut.h"
 #include <iostream>
 
+
+int width = 760;
+int height = 550; 
+Context context;
+Film film;
 Context CreateContext() {
 
 	Context context = Context::create();
@@ -84,7 +89,7 @@ void CreateLights(Context context) {
 		make_float3(213.0f, 540.0f, 227.0f),
 		make_float3(343.0f, 540.0f, 332.0f), false);
 
-	AreaLight light1(parallelogram, 4.5*make_float3(15.0f, 15.0f, 5.0f));
+	AreaLight light1(parallelogram, make_float3(15.0f, 15.0f, 5.0f));
 
 	AreaLight lights[] = { light1 };
 
@@ -147,9 +152,9 @@ void CreateGeometry(Context context) {
 	geometryGroup->setChild(7, floorrightwhite.GetOptixGeometry(context));
 	geometryGroup->setChild(8, test.GetOptixGeometry(context));*/
 
-	Lambertian whiteBRDF(make_float3(0.8, 0.8, 0.8));
-	Lambertian greenBRDF(make_float3(0.05, 0.8, 0.05));
-	Lambertian redBRDF(make_float3(0.8, 0.05, 0.05));
+	Lambertian whiteBRDF(make_float3(0.8f, 0.8f, 0.8f));
+	Lambertian greenBRDF(make_float3(0.05f, 0.8f, 0.05f));
+	Lambertian redBRDF(make_float3(0.8f, 0.05f, 0.05f));
 
 	Matte white = Matte(&whiteBRDF);
 	Matte green = Matte(&greenBRDF);
@@ -268,17 +273,49 @@ void glutInitialize(int* argc, char** argv,int width, int height)
 	glutHideWindow();
 }
 
+void glutDisplay()
+{
+
+	sutil::displayBufferGL(film.GetBuffer(context));
+
+
+	glutSwapBuffers();
+}
+
+
+void glutRun()
+{
+	// Initialize GL state                                                            
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, 1, 0, 1, -1, 1);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glViewport(0, 0, width, height);
+
+	glutShowWindow();
+	glutReshapeWindow(width, height);
+
+	// register glut callbacks
+	glutDisplayFunc(glutDisplay);
+
+	glutMainLoop();
+}
+
+
+
 int main(int argc, char* argv[]) {
 
 	try {
-		int width = 760;
-		int height = 550;
 		//glutInitialize(&argc, argv,width,height);
 		sutil::initGlut(&argc, argv);
 
-		Context context = CreateContext();
+
+		context = CreateContext();
 		Pinhole camera = CreateCamera(context);
-		Film film = CreateFilm(context,width, height);
+		film = CreateFilm(context,width, height);
 		CreateLights(context);
 		CreateRNGS(context, width, height);
 		CreateGeometry(context);
@@ -287,10 +324,11 @@ int main(int argc, char* argv[]) {
 		context->validate();
 		context->launch(0, width, height);
 
+		glutRun();
 		Buffer bufferImage = film.GetBuffer(context);
-		sutil::displayBufferPPM("image", bufferImage);
-		sutil::displayBufferGlut("dd", bufferImage->get());
-		sutil::displayBufferGL(bufferImage);
+		//sutil::displayBufferPPM("image", bufferImage);
+		//sutil::displayBufferGlut("dd", bufferImage->get());
+		//sutil::displayBufferGL(bufferImage);
 
 		context->destroy();
 	}

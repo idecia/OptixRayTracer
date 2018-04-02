@@ -36,7 +36,7 @@ RT_FUNCTION Lambertian::Lambertian(const float3 &color)
 
 RT_FUNCTION float Lambertian::Pdf(const BRDFQueryRecord &record) const {
 	
-	return  M_1_PIf;
+	return 0.5 * M_1_PIf;
 }
 
 RT_FUNCTION float3 Lambertian::Sample(BRDFQueryRecord &record, const float2 &sample) const {
