@@ -2,8 +2,7 @@
 #include "films/Film.h"
 #include "cameras/Pinhole.h"
 #include "core/optix_global.h"
-#include "lights/PointLight.h"
-#include "lights/AreaLight.h"
+#include "lights/AllLights.h"
 #include "core/RNG.h"
 #include "core/Ray.h"
 #include "shapes/Sphere.h"
@@ -11,11 +10,16 @@
 #include "brdfs/Lambertian.h"
 #include "materials/Matte.h"
 #include "geometry/MatteSphere.h"
+#include "shapes/Triangle.h"
+#include "geometry/MatteTriangle.h"
 #include "geometry/MatteParallelogram.h"
-#include "helpers/sutil/sutil.h"
-#include "helpers/sutil/GL/glew.h"
-#include "helpers/freeglut/include/GL/freeglut.h"
+#include "3rdparty/sutil/sutil.h"
+#include "3rdparty/sutil/GL/glew.h"
+#include "3rdparty/freeglut/include/GL/freeglut.h"
+#include "3rdparty/assimp/Importer.hpp"
 #include <iostream>
+#include <vector>
+using namespace std;
 
 
 int width = 760;
@@ -24,318 +28,363 @@ Context context;
 Film film;
 Context CreateContext() {
 
-	Context context = Context::create();
-	context->setRayTypeCount(RayType::RAY_TYPE_COUNT);
-	context->setEntryPointCount(1);
-	//context["SCENE_EPSILON"]->setFloat(1.e-4f);
-	//context->setStackSize(2800);
-	return context;
+   Context context = Context::create();
+   context->setRayTypeCount(RayType::RAY_TYPE_COUNT);
+   context->setEntryPointCount(1);
+   //context["SCENE_EPSILON"]->setFloat(1.e-4f);
+   //context->setStackSize(2800);
+   return context;
 }
 
 Pinhole CreateCamera(Context context) {
 
-	/*float3 eye = make_float3(50.0f, 40.8f, 160.0f);
-	float3 lookAt = make_float3(50.0f, 40.8f, 0.0f);
-	float3 up = make_float3(0.0f, 1.0f, 0.0f);
-	float distance = 1.0f;
-	Pinhole camera(eye, lookAt, up, distance);*/
-	Pinhole camera(
-		make_float3(278.0f, 273.0f, -900.0f),
-		make_float3(278.0f, 273.0f, 0.0f),
-		make_float3(0.0f, 1.0f, 0.0f),
-		2.3f);
+   /*float3 eye = make_float3(50.0f, 40.8f, 160.0f);
+   float3 lookAt = make_float3(50.0f, 40.8f, 0.0f);
+   float3 up = make_float3(0.0f, 1.0f, 0.0f);
+   float distance = 1.0f;
+   Pinhole camera(eye, lookAt, up, distance);*/
+   Pinhole camera(
+      make_float3(278.0f, 273.0f, -900.0f),
+      make_float3(278.0f, 273.0f, 0.0f),
+      make_float3(0.0f, 1.0f, 0.0f),
+      2.3f);
 
-	camera.OptixSetup(context);
-	return camera;
+   camera.OptixSetup(context);
+   return camera;
 
 }
 
 Film CreateFilm(Context context, int width, int height) {
 
-	Film film(width, height);
-	film.OptixSetup(context);
-	return film;
+   Film film(width, height);
+   film.OptixSetup(context);
+   return film;
 
 }
 
 void CreateLights(Context context) {
 
-	/*Point Light
-	float3 position = make_float3(50.0f, 70.0f, 81.6f);
-	float3 color = make_float3(1.0f, 1.0f, 1.0f);
-	PointLight light1(position, color);
+   /*Point Light
+   float3 position = make_float3(50.0f, 70.0f, 81.6f);
+   float3 color = make_float3(1.0f, 1.0f, 1.0f);
+   PointLight light1(position, color);
 
-	PointLight lights[] = { light1 };
+   PointLight lights[] = { light1 };
 
-	Buffer lightBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
-		RT_FORMAT_USER, sizeof( lights ) / sizeof( PointLight ));
-	lightBuffer->setElementSize(sizeof( PointLight ));
-	memcpy(lightBuffer->map(), lights, sizeof(lights));
-	lightBuffer->unmap();
-	context["lights"]->setBuffer(lightBuffer);
-	*/
+   Buffer lightBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
+      RT_FORMAT_USER, sizeof( lights ) / sizeof( PointLight ));
+   lightBuffer->setElementSize(sizeof( PointLight ));
+   memcpy(lightBuffer->map(), lights, sizeof(lights));
+   lightBuffer->unmap();
+   context["lights"]->setBuffer(lightBuffer);
+   */
 
-	/*Area Light */
+   /*Area Light */
 
-	/*float3 p0 = make_float3(30, 81, 95);
-	float3 p1 = make_float3(70, 81, 95);
-	float3 p2 = make_float3(30, 81, 55);
-	Parallelogram parallelogram(p0, p1, p2, false);
-	float3 color = make_float3(7.0f, 7.0f, 7.0f);
-	AreaLight light1(parallelogram, color);*/
+   /*float3 p0 = make_float3(30, 81, 95);
+   float3 p1 = make_float3(70, 81, 95);
+   float3 p2 = make_float3(30, 81, 55);
+   Parallelogram parallelogram(p0, p1, p2, false);
+   float3 color = make_float3(7.0f, 7.0f, 7.0f);
+   AreaLight light1(parallelogram, color);*/
 
-	Parallelogram parallelogram(
-		make_float3(343.0f, 540.0f, 227.0f),
-		make_float3(213.0f, 540.0f, 227.0f),
-		make_float3(343.0f, 540.0f, 332.0f), false);
+   Parallelogram parallelogram(
+      make_float3(343.0f, 540.0f, 227.0f),
+      make_float3(213.0f, 540.0f, 227.0f),
+      make_float3(343.0f, 540.0f, 332.0f), false);
 
-	AreaLight light1(parallelogram, make_float3(15.0f, 15.0f, 5.0f));
+   AreaLight light1(parallelogram, make_float3(15.0f, 15.0f, 5.0f));
 
-	AreaLight lights[] = { light1 };
+   AreaLight lights[] = { light1 };
 
+   float3 position = make_float3(280, 500.0f, 300.0f);
+   float3 color = make_float3(10005.0f, 10005.0f, 10005.0f);
+   PointLight light2(position, color);
 
-	Buffer lightBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
-		RT_FORMAT_USER, sizeof(lights) / sizeof(AreaLight));
-	lightBuffer->setElementSize(sizeof(AreaLight));
-	memcpy(lightBuffer->map(), lights, sizeof(lights));
-	lightBuffer->unmap();
-	context["lights"]->setBuffer(lightBuffer);
+   vector<char*> ptrs;
+   Buffer lightBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
+      RT_FORMAT_USER, 2);
+   lightBuffer->setElementSize(MAX_LIGHT_SIZE);
+   char* basePtr = (char*)lightBuffer->getDevicePointer(0);
+
+   char* buffer = (char*) lightBuffer->map();
+   memcpy(buffer, &light2, sizeof(light2));
+   memcpy(buffer + MAX_LIGHT_SIZE, &light1, sizeof(light1));
+   lightBuffer->unmap();
+ 
+   ptrs.push_back(basePtr);
+  ptrs.push_back(basePtr + MAX_LIGHT_SIZE);
+   //context["lightsData"]->setBuffer(lightBuffer);
+
+   Buffer ptrsBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
+	   RT_FORMAT_USER, 1);
+   ptrsBuffer->setElementSize(sizeof(void*));
+   buffer = (char*)ptrsBuffer->map();
+   memcpy(buffer, ptrs.data(), sizeof(void*)*2);
+   ptrsBuffer->unmap();
+
+   context["lights"]->setBuffer(ptrsBuffer);
 
 
 }
-	
+   
 
 void CreateGeometry(Context context) {
 
-	/*
-	Sphere left(make_float3(-1e5 + 1, 40.8, 81.6), 1e5);
-	Sphere right(make_float3(1e5 + 99, 40.8, 81.6), 1e5);
-	Sphere back(make_float3(50, 40.8, -1e5), 1e5);
-	Sphere front(make_float3(50, 40.8, 1e5 + 163), 1e5);
-	Sphere bottom(make_float3(50, -1e5, 81.6), 1e5);
-	Sphere top(make_float3(50, 1e5 + 81.6, 81.6), 1e5);
-	Sphere floorleft(make_float3(27, 16.5, 47), 16.5);
-	Sphere floorright(make_float3(73, 16.5, 78), 16.5);
+   /*
+   Sphere left(make_float3(-1e5 + 1, 40.8, 81.6), 1e5);
+   Sphere right(make_float3(1e5 + 99, 40.8, 81.6), 1e5);
+   Sphere back(make_float3(50, 40.8, -1e5), 1e5);
+   Sphere front(make_float3(50, 40.8, 1e5 + 163), 1e5);
+   Sphere bottom(make_float3(50, -1e5, 81.6), 1e5);
+   Sphere top(make_float3(50, 1e5 + 81.6, 81.6), 1e5);
+   Sphere floorleft(make_float3(27, 16.5, 47), 16.5);
+   Sphere floorright(make_float3(73, 16.5, 78), 16.5);
 
-	Lambertian whiteBRDF(make_float3(0.9, 0.9, 0.9));
-	Lambertian redBRDF(make_float3(0.75, 0.25, 0.25));
-	Lambertian violetBRDF(make_float3(0.25, 0.25, 0.75));
+   Lambertian whiteBRDF(make_float3(0.9, 0.9, 0.9));
+   Lambertian redBRDF(make_float3(0.75, 0.25, 0.25));
+   Lambertian violetBRDF(make_float3(0.25, 0.25, 0.75));
 
-	Matte white = Matte(&whiteBRDF);
-	Matte red = Matte(&redBRDF);
-	Matte violet = Matte(&violetBRDF);
+   Matte white = Matte(&whiteBRDF);
+   Matte red = Matte(&redBRDF);
+   Matte violet = Matte(&violetBRDF);
 
-	MatteSphere leftred(&left, &red);
-	MatteSphere rightviolet(&right, &violet);
-	MatteSphere backwhite(&back, &white);
-	MatteSphere frontwhite(&front, &white);
-	MatteSphere bottomwhite(&bottom, &white);
-	MatteSphere topwhite(&top, &white);
-	MatteSphere floorleftwhite(&floorleft, &white);
-	MatteSphere floorrightwhite(&floorright, &white);
+   MatteSphere leftred(&left, &red);
+   MatteSphere rightviolet(&right, &violet);
+   MatteSphere backwhite(&back, &white);
+   MatteSphere frontwhite(&front, &white);
+   MatteSphere bottomwhite(&bottom, &white);
+   MatteSphere topwhite(&top, &white);
+   MatteSphere floorleftwhite(&floorleft, &white);
+   MatteSphere floorrightwhite(&floorright, &white);
 
-	float3 p0 = make_float3(20, 20, 10);
-	float3 p1 = make_float3(80, 20, 10);
-	float3 p2 = make_float3(20, 40, 10);
-	Parallelogram parallelogram(p0, p1, p2, true);
-	MatteParallelogram test(&parallelogram, &violet);
+   float3 p0 = make_float3(20, 20, 10);
+   float3 p1 = make_float3(80, 20, 10);
+   float3 p2 = make_float3(20, 40, 10);
+   Parallelogram parallelogram(p0, p1, p2, true);
+   MatteParallelogram test(&parallelogram, &violet);
 
-	GeometryGroup geometryGroup = context->createGeometryGroup();
-	geometryGroup->setChildCount(9u);
-	geometryGroup->setChild(0, leftred.GetOptixGeometry(context));
-	geometryGroup->setChild(1, rightviolet.GetOptixGeometry(context));
-	geometryGroup->setChild(2, backwhite.GetOptixGeometry(context));
-	geometryGroup->setChild(3, frontwhite.GetOptixGeometry(context));
-	geometryGroup->setChild(4, bottomwhite.GetOptixGeometry(context));
-	geometryGroup->setChild(5, topwhite.GetOptixGeometry(context));
-	geometryGroup->setChild(6, floorleftwhite.GetOptixGeometry(context));
-	geometryGroup->setChild(7, floorrightwhite.GetOptixGeometry(context));
-	geometryGroup->setChild(8, test.GetOptixGeometry(context));*/
+   GeometryGroup geometryGroup = context->createGeometryGroup();
+   geometryGroup->setChildCount(9u);
+   geometryGroup->setChild(0, leftred.GetOptixGeometry(context));
+   geometryGroup->setChild(1, rightviolet.GetOptixGeometry(context));
+   geometryGroup->setChild(2, backwhite.GetOptixGeometry(context));
+   geometryGroup->setChild(3, frontwhite.GetOptixGeometry(context));
+   geometryGroup->setChild(4, bottomwhite.GetOptixGeometry(context));
+   geometryGroup->setChild(5, topwhite.GetOptixGeometry(context));
+   geometryGroup->setChild(6, floorleftwhite.GetOptixGeometry(context));
+   geometryGroup->setChild(7, floorrightwhite.GetOptixGeometry(context));
+   geometryGroup->setChild(8, test.GetOptixGeometry(context));*/
 
-	Lambertian whiteBRDF(make_float3(0.8f, 0.8f, 0.8f));
-	Lambertian greenBRDF(make_float3(0.05f, 0.8f, 0.05f));
-	Lambertian redBRDF(make_float3(0.8f, 0.05f, 0.05f));
+   Lambertian whiteBRDF(make_float3(0.8f, 0.8f, 0.8f));
+   Lambertian greenBRDF(make_float3(0.05f, 0.8f, 0.05f));
+   Lambertian redBRDF(make_float3(0.8f, 0.05f, 0.05f));
 
-	Matte white = Matte(&whiteBRDF);
-	Matte green = Matte(&greenBRDF);
-	Matte red = Matte(&redBRDF);
+   Matte white = Matte(&whiteBRDF);
+   Matte green = Matte(&greenBRDF);
+   Matte red = Matte(&redBRDF);
 
-	Parallelogram floor(
-		make_float3(0.0f, 0.0f, 0.0f),
-		make_float3(0.0f, 0.0f, 559.2f),
-		make_float3(556.0f, 0.0f, 0.0f), true);
+   Parallelogram floor(
+      make_float3(0.0f, 0.0f, 0.0f),
+      make_float3(0.0f, 0.0f, 559.2f),
+      make_float3(556.0f, 0.0f, 0.0f), true);
 
-	MatteParallelogram floorWhite(&floor, &white);
+   MatteParallelogram floorWhite(&floor, &white);
 
-	Parallelogram ceiling(
-		make_float3(0.0f, 548.0f, 0.0f),
-		make_float3(556.0f, 548.0f, 0.0f),
-		make_float3(0.0f, 548.0f, 559.2f), true);
+   Parallelogram ceiling(
+      make_float3(0.0f, 548.0f, 0.0f),
+      make_float3(556.0f, 548.0f, 0.0f),
+      make_float3(0.0f, 548.0f, 559.2f), true);
 
-	MatteParallelogram ceilingWhite(&ceiling, &white);
+   MatteParallelogram ceilingWhite(&ceiling, &white);
 
-	Parallelogram back(
-		make_float3(0.0f, 0.0f, 559.2f),
-		make_float3(0.0f, 548.8f, 559.2f),
-		make_float3(556.0f, 0.0f, 559.2f), true);
+   Parallelogram back(
+      make_float3(0.0f, 0.0f, 559.2f),
+      make_float3(0.0f, 548.8f, 559.2f),
+      make_float3(556.0f, 0.0f, 559.2f), true);
 
-	MatteParallelogram backWhite(&back, &white);
+   MatteParallelogram backWhite(&back, &white);
 
-	Parallelogram right(
-		make_float3(0.0f, 0.0f, 0.0f),
-		make_float3(0.0f, 548.8f, 0.0f),
-		make_float3(0.0f, 0.0f, 559.2f), true);
+   Parallelogram right(
+      make_float3(0.0f, 0.0f, 0.0f),
+      make_float3(0.0f, 548.8f, 0.0f),
+      make_float3(0.0f, 0.0f, 559.2f), true);
 
-	MatteParallelogram rightGreen(&right, &green);
+   MatteParallelogram rightGreen(&right, &green);
 
-	Parallelogram left(
-		make_float3(556.0f, 0.0f, 0.0f),
-		make_float3(556.0f, 0.0f, 559.2f),
-		make_float3(556.0f, 548.8f, 0.0f), true);
+   Parallelogram left(
+      make_float3(556.0f, 0.0f, 0.0f),
+      make_float3(556.0f, 0.0f, 559.2f),
+      make_float3(556.0f, 548.8f, 0.0f), true);
 
-	MatteParallelogram leftRed(&left, &red);
+   MatteParallelogram leftRed(&left, &red);
 
-	Parallelogram p1(
-		make_float3(130.0f, 165.0f, 65.0f),
-		make_float3(82.0f, 165.0f, 225.0f),
-		make_float3(290.0f, 165.8f, 114.0f), true);
-	MatteParallelogram p1W(&p1, &white);
+   Parallelogram p1(
+      make_float3(130.0f, 165.0f, 65.0f),
+      make_float3(82.0f, 165.0f, 225.0f),
+      make_float3(290.0f, 165.8f, 114.0f), true);
+   MatteParallelogram p1W(&p1, &white);
 
-	Parallelogram p2(
-		make_float3(290.0f, 0.0f, 114.0f),
-		make_float3(290.0f, 165.0f, 114.0f),
-		make_float3(240.0f, 0.0f, 272.0f), true);
-	MatteParallelogram p2W(&p2, &white);
+   Parallelogram p2(
+      make_float3(290.0f, 0.0f, 114.0f),
+      make_float3(290.0f, 165.0f, 114.0f),
+      make_float3(240.0f, 0.0f, 272.0f), true);
+   MatteParallelogram p2W(&p2, &white);
 
-	Parallelogram p3(
-		make_float3(130.0f, 0.0f, 65.0f),
-		make_float3(130.0f, 165.0f, 65.0f),
-		make_float3(290.0f, 0.0f, 114.0f), false);
-	MatteParallelogram p3W(&p3, &white);
+   Parallelogram p3(
+      make_float3(130.0f, 0.0f, 65.0f),
+      make_float3(130.0f, 165.0f, 65.0f),
+      make_float3(290.0f, 0.0f, 114.0f), false);
+   MatteParallelogram p3W(&p3, &white);
 
-	Parallelogram p4(
-		make_float3(82.0f, 0.0f, 225.0f),
-		make_float3(82.0f, 165.0f, 225.0f),
-		make_float3(130.0f, 0.0f, 65.0f), true);
-	MatteParallelogram p4W(&p4, &white);
+   Parallelogram p4(
+      make_float3(82.0f, 0.0f, 225.0f),
+      make_float3(82.0f, 165.0f, 225.0f),
+      make_float3(130.0f, 0.0f, 65.0f), true);
+   MatteParallelogram p4W(&p4, &white);
 
-	Parallelogram p5(
-		make_float3(240.0f, 0.0f, 272.0f),
-		make_float3(240.0f, 165.0f, 272.0f),
-		make_float3(82.0f, 0.0f, 225.0f), true);
-	MatteParallelogram p5W(&p4, &white);
+   Parallelogram p5(
+      make_float3(240.0f, 0.0f, 272.0f),
+      make_float3(240.0f, 165.0f, 272.0f),
+      make_float3(82.0f, 0.0f, 225.0f), true);
+   MatteParallelogram p5W(&p4, &white);
 
+   Triangle triangle(
+	   make_float3(240.0f, 0.0f, 559.0f),
+	   make_float3(480, 0.0f, 559.0f),
+	   make_float3(340.0f, 300.0f, 559.0f), false);
 
+   MatteTriangle matteTriangle(&triangle, &red);
 
+   GeometryGroup geometryGroup = context->createGeometryGroup();
+   geometryGroup->setChildCount(11u);
+   geometryGroup->setChild(0, floorWhite.GetOptixGeometry(context));
+   geometryGroup->setChild(1, ceilingWhite.GetOptixGeometry(context));
+   geometryGroup->setChild(2, backWhite.GetOptixGeometry(context));
+   geometryGroup->setChild(3, leftRed.GetOptixGeometry(context));
+   geometryGroup->setChild(4, rightGreen.GetOptixGeometry(context));
+   geometryGroup->setChild(5, p1W.GetOptixGeometry(context));
+   geometryGroup->setChild(6, p2W.GetOptixGeometry(context));
+   geometryGroup->setChild(7, p3W.GetOptixGeometry(context));
+   geometryGroup->setChild(8, p4W.GetOptixGeometry(context));
+   geometryGroup->setChild(9, p5W.GetOptixGeometry(context));
+   geometryGroup->setChild(10, matteTriangle.GetOptixGeometry(context));
 
+   geometryGroup->setAcceleration(context->createAcceleration("NoAccel"));
 
-	GeometryGroup geometryGroup = context->createGeometryGroup();
-	geometryGroup->setChildCount(10u);
-	geometryGroup->setChild(0, floorWhite.GetOptixGeometry(context));
-	geometryGroup->setChild(1, ceilingWhite.GetOptixGeometry(context));
-	geometryGroup->setChild(2, backWhite.GetOptixGeometry(context));
-	geometryGroup->setChild(3, leftRed.GetOptixGeometry(context));
-	geometryGroup->setChild(4, rightGreen.GetOptixGeometry(context));
-	geometryGroup->setChild(5, p1W.GetOptixGeometry(context));
-	geometryGroup->setChild(6, p2W.GetOptixGeometry(context));
-	geometryGroup->setChild(7, p3W.GetOptixGeometry(context));
-	geometryGroup->setChild(8, p4W.GetOptixGeometry(context));
-	geometryGroup->setChild(9, p5W.GetOptixGeometry(context));
-
-	geometryGroup->setAcceleration(context->createAcceleration("NoAccel"));
-
-	context["root"]->set(geometryGroup);
+   context["root"]->set(geometryGroup);
 
 }
-	
+   
 
 void CreateRNGS(Context context, int width, int height) {
 
-	Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
-	RNGBuffer->setFormat(RT_FORMAT_USER);
-	RNGBuffer->setElementSize(sizeof(RNG));
-	RNGBuffer->setSize(width, height);
-	RNG* rng = (RNG*)RNGBuffer->map();
-	for (unsigned int i = 0; i < width * height; i++) {
-		rng[i] = RNG(0u, i);
-	}
-	RNGBuffer->unmap();
-	context["rngs"]->setBuffer(RNGBuffer);
+   Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+   RNGBuffer->setFormat(RT_FORMAT_USER);
+   RNGBuffer->setElementSize(sizeof(RNG));
+   RNGBuffer->setSize(width, height);
+   RNG* rng = (RNG*)RNGBuffer->map();
+   for (unsigned int i = 0; i < width * height; i++) {
+      rng[i] = RNG(0u, i);
+   }
+   RNGBuffer->unmap();
+   context["rngs"]->setBuffer(RNGBuffer);
 }
 
 void glutInitialize(int* argc, char** argv,int width, int height)
 {
-	glutInit(argc, argv);
-	glutInitDisplayMode(GLUT_RGB | GLUT_ALPHA | GLUT_DEPTH | GLUT_DOUBLE);
-	glutInitWindowSize(width, height);
-	glutInitWindowPosition(100, 100);
-	glutCreateWindow("OptixRayTracer");
-	glutHideWindow();
+   glutInit(argc, argv);
+   glutInitDisplayMode(GLUT_RGB | GLUT_ALPHA | GLUT_DEPTH | GLUT_DOUBLE);
+   glutInitWindowSize(width, height);
+   glutInitWindowPosition(100, 100);
+   glutCreateWindow("OptixRayTracer");
+   glutHideWindow();
 }
 
 void glutDisplay()
 {
 
-	sutil::displayBufferGL(film.GetBuffer(context));
+   sutil::displayBufferGL(film.GetBuffer(context));
 
 
-	glutSwapBuffers();
+   glutSwapBuffers();
 }
 
 
 void glutRun()
 {
-	// Initialize GL state                                                            
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, 1, 0, 1, -1, 1);
+   // Initialize GL state                                                            
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   glOrtho(0, 1, 0, 1, -1, 1);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+   glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
 
-	glViewport(0, 0, width, height);
+   glViewport(0, 0, width, height);
 
-	glutShowWindow();
-	glutReshapeWindow(width, height);
+   glutShowWindow();
+   glutReshapeWindow(width, height);
 
-	// register glut callbacks
-	glutDisplayFunc(glutDisplay);
+   // register glut callbacks
+   glutDisplayFunc(glutDisplay);
 
-	glutMainLoop();
+   glutMainLoop();
 }
 
 
 
 int main(int argc, char* argv[]) {
+	/*
+   try {
+      //glutInitialize(&argc, argv,width,height);
+      sutil::initGlut(&argc, argv);
 
-	try {
-		//glutInitialize(&argc, argv,width,height);
-		sutil::initGlut(&argc, argv);
+
+      context = CreateContext();
+      Pinhole camera = CreateCamera(context);
+      film = CreateFilm(context,width, height);
+      CreateLights(context);
+      CreateRNGS(context, width, height);
+      CreateGeometry(context);
+
+      context->setPrintEnabled(true);
+      context->validate();
+      context->launch(0, width, height);
+      glutRun();
+      Buffer bufferImage = film.GetBuffer(context);
+      //sutil::displayBufferPPM("image", bufferImage);
+      //sutil::displayBufferGlut("dd", bufferImage->get());
+      //sutil::displayBufferGL(bufferImage);
+
+      context->destroy();
+   }
+   catch (optix::Exception e) {
+      std::cout << e.getErrorString();
+   }*/
+  
 
 
-		context = CreateContext();
-		Pinhole camera = CreateCamera(context);
-		film = CreateFilm(context,width, height);
-		CreateLights(context);
-		CreateRNGS(context, width, height);
-		CreateGeometry(context);
+  try {
 
-		context->setPrintEnabled(true);
-		context->validate();
-		context->launch(0, width, height);
+	   sutil::initGlut(&argc, argv);
+	   string filename = "";
+	   Scene scene = SceneBuilder::BuildFromFile(filename);
+	   scene.Render();
+	   Buffer image = scene.GetOutputImage(context);
 
-		glutRun();
-		Buffer bufferImage = film.GetBuffer(context);
-		//sutil::displayBufferPPM("image", bufferImage);
-		//sutil::displayBufferGlut("dd", bufferImage->get());
-		//sutil::displayBufferGL(bufferImage);
-
-		context->destroy();
-	}
-	catch (optix::Exception e) {
-		std::cout << e.getErrorString();
-	}
-	
+   }
+   catch (optix::Exception e) {
+	   std::cout << e.getErrorString();
+   }
+   catch (Exception e) {
+	   std::cout << e.what();
+   }
+   catch (string e) {
+	   std::cout << e;
+   }
+   
+   
 
 }
 
