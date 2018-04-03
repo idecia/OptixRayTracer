@@ -370,7 +370,7 @@ int main(int argc, char* argv[]) {
   try {
 
 	   sutil::initGlut(&argc, argv);
-	   string filename = "./cube.dae";
+	   string filename = "./Cornell.dae";
 	   scene =  SceneBuilder::BuildFromFile(filename);
 	   scene.Render();
 	  glutRun();

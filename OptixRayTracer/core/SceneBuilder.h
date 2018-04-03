@@ -151,7 +151,7 @@ void SceneBuilder::ClassifyMeshes(const aiScene* scene,
 		aiString name = mesh->mName;
 		unsigned int materialIdx = mesh->mMaterialIndex;
 		aiMaterial* material = scene->mMaterials[materialIdx];
-		if (IsMaterialEmissive(material))
+ 		if (IsMaterialEmissive(material))
 			areaLightMeshes.push_back(mesh);
 		else
 			geometryMeshes.push_back(mesh);
@@ -224,6 +224,7 @@ void SceneBuilder::loadLights(const aiScene* scene,
 	  }
 	  lightIdx++;
 	}
+	context["lights"]->setBuffer(lightPtrBuffer);
 	
 }
 
@@ -242,13 +243,13 @@ void SceneBuilder::loadMaterials(const aiScene* scene,
 		aiString name;
 		material->Get(AI_MATKEY_NAME, name);
 		
-		if (IsMaterialEmissive(material)) 
+		if (IsMaterialEmissive(material))  {
+			Material optixMaterial = context->createMaterial();
+			materials.push_back(optixMaterial);
 			continue;
-		aiColor3D emissivePower, specularPower;
-		aiColor4D emissivePower2;
-		bool b = material->Get(AI_MATKEY_COLOR_EMISSIVE, emissivePower) == AI_SUCCESS;
-		b = material->Get(AI_MATKEY_COLOR_SPECULAR, specularPower) == AI_SUCCESS;
-		aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, &emissivePower2);
+			//ver que hacer aqui
+		}
+	
 		//[TODO] Textured material
 		//[TODO] Reflective/mirror material
 
@@ -256,6 +257,8 @@ void SceneBuilder::loadMaterials(const aiScene* scene,
 		if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS) {
 
 			Material optixMaterial = context->createMaterial();
+			optixMaterial->setClosestHitProgram(RayType::RADIANCE, closestHitRadiance);
+			optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
 			Lambertian brdf(toFloat3(diffuseColor));
 			optixMaterial["brdf"]->setUserData(sizeof(Lambertian), &brdf);
 			materials.push_back(optixMaterial);
@@ -329,23 +332,30 @@ void SceneBuilder::loadMeshes(const aiScene* scene,
 
 Group SceneBuilder::GetGroupFromNode(optix::Context &context, const aiScene* scene,
 	aiNode* node, const vector<Geometry> &geometries, const vector<Material> &materials) {
-
+	
 	if (node->mNumMeshes > 0) {
 
 		vector<GeometryInstance> instances;
-		GeometryGroup geometryGroup = context->createGeometryGroup();
-		geometryGroup->setChildCount(node->mNumMeshes);
+		//GeometryGroup geometryGroup = context->createGeometryGroup();
+		//geometryGroup->setChildCount(node->mNumMeshes);
 		
 		for (unsigned int i = 0; i < node->mNumMeshes; i++) {
 			unsigned int meshIndex = node->mMeshes[i];
 			aiMesh* mesh = scene->mMeshes[meshIndex];
 			unsigned int materialIndex = mesh->mMaterialIndex;
-			if (IsMaterialEmissive(scene->mMaterials[materialIndex]))
-				continue;
+			if (IsMaterialEmissive(scene->mMaterials[materialIndex])) {
+				Group emptyGroup = context->createGroup();
+				emptyGroup->setChildCount(0);
+				Acceleration acceleration = context->createAcceleration("NoAccel", "NoAccel");
+				emptyGroup->setAcceleration(acceleration);
+				return emptyGroup;
+			}
 			Material geometryMaterial = materials.at(materialIndex);
 			GeometryInstance instance = GetGeometryInstance(context, geometries[meshIndex], geometryMaterial);
-			geometryGroup->setChild(i, instance);
+			//geometryGroup->setChild(i, instance);
+			instances.push_back(instance);
 		}
+		GeometryGroup geometryGroup = context->createGeometryGroup(instances.begin(), instances.end());
 		{
 			Acceleration acceleration = context->createAcceleration("Sbvh", "Bvh");
 			acceleration->setProperty("vertex_buffer_name", "vertexBuffer");
@@ -381,8 +391,9 @@ Group SceneBuilder::GetGroupFromNode(optix::Context &context, const aiScene* sce
 			return group;
 		}
 	}
-
+	
 	Group emptyGroup = context->createGroup();
+	emptyGroup->setChildCount(0);
 	Acceleration acceleration = context->createAcceleration("NoAccel", "NoAccel");
 	emptyGroup->setAcceleration(acceleration);
 	return emptyGroup;
@@ -420,7 +431,7 @@ void SceneBuilder::loadCamera(const aiScene* scene, Context &context, int width,
 	aiVector3D lookAt = eye + camera->mLookAt;
 	aiVector3D up = camera->mUp;
 
-	Pinhole pinhole(toFloat3(eye), toFloat3(lookAt), normalize(toFloat3(up)), 1.0f);
+	Pinhole pinhole(toFloat3(eye), toFloat3(lookAt), normalize(toFloat3(up)), 2.0f);
 
 	const char* path = "./Pinhole.ptx";
 	Program program = context->createProgramFromPTXFile(path, "pinhole");

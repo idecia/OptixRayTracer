@@ -38,10 +38,10 @@ RT_PROGRAM void intersect(int primIdx) {
 	if (u < 0.0f || v < 0.0f || u + v > 1.0f) return;
 
 	float t = dot(E2, S2) * invDivisor;
-
 	if (rtPotentialIntersection(t)) {
 		float3 p = ray.origin + ray.direction * t;
-		float3 normal = cross(E1, E2);
+		float3 normal = normalize(cross(E1, E2));
+		//rtPrintf("(%f, %f, %f)\n", normal.x, normal.y, normal.z);
 		hit.position = p;
 		hit.normal = normal;
 		rtReportIntersection(0);

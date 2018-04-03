@@ -9,17 +9,17 @@
 #include "core/RNG.h"
 #include "samplers/Random2D.h"
 #include <optix_device.h>
-/*
+
 rtBuffer<RNG, 2> rngs;
 rtDeclareVariable(uint2, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(Pinhole, camera, , );
 rtDeclareVariable(Film, film, , );
-rtDeclareVariable(rtObject, root, , ); */
+rtDeclareVariable(rtObject, root, , ); 
 
 
 RT_PROGRAM void pinhole(void) {
-	int nSamples = 2000;
-	/*
+	int nSamples = 10;
+	
 
 	RadiancePayload radiancePayload;
 	radiancePayload.rng = rngs[pixelIdx];
@@ -39,14 +39,14 @@ RT_PROGRAM void pinhole(void) {
 		//rtPrintf("(%f, %f)   ", uniformSample.x, uniformSample.y);
 		//rtPrintf("(%f, %f)\n", filmSample.x, filmSample.y);
 		Ray ray = camera.GenerateRay(filmSample);
-		//rtTrace(root, ray, radiancePayload);
+		rtTrace(root, ray, radiancePayload);
 		//rtPrintf("(%f, %f, %f)\n", radiancePayload.color.x, radiancePayload.color.y, radiancePayload.color.z);
 		result += radiancePayload.color;
 
 	}
 
 	film.PutSample(pixelIdx, result / (float)nSamples);
-	rngs[pixelIdx] = radiancePayload.rng;*/
+	rngs[pixelIdx] = radiancePayload.rng;
 
 
 }
