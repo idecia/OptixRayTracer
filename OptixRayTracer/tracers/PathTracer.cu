@@ -8,7 +8,7 @@
 #include "core/optix_global.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 5
+#define MAX_DEPTH 0
 
 rtDeclareVariable(uint2, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(Pinhole, camera, , );
