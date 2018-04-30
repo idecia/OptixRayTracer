@@ -303,6 +303,15 @@ void SceneBuilder::loadMeshes(const aiScene* scene,
 			sizeof(optix::float3)*numVertices);
 		vertexBuffer->unmap();
 
+		for (int i = 1; i < numVertices; i++) {
+			float x = mesh->mNormals[i].x;
+			float y = mesh->mNormals[i].y;
+			float z = mesh->mNormals[i].z;
+			x = mesh->mVertices[i].x;
+			 y = mesh->mVertices[i].y;
+			 z = mesh->mVertices[i].z;
+		}
+
 		memcpy(static_cast<void*>(normalBuffer_Host),
 			static_cast<void*>(mesh->mNormals),
 			sizeof(optix::float3)*numVertices);

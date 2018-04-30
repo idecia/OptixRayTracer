@@ -19,7 +19,7 @@ rtBuffer<PointLight> lights;
 
 RT_PROGRAM void closestHit() {
 
-   //float3 color = make_float3(0.0f);
+ /*  //float3 color = make_float3(0.0f);
    BRDFQueryRecord  dummy;
    float3 color = brdf.Eval(dummy) * 0.1; //simulate ambient light}
    unsigned int numLights = lights.size();
@@ -41,7 +41,7 @@ RT_PROGRAM void closestHit() {
    }
    //color.x = 1; color.y = color.z = 0;
    radiancePayload.color = color;
-   //rtPrintf("(%f, %f, %f)\n", hit.position.x, hit.position.y, hit.position.z);
+   //rtPrintf("(%f, %f, %f)\n", hit.position.x, hit.position.y, hit.position.z);*/
    
 }
 

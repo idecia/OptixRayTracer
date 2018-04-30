@@ -8,7 +8,7 @@
 #include "core/optix_global.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 0
+#define MAX_DEPTH 1
 
 rtDeclareVariable(uint2, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(Pinhole, camera, , );
@@ -21,7 +21,7 @@ rtDeclareVariable(rtObject, root, , );
 rtBuffer<Light*> lights;
 
 RT_PROGRAM void closestHit() {
-
+	/*
    float3 color = make_float3(0.0f);
    BRDFQueryRecord  dummy;
 
@@ -41,20 +41,12 @@ RT_PROGRAM void closestHit() {
          float pdf, tMax;
 		 CALL_LIGHT_VIRTUAL_FUNCTION(L, = , light, Sample, hit.position, uniformSample, wo, pdf, tMax);
        //  L = light->Sample(hit.position, uniformSample,  wo, pdf, tMax);
-         /*float3 lightPoint = light.Sample(uniformSample);
-         float3 L = lightPoint - hit.position;
-         float LDist = length(L);
-         L = normalize(L);*/
+ 
          ShadowPayload shadowPayload;
          shadowPayload.attenuation = 1.0f;
          Ray shadowRay = make_Ray(hit.position, wo, RayType::SHADOW, 0.1, tMax);
          rtTrace(root, shadowRay, shadowPayload);
          if (shadowPayload.attenuation > 0.0f) {
-            /*float nDotl  = fmaxf(dot(hit.normal, L), 0.0f);
-            float lpDotl = fmaxf(dot(light.NormalAt(lightPoint), -L), 0.0f);
-            float3 BRDF = brdf.Eval(dummy);
-            float pdf = light.Pdf(lightPoint);
-            color += BRDF * nDotl * lpDotl * light.GetColor() / (LDist * LDist * pdf);*/
             float3 BRDF = brdf.Eval(dummy);
             float nDotl = fmaxf(dot(hit.normal, wo), 0.0f);
             color += BRDF * nDotl * L  / pdf;
@@ -87,7 +79,7 @@ RT_PROGRAM void closestHit() {
 
    }
    
-   radiancePayload.color = color;
+   radiancePayload.color = color;*/
 
    
 

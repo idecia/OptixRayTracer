@@ -96,7 +96,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\;$(CUDA_PATH)\include;$(OPTIX_PATH)\include\optixu;$(FREEGLUT_PATH)\include;$(OPTIX_PATH)\include;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\3rdparty\sutil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\;$(OPTIX_PATH)\include\optixu;$(FREEGLUT_PATH)include;$(OPTIX_PATH)\include;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\3rdparty\sutil;$(CUDA_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -118,6 +118,9 @@ copy "$(ASSIMP_PATH)\bin\x64\Assimp64.dll" "$(OutDir)"</Command>
       <HostDebugInfo>false</HostDebugInfo>
       <GPUDebugInfo>false</GPUDebugInfo>
       <KeepDir>..\x64\Debug</KeepDir>
+      <Include>
+      </Include>
+      <UseHostInclude>true</UseHostInclude>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -221,8 +224,14 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="3rdparty\assimp\vector2.h" />
     <ClInclude Include="3rdparty\assimp\vector3.h" />
     <ClInclude Include="3rdparty\assimp\version.h" />
+    <ClInclude Include="3rdparty\freeglut\include\GL\freeglut.h" />
+    <ClInclude Include="3rdparty\freeglut\include\GL\freeglut_ext.h" />
+    <ClInclude Include="3rdparty\freeglut\include\GL\freeglut_std.h" />
+    <ClInclude Include="3rdparty\freeglut\include\GL\glut.h" />
+    <ClInclude Include="brdfs\SpecularReflection.h" />
     <ClInclude Include="brdfs\Lambertian.h" />
     <ClInclude Include="cameras\Pinhole.h" />
+    <ClInclude Include="core\BxDF.h" />
     <ClInclude Include="core\Payload.h" />
     <ClInclude Include="core\RNG.h" />
     <ClInclude Include="core\Scene.h" />
@@ -251,6 +260,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="materials\Matte.h" />
     <ClInclude Include="samplers\Hemisphere.h" />
     <ClInclude Include="samplers\Random2D.h" />
+    <ClInclude Include="samplers\Util.h" />
     <ClInclude Include="shapes\Parallelogram.h" />
     <ClInclude Include="shapes\Sphere.h" />
     <ClInclude Include="shapes\Triangle.h" />
