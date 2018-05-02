@@ -104,7 +104,7 @@ RT_FUNCTION float3 Lambertian::Sample(const float3 &wo, float3 *wi, float u1, fl
 
 RT_FUNCTION float Lambertian::Pdf(const float3 &wo, const float3 &wi)  const {
 
-	return fabsf(wo.z) * M_1_PIf;
+	return fabsf(CosTheta(wo)) * M_1_PIf;
 
 }
 
