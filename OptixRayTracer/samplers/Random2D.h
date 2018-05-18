@@ -2,6 +2,7 @@
 
 #include "core/RNG.h"
 #include "core/optix_global.h"
+#include "Util.h"
 
 class Random2D {
 

@@ -13,8 +13,10 @@
 #include "films/Film.h"
 #include "cameras/Pinhole.h"
 #include "brdfs/Lambertian.h"
+#include  "samplers/Random2D.h"
 #include "core/Ray.h"
 #include <vector> 
+#include <time.h>
 
 using namespace std;
 
@@ -59,6 +61,8 @@ private:
 
 	static void loadCamera(const aiScene* scene, Context &context, int width, int height);
 
+	static optix::Buffer loadSensors(const aiScene* scene, Context &context, int width);
+
 
 };
 
@@ -92,6 +96,7 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 	Context context = Context::create();
 	context->setRayTypeCount(RayType::RAY_TYPE_COUNT);
 	context->setEntryPointCount(1);
+	context->setStackSize(2800);
 
 	vector<Material> materials;
 	loadMaterials(scene, context, materials);
@@ -101,16 +106,17 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 	ClassifyMeshes(scene, geometryMeshes, areaLightMeshes);
 
 	vector<Light*> lights;
-	loadLights(scene, context, areaLightMeshes,lights);
+	//loadLights(scene, context, areaLightMeshes,lights);
 	
 	loadGeometry(scene, context, geometryMeshes, materials);
 	//ver si es necesario calcular el ABBox de la escena
 
-	int width = 680;
-	int height = 480;
-	loadCamera(scene, context, width, height);
+	int width = 2000;
+	int height = 0;
+	//loadCamera(scene, context, width, height);
+	optix::Buffer coeff = loadSensors(scene, context, width);
 
-	Scene optixScene(context);
+	Scene optixScene(context, coeff);
 	optixScene.SetWidth(width);
 	optixScene.SetHeight(height);
 	return optixScene;
@@ -232,9 +238,12 @@ void SceneBuilder::loadLights(const aiScene* scene,
 void SceneBuilder::loadMaterials(const aiScene* scene,
 	Context &context, vector<Material> &materials) {
 
-	const char* path = "./PathTracer.ptx";
+	//const char* path = "./PathTracer.ptx";
+	const char* path = "./Irradiance.ptx";
 	Program closestHitRadiance = context->createProgramFromPTXFile(path, "closestHit");
 	Program anyHit = context->createProgramFromPTXFile(path, "anyHit");
+	Program miss = context->createProgramFromPTXFile(path, "miss");
+	context->setMissProgram(RayType::RADIANCE, miss);
 
 	for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
 
@@ -303,14 +312,14 @@ void SceneBuilder::loadMeshes(const aiScene* scene,
 			sizeof(optix::float3)*numVertices);
 		vertexBuffer->unmap();
 
-		for (int i = 1; i < numVertices; i++) {
+		/*for (int i = 1; i < numVertices; i++) {
 			float x = mesh->mNormals[i].x;
 			float y = mesh->mNormals[i].y;
 			float z = mesh->mNormals[i].z;
 			x = mesh->mVertices[i].x;
 			 y = mesh->mVertices[i].y;
 			 z = mesh->mVertices[i].z;
-		}
+		}*/
 
 		memcpy(static_cast<void*>(normalBuffer_Host),
 			static_cast<void*>(mesh->mNormals),
@@ -445,10 +454,12 @@ void SceneBuilder::loadCamera(const aiScene* scene, Context &context, int width,
 	const char* path = "./Pinhole.ptx";
 	Program program = context->createProgramFromPTXFile(path, "pinhole");
 	context->setRayGenerationProgram(0, program);
-	path = "./Whitted.ptx";
-	Program miss = context->createProgramFromPTXFile(path, "miss");
-	context->setMissProgram(RayType::RADIANCE, miss);
 	//TODO: Exception program 
+	context->setExceptionEnabled(RT_EXCEPTION_ALL, 1);
+	Program exception = context->createProgramFromPTXFile(path, "exception");
+	context->setExceptionProgram(0, exception);
+	context->setRayGenerationProgram(0, program);
+	
 	context["camera"]->setUserData(sizeof(Pinhole), &pinhole);
 	
 	Film film(width, height);
@@ -468,4 +479,75 @@ void SceneBuilder::loadCamera(const aiScene* scene, Context &context, int width,
 	}
 	RNGBuffer->unmap();
 	context["rngs"]->setBuffer(RNGBuffer);
+}
+
+
+optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, int width) {
+
+
+	const char* path = "./PointSensor.ptx";
+	Program program = context->createProgramFromPTXFile(path, "sensor");
+	context->setRayGenerationProgram(0, program);
+	context->setExceptionEnabled(RT_EXCEPTION_ALL, 1);
+	Program exception = context->createProgramFromPTXFile(path, "exception");
+	context->setExceptionProgram(0, exception);
+	context->setRayGenerationProgram(0, program);
+
+	context["sensorPos"]->setFloat(-1.25f, -0.5f, 0.70f);
+	//context["sensorPos"]->setFloat(100000000.0f, 100000000.0f, 100000000.0f);
+	context["sensorNormal"]->setFloat(0.0f, 0.0f, 1.0f);
+	context["N"]->setInt(width);
+
+	optix::Buffer coeff = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	coeff->setFormat(RT_FORMAT_FLOAT3);
+	unsigned int NskyPatches = 146; //145 + 1
+	coeff->setSize(NskyPatches);
+	float* values = (float*)coeff->map();
+	for (unsigned int i = 0; i < NskyPatches * 3; i++) {
+		values[i] = 0.0f;
+	}
+	coeff->unmap();
+	context["coeff"]->set(coeff);
+
+	optix::Buffer ns = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	ns->setFormat(RT_FORMAT_UNSIGNED_INT);
+	ns->setSize(NskyPatches);
+	unsigned int* val = (unsigned int*)ns->map();
+	for (unsigned int i = 0; i < NskyPatches; i++) {
+		val[i] = 0u;
+	}
+	ns->unmap();
+	context["ns"]->set(ns);
+	context["NskyPatches"]->setUint(NskyPatches);
+
+	
+	optix::Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	RNGBuffer->setFormat(RT_FORMAT_USER);
+	RNGBuffer->setElementSize(sizeof(RNG));
+	RNGBuffer->setSize(width);
+	RNG* rng = (RNG*)RNGBuffer->map();
+	for (unsigned int i = 0; i < width; i++) {
+		rng[i] = RNG(0u, i + time(nullptr));
+	}
+	RNGBuffer->unmap();
+	context["rngs"]->setBuffer(RNGBuffer);
+
+	/*optix::Buffer u = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	u->setFormat(RT_FORMAT_FLOAT2);
+	u->setSize(width);
+	float2* umap = (float2*)u->map();
+	RNG rng(1234567,0);
+	Random2D sampler(&rng, width);
+	float2 unifSample;
+	int i = 0;
+	while (sampler.Next2D(&unifSample)) {
+		umap[i] = unifSample;
+		i++;
+	}
+	u->unmap();
+	context["u"]->setBuffer(u); */
+
+
+	return coeff;
+
 }

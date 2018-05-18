@@ -18,7 +18,7 @@ rtDeclareVariable(rtObject, root, , );
 
 
 RT_PROGRAM void pinhole(void) {
-	int nSamples = 350;
+	int nSamples = 10;
 	
 
 	RadiancePayload radiancePayload;
@@ -48,5 +48,12 @@ RT_PROGRAM void pinhole(void) {
 	film.PutSample(pixelIdx, result / (float)nSamples);
 	rngs[pixelIdx] = radiancePayload.rng;
 
+
+}
+
+
+RT_PROGRAM void exception() {
+
+	rtPrintExceptionDetails();
 
 }

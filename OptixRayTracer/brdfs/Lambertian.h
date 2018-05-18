@@ -7,12 +7,6 @@
 
 using namespace optix;
 
-/*
-struct BRDFQueryRecord {
-   float3 point;
-   float3 wi;
-   float3 wo;
-};
 
 class Lambertian {
 
@@ -20,42 +14,43 @@ public:
 
    RT_FUNCTION Lambertian();
    RT_FUNCTION Lambertian(const float3 &color);
-   RT_FUNCTION float Pdf(const BRDFQueryRecord &record) const;
-   RT_FUNCTION float3 Sample(BRDFQueryRecord &record, const float2 &sample) const;
-   RT_FUNCTION float3 Eval(const BRDFQueryRecord &record) const;
+   RT_FUNCTION float Pdf(const float3 &wo, const float3 &wi) const;
+   RT_FUNCTION float3 Sample(const float3 &wo, float3 *wi, float *pdf, const float2 &sample) const;
+   RT_FUNCTION float3 Eval(const float3 &wo, const float3 &wi) const;
 
 private:
 
-   float3 color;
+	float3 R;
+	float3 RoverPI;
 
 };
 
 RT_FUNCTION Lambertian::Lambertian() { }
 
-RT_FUNCTION Lambertian::Lambertian(const float3 &color)
-   :color(color) {
+RT_FUNCTION Lambertian::Lambertian(const float3 &reflectance)
+	:R(reflectance), RoverPI(reflectance * M_1_PIf) {
 
 }
 
-RT_FUNCTION float Lambertian::Pdf(const BRDFQueryRecord &record) const {
+RT_FUNCTION float Lambertian::Pdf(const float3 &wo, const float3 &wi) const {
    
-   return 0.5 * M_1_PIf;
+	return fabsf(wi.z) * M_1_PIf;
 }
 
-RT_FUNCTION float3 Lambertian::Sample(BRDFQueryRecord &record, const float2 &sample) const {
+RT_FUNCTION float3 Lambertian::Sample(const float3 &wo, float3 *wi, float *pdf, const float2 &sample) const {
 
-   //TODO: sample hemisphere using sample
-   return M_1_PIf * color;  //<-- This is the correct term
-   //return color;
+	*wi  = UniformHemisphereSample(sample.x, sample.y);
+	*pdf = Pdf(wo, *wi);
+	return Eval(wo, *wi);
 }
 
-RT_FUNCTION float3 Lambertian::Eval(const BRDFQueryRecord &record) const {
+RT_FUNCTION float3 Lambertian::Eval(const float3 &wo, const float3 &wi) const {
 
-   return M_1_PIf * color; // <-- This is the correct term
-   //return color;
+   return RoverPI; 
 }
 
-*/
+
+/*
 
 class Lambertian : public BxDF {
 
@@ -104,7 +99,7 @@ RT_FUNCTION float3 Lambertian::Sample(const float3 &wo, float3 *wi, float u1, fl
 
 RT_FUNCTION float Lambertian::Pdf(const float3 &wo, const float3 &wi)  const {
 
-	return fabsf(wo.z) * M_1_PIf;
+	return fabsf(wi.z) * M_1_PIf;
 
 }
 
@@ -118,3 +113,4 @@ RT_FUNCTION float3 Lambertian::Rho(int nSamples, float *samples) {
 
 	return R;
 }
+*/

@@ -19,6 +19,7 @@ RT_PROGRAM void intersect(int primIdx) {
 
 	float3 E1 = p1 - p0;
 	float3 E2 = p2 - p0;
+	operator-(p1, p2);
 
 	float3 S1 = cross(ray.direction, E2);
 	float invDivisor = 1.0f / dot(S1, E1);
@@ -35,11 +36,13 @@ RT_PROGRAM void intersect(int primIdx) {
 
 	if (rtPotentialIntersection(t)) {
 		float3 p = ray.origin + ray.direction * t;
-		hit.position = p;
 		hit.normal = triangle.NormalAt(p);
+		hit.position = p + 0.5*hit.normal;
 		rtReportIntersection(0);
 
 	}
+
+
 
 }
 

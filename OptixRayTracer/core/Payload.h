@@ -16,3 +16,12 @@ struct ShadowPayload {
    
 };
 
+struct ReinhartPayload {
+	
+	RNG rng;
+	int depth;
+	int patchID;
+	float3 value;
+
+};
+

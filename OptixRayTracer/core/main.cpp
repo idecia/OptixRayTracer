@@ -6,6 +6,7 @@
 #include "core/RNG.h"
 #include "core/Ray.h"
 #include "shapes/Sphere.h"
+#include "lights/Reinhart.h"
 #include "shapes/Parallelogram.h"
 #include "brdfs/Lambertian.h"
 #include "materials/Matte.h"
@@ -17,6 +18,7 @@
 #include "3rdparty/sutil/GL/glew.h"
 #include "3rdparty/freeglut/include/GL/freeglut.h"
 #include "core/Scene.h"
+#include "lights/Reinhart.h"
 #include "core/SceneBuilder.h"
 #include <iostream>
 #include <vector>
@@ -101,7 +103,7 @@ void CreateLights(Context context) {
    PointLight light2(position, color);
 
    vector<char*> ptrs;
-   Buffer lightBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
+   optix::Buffer lightBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
       RT_FORMAT_USER, 2);
    lightBuffer->setElementSize(MAX_LIGHT_SIZE);
    char* basePtr = (char*)lightBuffer->getDevicePointer(0);
@@ -115,7 +117,7 @@ void CreateLights(Context context) {
   ptrs.push_back(basePtr + MAX_LIGHT_SIZE);
    //context["lightsData"]->setBuffer(lightBuffer);
 
-   Buffer ptrsBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
+   optix::Buffer ptrsBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
 	   RT_FORMAT_USER, 1);
    ptrsBuffer->setElementSize(sizeof(void*));
    buffer = (char*)ptrsBuffer->map();
@@ -278,7 +280,7 @@ void CreateGeometry(Context context) {
 
 void CreateRNGS(Context context, int width, int height) {
 
-   Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+   optix::Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
    RNGBuffer->setFormat(RT_FORMAT_USER);
    RNGBuffer->setElementSize(sizeof(RNG));
    RNGBuffer->setSize(width, height);
@@ -369,12 +371,49 @@ int main(int argc, char* argv[]) {
 
   try {
 
-	   sutil::initGlut(&argc, argv);
-	   string filename = "./untitled.dae";
+	 //sutil::initGlut(&argc, argv);
+	  string filename = "./LIGHTWELL.obj";
 	   scene =  SceneBuilder::BuildFromFile(filename);
-	   scene.Render();
-	  glutRun();
-	  Buffer image = scene.GetOutputImage();
+	   for (int i = 1; i < 2; i++) 
+		   for (int j = 0; j < 1 ; j++) {
+			   float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 0.7);
+			   scene.ChangeSensorPosition(p);
+			   scene.ResetSensorValues();
+			   scene.Render();
+			
+			   Buffer coeff = scene.GetSensorValues();
+			   float3* values = (float3*)coeff->map();
+			   RTsize RTwidth; coeff->getSize(RTwidth);
+			   int width = static_cast<int>(RTwidth);
+			  for (int i = 0; i < width; i++) {
+				   float3 v = values[i];
+			   cout << "   " << v.x << "   " << v.y << "   " << v.z;
+			   }
+			   cout << "\n";
+			   coeff->unmap();
+		   } 
+	  // glutRun();
+	   //Buffer image = scene.GetOutputImage();*/
+	  //float3 v = make_float3(0.5f, 0.5f, 2.5f);
+	  //cout << reinhart(v, 1);
+	
+	/*  scene = SceneBuilder::BuildFromFile(filename);
+	  float3 p = make_float3(100000000.0f, 100000000.0f, 100000000.0f);
+	  scene.ChangeSensorPosition(p);
+	  scene.ResetSensorValues();
+	  for (int i = 1; i <= 1; i++)
+		scene.Render();
+	  Buffer coeff = scene.GetSensorValues();
+	  float3* values = (float3*)coeff->map();
+	  RTsize RTwidth; coeff->getSize(RTwidth);
+	  int width = static_cast<int>(RTwidth);
+	  for (int i = 0; i < width; i++) {
+		  float3 v = values[i];
+		cout << "   " << v.x << "   " << v.y << "   " << v.z;
+	  }
+	  cout << "\n";
+	  coeff->unmap();*/
+
 
    }
    catch (optix::Exception e) {

@@ -33,16 +33,9 @@ RT_FUNCTION Hemisphere::Hemisphere(RNG *rng, uint32_t totalSamples)
 
 RT_FUNCTION bool Hemisphere::Next3D(float3 *sample) {
 
-   float x = rng->RandomFloat();
-   float y = rng->RandomFloat();
-   float cosPhi = cosf(2.0f * M_PIf * x);
-   float sinPhi = sinf(2.0f * M_PIf * x);
-   float cosTheta = 1.0f - y;
-   float sinTheta = sqrtf(1.0f - cosTheta * cosTheta);
-   sample->x = sinTheta * cosPhi;
-   sample->y = sinTheta * sinPhi;
-   sample->z = cosTheta;
-
+   float u1 = rng->RandomFloat();
+   float u2 = rng->RandomFloat();
+   *sample  = UniformHemisphereSample(u1, u2);
    ++generatedSamples;
    return (generatedSamples <= totalSamples);
 

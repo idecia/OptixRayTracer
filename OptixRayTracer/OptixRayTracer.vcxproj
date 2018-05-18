@@ -178,7 +178,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="3rdparty\sutil\rply-1.01\rply.c" />
     <ClCompile Include="3rdparty\sutil\sutil.cpp" />
     <ClCompile Include="3rdparty\sutil\tinyobjloader\tiny_obj_loader.cc" />
-    <ClCompile Include="tracers\Grid.cu" />
     <CudaCompile Include="cameras\Pinhole.cu" />
     <CudaCompile Include="shapes\Mesh.cu" />
     <CudaCompile Include="shapes\Parallelogram.cu" />
@@ -231,7 +230,11 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="brdfs\SpecularReflection.h" />
     <ClInclude Include="brdfs\Lambertian.h" />
     <ClInclude Include="cameras\Pinhole.h" />
+    <CudaCompile Include="cameras\PointSensor.cu">
+      <FileType>CppHeader</FileType>
+    </CudaCompile>
     <ClInclude Include="core\BxDF.h" />
+    <ClInclude Include="core\ONB.h" />
     <ClInclude Include="core\Payload.h" />
     <ClInclude Include="core\RNG.h" />
     <ClInclude Include="core\Scene.h" />
@@ -257,6 +260,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="core\Light.h" />
     <ClInclude Include="lights\AllLights.h" />
     <ClInclude Include="lights\PointLight.h" />
+    <ClInclude Include="lights\Reinhart.h" />
     <ClInclude Include="materials\Matte.h" />
     <ClInclude Include="samplers\Hemisphere.h" />
     <ClInclude Include="samplers\Random2D.h" />
@@ -264,6 +268,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="shapes\Parallelogram.h" />
     <ClInclude Include="shapes\Sphere.h" />
     <ClInclude Include="shapes\Triangle.h" />
+    <CudaCompile Include="tracers\Irradiance.cu" />
     <CudaCompile Include="tracers\PathTracer.cu" />
   </ItemGroup>
   <ItemGroup>
