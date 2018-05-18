@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> d11640ade35c065cb0888b8a31c301286d7d5ea8
 #pragma once
 
 #include "core/optix_global.h"
@@ -30,8 +34,12 @@ RT_FUNCTION ONB::ONB(float3 normal)
 		s.x = -n.y;
 		s.y = n.x;
 		s.z = 0;
+<<<<<<< HEAD
 	}
 	else {
+=======
+	} else {
+>>>>>>> d11640ade35c065cb0888b8a31c301286d7d5ea8
 		s.x = 0;
 		s.y = -n.z;
 		s.z = n.y;
@@ -39,7 +47,10 @@ RT_FUNCTION ONB::ONB(float3 normal)
 
 	s = normalize(s);
 	t = cross(s, n);
+<<<<<<< HEAD
 	
+=======
+>>>>>>> d11640ade35c065cb0888b8a31c301286d7d5ea8
 
 }
 
@@ -53,6 +64,11 @@ RT_FUNCTION float3 ONB::WorldToLocal(const float3 &v) {
 
 RT_FUNCTION float3 ONB::LocalToWorld(const float3 &v) {
 
+<<<<<<< HEAD
 	return  (v.x * s) + (v.y * t) + (v.z * n);
 
+=======
+	return  (v.x * s) +(v.y * t) + (v.z * n);
+	 
+>>>>>>> d11640ade35c065cb0888b8a31c301286d7d5ea8
 }

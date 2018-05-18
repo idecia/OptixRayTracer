@@ -20,7 +20,7 @@ public:
 
 	RT_FUNCTION BxDF();
 	RT_FUNCTION BxDF(BxDFType t);
-	//RT_FUNCTION BxDFType GetType() const;
+	RT_FUNCTION BxDFType GetType() const;
 	RT_FUNCTION bool MatchesFlags(BxDFType flags) const;
 	RT_FUNCTION float CosTheta(const float3 &w) const;
 
@@ -32,12 +32,9 @@ private:
 };
 
 
-
 RT_FUNCTION BxDF::BxDF() { }
 
-
 RT_FUNCTION BxDF::BxDF(BxDFType type) : type(type) { }
-
 
 RT_FUNCTION bool BxDF::MatchesFlags(BxDFType flags) const {
 
@@ -47,4 +44,10 @@ RT_FUNCTION bool BxDF::MatchesFlags(BxDFType flags) const {
 RT_FUNCTION float BxDF::CosTheta(const float3& w) const {
 
 	return w.z;
+}
+
+RT_FUNCTION BxDFType BxDF::GetType() const {
+
+	return type;
+
 }
