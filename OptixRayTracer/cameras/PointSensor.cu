@@ -26,7 +26,7 @@ rtDeclareVariable(unsigned int, NskyPatches, , );
 
 RT_PROGRAM void sensor(void) {
 
-	int nSamples = 500;
+	int nSamples = 100;
 	ReinhartPayload pl;
 	pl.rng = rngs[pixelIdx];
 
@@ -36,7 +36,7 @@ RT_PROGRAM void sensor(void) {
 	while (sampler.Next2D(&unifSample)) {
 
 		//pl.value = make_float3(0.0f);
-		pl.value = make_double3(0.0,0.0,0.0);
+		pl.value = make_float3(0.0f);
 		pl.depth = 0;
 
 
@@ -48,8 +48,8 @@ RT_PROGRAM void sensor(void) {
 
 		rtTrace(root, ray, pl);
 		
-		if (fmax(pl.value) > 0.0) {
-			double3 value = pl.value  ;
+		if (fmaxf(pl.value) > 0.0) {
+			float3 value = pl.value  ;
 			//rtPrintf("%d %f %f\n", pl.patchID, (float)value.x, (float)value.x);
 			atomicAdd(&coeff[pl.patchID].x, (float)value.x);
 			atomicAdd(&coeff[pl.patchID].y, (float)value.y);

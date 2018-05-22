@@ -371,11 +371,13 @@ int main(int argc, char* argv[]) {
 
   try {
 
+	
+
 	 //sutil::initGlut(&argc, argv);
-	  string filename = "./circle.obj";
+	  string filename = "./LIGHTWELL.obj";
 	   scene =  SceneBuilder::BuildFromFile(filename);
-	 /*  for (int i = 1; i < 2; i++) 
-		   for (int j = 0; j < 1 ; j++) {
+	   for (int i = 1; i < 2 ; i++) 
+		   for (int j = 11; j < 12 ; j++) {
 			   float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 0.7);
 			   scene.ChangeSensorPosition(p);
 			   scene.ResetSensorValues();
@@ -398,7 +400,7 @@ int main(int argc, char* argv[]) {
 	  //cout << reinhart(v, 1);*/
 	
 	
-	  float3 p = make_float3(0.0f, 0.0f, 2.5f);
+	 /* float3 p = make_float3(0.0f, 0.0f, 2.5f);
 	  scene.ChangeSensorPosition(p);
 	  scene.ResetSensorValues();
 	  for (int i = 1; i <= 1; i++)
@@ -416,7 +418,7 @@ int main(int argc, char* argv[]) {
 	  }
 	  cout << "\n";
 	  cout << sum.x*M_PIf/10000000;
-	  coeff->unmap();
+	  coeff->unmap();*/
 
 
    }

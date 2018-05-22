@@ -17,10 +17,8 @@ static RT_FUNCTION int reinhart(float3 v, int m) {
 	int ringsacum1[] = { 0, 30, 60, 84, 108, 126, 138, 144 };
 	float elevstep = M_PIf / (2.0f * (7.0f*m + 0.5f));
 	
-	float azim = atan2(-v.x, v.y);
-	//float azim = atan2(v.y, v.x);
-	//float azim = atan2(-v.y, -v.x);
-	
+	float azim = atan2(v.x, v.y);
+
 	float elev = atan2(v.z, sqrtf(v.x*v.x + v.y*v.y));
 	
 	int ring1 = max((int)ceil(elev / (elevstep*m)), 1);

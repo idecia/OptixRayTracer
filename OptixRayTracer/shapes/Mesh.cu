@@ -15,7 +15,7 @@ rtDeclareVariable(Ray, ray, rtCurrentRay, );
 //rtDeclareVariable(float3, geometricNormal, attribute geometricNormal, );
 //rtDeclareVariable(float3, shadingNormal, attribute shadingNormal, );
 
-/*
+
 RT_PROGRAM void intersect(int primIdx) {
 
 	int3 index = indexBuffer[primIdx];
@@ -49,9 +49,9 @@ RT_PROGRAM void intersect(int primIdx) {
 
 	}
 
-}*/
+}
 
-
+/*
 
 RT_PROGRAM void intersect(int primIdx) {
 
@@ -86,7 +86,7 @@ RT_PROGRAM void intersect(int primIdx) {
 
 	}
 
-}
+}*/
 
 RT_PROGRAM void boundingBox(int primIdx, float result[6]) {
 
