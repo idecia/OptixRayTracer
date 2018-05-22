@@ -2,6 +2,7 @@
 
 #include "core/optix_global.h"
 
+/*
 class BxDF {
 
 public:
@@ -51,3 +52,5 @@ RT_FUNCTION BxDFType BxDF::GetType() const {
 	return type;
 
 }
+
+*/

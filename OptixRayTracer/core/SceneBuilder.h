@@ -12,7 +12,7 @@
 #include "core/optix_global.h"
 #include "films/Film.h"
 #include "cameras/Pinhole.h"
-#include "brdfs/Lambertian.h"
+#include "bxdfs/Lambertian.h"
 #include  "samplers/Random2D.h"
 #include "core/Ray.h"
 #include <vector> 
@@ -111,7 +111,7 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 	loadGeometry(scene, context, geometryMeshes, materials);
 	//ver si es necesario calcular el ABBox de la escena
 
-	int width = 2000;
+	int width = 10000;
 	int height = 0;
 	//loadCamera(scene, context, width, height);
 	optix::Buffer coeff = loadSensors(scene, context, width);
@@ -495,7 +495,7 @@ optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, 
 
 	context["sensorPos"]->setFloat(-1.25f, -0.5f, 0.70f);
 	//context["sensorPos"]->setFloat(100000000.0f, 100000000.0f, 100000000.0f);
-	context["sensorNormal"]->setFloat(0.0f, 0.0f, 1.0f);
+	context["sensorNormal"]->setFloat(0.0f, 0.0f, -1.0f);
 	context["N"]->setInt(width);
 
 	optix::Buffer coeff = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
@@ -527,7 +527,7 @@ optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, 
 	RNGBuffer->setSize(width);
 	RNG* rng = (RNG*)RNGBuffer->map();
 	for (unsigned int i = 0; i < width; i++) {
-		rng[i] = RNG(0u, i + time(nullptr));
+		rng[i] = RNG(0u, i);
 	}
 	RNGBuffer->unmap();
 	context["rngs"]->setBuffer(RNGBuffer);

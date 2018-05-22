@@ -8,7 +8,7 @@
 #include "shapes/Sphere.h"
 #include "lights/Reinhart.h"
 #include "shapes/Parallelogram.h"
-#include "brdfs/Lambertian.h"
+#include "bxdfs/Lambertian.h"
 #include "materials/Matte.h"
 #include "geometry/MatteSphere.h"
 #include "shapes/Triangle.h"
@@ -372,9 +372,9 @@ int main(int argc, char* argv[]) {
   try {
 
 	 //sutil::initGlut(&argc, argv);
-	  string filename = "./LIGHTWELL.obj";
+	  string filename = "./circle.obj";
 	   scene =  SceneBuilder::BuildFromFile(filename);
-	   for (int i = 1; i < 2; i++) 
+	 /*  for (int i = 1; i < 2; i++) 
 		   for (int j = 0; j < 1 ; j++) {
 			   float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 0.7);
 			   scene.ChangeSensorPosition(p);
@@ -395,10 +395,10 @@ int main(int argc, char* argv[]) {
 	  // glutRun();
 	   //Buffer image = scene.GetOutputImage();*/
 	  //float3 v = make_float3(0.5f, 0.5f, 2.5f);
-	  //cout << reinhart(v, 1);
+	  //cout << reinhart(v, 1);*/
 	
-	/*  scene = SceneBuilder::BuildFromFile(filename);
-	  float3 p = make_float3(100000000.0f, 100000000.0f, 100000000.0f);
+	
+	  float3 p = make_float3(0.0f, 0.0f, 2.5f);
 	  scene.ChangeSensorPosition(p);
 	  scene.ResetSensorValues();
 	  for (int i = 1; i <= 1; i++)
@@ -407,12 +407,16 @@ int main(int argc, char* argv[]) {
 	  float3* values = (float3*)coeff->map();
 	  RTsize RTwidth; coeff->getSize(RTwidth);
 	  int width = static_cast<int>(RTwidth);
+	  float3 sum = make_float3(0.0f);
 	  for (int i = 0; i < width; i++) {
 		  float3 v = values[i];
+		  if (i > 0)
+			sum += v;
 		cout << "   " << v.x << "   " << v.y << "   " << v.z;
 	  }
 	  cout << "\n";
-	  coeff->unmap();*/
+	  cout << sum.x*M_PIf/10000000;
+	  coeff->unmap();
 
 
    }

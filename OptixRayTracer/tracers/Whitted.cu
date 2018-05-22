@@ -2,7 +2,7 @@
 #include "core/Ray.h"
 #include "cameras/Pinhole.h"
 #include "core/Payload.h"
-#include "brdfs/Lambertian.h"
+#include "bxdfs/Lambertian.h"
 #include "core/optix_global.h"
 #include <optix_device.h>
 

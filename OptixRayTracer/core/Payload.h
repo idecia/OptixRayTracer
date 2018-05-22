@@ -21,7 +21,7 @@ struct ReinhartPayload {
 	RNG rng;
 	int depth;
 	int patchID;
-	float3 value;
-
+	//float3 value;
+	double3 value;
 };
 

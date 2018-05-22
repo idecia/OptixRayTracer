@@ -96,7 +96,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\;$(OPTIX_PATH)\include\optixu;$(FREEGLUT_PATH)include;$(OPTIX_PATH)\include;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\3rdparty\sutil;$(CUDA_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\;$(OPTIX_PATH)\include\optixu;$(FREEGLUT_PATH)\include;$(OPTIX_PATH)\include;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\3rdparty\sutil;$(CUDA_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -234,6 +234,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <FileType>CppHeader</FileType>
     </CudaCompile>
     <ClInclude Include="core\BxDF.h" />
+    <ClInclude Include="core\math.h" />
     <ClInclude Include="core\ONB.h" />
     <ClInclude Include="core\Payload.h" />
     <ClInclude Include="core\RNG.h" />

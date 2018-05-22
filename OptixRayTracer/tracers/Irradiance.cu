@@ -3,12 +3,13 @@
 #include "samplers/Random2D.h"
 #include "samplers/Hemisphere.h"
 #include "core/Payload.h"
-#include "brdfs/Lambertian.h"
+#include "bxdfs/Lambertian.h"
 #include "core/optix_global.h"
 #include "core/ONB.h"
+#include "core/math.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 20
+#define MAX_DEPTH 1
 
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(HitRecord, hit, attribute hit, );
@@ -20,7 +21,7 @@ rtDeclareVariable(rtObject, root, , );
 
 RT_PROGRAM void closestHit() {
 	
-	float3 value = make_float3(0.0f);
+	double3 value = make_double3(0.0, 0.0, 0.0);
 	ONB onb(hit.normal);
 	float3 woW = -ray.direction;
 	float3 wo = onb.WorldToLocal(woW);
@@ -31,16 +32,21 @@ RT_PROGRAM void closestHit() {
 		sampler.Next2D(&uniformSample);
 		float3 wi;
 		float pdf;
-		float3 BRDF = brdf.Sample(wo, &wi, &pdf, uniformSample);
+		//float3 BRDF = brdf.Sample(wo, &wi, &pdf, uniformSample);
 		float3 wiW = onb.LocalToWorld(wi);
+		double3 BRDF = ToDouble(brdf.Sample(wo, &wi, &pdf, uniformSample));
+		double3 wiWd = ToDouble(wiW);
 		Ray radianceRay = make_Ray(hit.position + 0.0001*hit.normal, wiW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
 		ReinhartPayload newReinhartPayload;
 		newReinhartPayload.depth = reinhartPayload.depth + 1;
 		newReinhartPayload.rng = reinhartPayload.rng;
 		rtTrace(root, radianceRay, newReinhartPayload);
 		//float nDotWi = fabsf(wi.z);
-		float nDotWi = fabsf(dot(wiW,hit.normal));
-		value = BRDF * nDotWi * newReinhartPayload.value / pdf;
+		//float nDotWi = fabsf(dot(wiW,hit.normal));
+		double3 normal = ToDouble(hit.normal);
+		double nDotWi = fabs(dot(wiWd, normal));
+		//value = BRDF * nDotWi * newReinhartPayload.value / pdf;
+		value = BRDF * nDotWi * newReinhartPayload.value / (double)pdf;
 		reinhartPayload.patchID = newReinhartPayload.patchID;
 		
 			//rtPrintf("%f %f %f\n", BRDF.x, BRDF.y, BRDF.z);
@@ -56,12 +62,11 @@ RT_PROGRAM void anyHit() {
 }
 
 RT_PROGRAM void miss() {
-
-	reinhartPayload.value = make_float3(1.0f);
+	reinhartPayload.value = make_double3(1.0,1.0,1.0);
 	reinhartPayload.patchID = reinhart(ray.direction, 1);
 
-//	if (reinhartPayload.patchID == 139)
-		//rtPrintf("(%f %f %f)  (%f %f %f) %d %f \n   ", ray.origin.x, ray.origin.y, ray.origin.z, ray.direction.x, ray.direction.y, ray.direction.z, reinhartPayload.patchID, reinhartPayload.value.x);
+	if (reinhartPayload.patchID == 130)
+		rtPrintf("(%f %f %f)  (%f %f %f) %d %f \n   ", ray.origin.x, ray.origin.y, ray.origin.z, ray.direction.x, ray.direction.y, ray.direction.z, reinhartPayload.patchID, reinhartPayload.value.x);
 		
 		//rtPrintf("%f %f %f   \n   ", ray.origin.x, ray.origin.y, ray.origin.z);
 }

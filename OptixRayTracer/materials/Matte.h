@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/optix_global.h"
-#include "brdfs/Lambertian.h"
+#include "bxdfs/Lambertian.h"
 #include "core/Ray.h"
 
 class Matte {
