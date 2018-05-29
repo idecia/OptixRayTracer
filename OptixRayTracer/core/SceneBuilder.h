@@ -13,6 +13,7 @@
 #include "films/Film.h"
 #include "cameras/Pinhole.h"
 #include "bxdfs/Lambertian.h"
+#include "bxdfs/ThinGlass.h"
 #include  "samplers/Random2D.h"
 #include "core/Ray.h"
 #include <vector> 
@@ -111,7 +112,7 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 	loadGeometry(scene, context, geometryMeshes, materials);
 	//ver si es necesario calcular el ABBox de la escena
 
-	int width = 100000;
+	int width = 1000;
 	int height = 0;
 	//loadCamera(scene, context, width, height);
 	optix::Buffer coeff = loadSensors(scene, context, width);
@@ -260,7 +261,20 @@ void SceneBuilder::loadMaterials(const aiScene* scene,
 		}
 	
 		//[TODO] Textured material
+
 		//[TODO] Reflective/mirror material
+		float indexOfRefraction;
+		if (material->Get(AI_MATKEY_REFRACTI, indexOfRefraction) == AI_SUCCESS && indexOfRefraction > 1.0f) {
+			//printf("\tGlass: IOR: %g\n", indexOfRefraction);
+			Material optixMaterial = context->createMaterial();
+			optixMaterial->setClosestHitProgram(RayType::RADIANCE, closestHitRadiance);
+			optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
+			float R0 = 0.12f, T0 = 0.85f, d = 0.004, lambda = 898e-9;
+			ThinGlass brdf(R0, T0, d, lambda);
+			optixMaterial["brdfGlass"]->setUserData(sizeof(ThinGlass), &brdf);
+			materials.push_back(optixMaterial);
+			optixMaterial["glass"]->setUint(1);
+		}
 
 		aiColor3D diffuseColor;
 		if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS) {
@@ -270,6 +284,7 @@ void SceneBuilder::loadMaterials(const aiScene* scene,
 			optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
 			Lambertian brdf(toFloat3(diffuseColor));
 			optixMaterial["brdf"]->setUserData(sizeof(Lambertian), &brdf);
+			optixMaterial["glass"]->setUint(0);
 			materials.push_back(optixMaterial);
 
 		}
@@ -289,6 +304,8 @@ void SceneBuilder::loadMeshes(const aiScene* scene,
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
 
 		aiMesh* mesh = scene->mMeshes[i];
+		mesh->mName;
+
 		unsigned int numFaces = mesh->mNumFaces;
 		unsigned int numVertices = mesh->mNumVertices;
 

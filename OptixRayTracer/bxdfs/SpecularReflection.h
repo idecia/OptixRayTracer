@@ -37,7 +37,7 @@ RT_FUNCTION float3 SpecularReflection::Sample(const float3 &wo, float3 *wi,
 
 	*wi = Reflect(wo);
 	*pdf = 1.0f;
-	return R / fabsf(CosTheta(wo));
+	return R / AbsCosTheta(*wi);
 
 }
 

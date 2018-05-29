@@ -374,10 +374,10 @@ int main(int argc, char* argv[]) {
 	
 
 	 //sutil::initGlut(&argc, argv);
-	  string filename = "./LIGHTWELL.obj";
+	  string filename = "./LIGHTWELL_GLASS3.obj";
 	   scene =  SceneBuilder::BuildFromFile(filename);
-	   for (int i = 1; i < 2 ; i++) 
-		   for (int j = 11; j < 12 ; j++) {
+	   for (int i = 0; i < 6 ; i++) 
+		   for (int j = 0; j < 1 ; j++) {
 			   float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 0.7);
 			   scene.ChangeSensorPosition(p);
 			   scene.ResetSensorValues();
@@ -387,7 +387,7 @@ int main(int argc, char* argv[]) {
 			   float3* values = (float3*)coeff->map();
 			   RTsize RTwidth; coeff->getSize(RTwidth);
 			   int width = static_cast<int>(RTwidth);
-			  for (int i = 0; i < width; i++) {
+		 for (int i = 0; i < width; i++) {
 				   float3 v = values[i];
 			   cout << "   " << v.x << "   " << v.y << "   " << v.z;
 			   }
@@ -419,7 +419,13 @@ int main(int argc, char* argv[]) {
 	  cout << "\n";
 	  cout << sum.x*M_PIf/10000000;
 	  coeff->unmap();*/
-
+	/*  float R0 = 0.12f, T0 = 0.85f, d = 0.004, lambda = 898e-9;
+	  ThinGlass brdf(R0, T0, d, lambda);
+	  for (int i = 0; i <= 90; i++) {
+		  float teta = i * (M_PIf/ 180.0f);
+		  float f = brdf.F.Transmittance(cosf(teta));
+		  cout << f << "\n";
+	  }*/
 
    }
    catch (optix::Exception e) {

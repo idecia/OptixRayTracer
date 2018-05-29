@@ -54,3 +54,13 @@ RT_FUNCTION BxDFType BxDF::GetType() const {
 }
 
 */
+
+RT_FUNCTION float CosTheta(const float3& w)  {
+
+	return w.z;
+}
+
+RT_FUNCTION float AbsCosTheta(const float3& w)  {
+
+	return fabsf(w.z);
+}

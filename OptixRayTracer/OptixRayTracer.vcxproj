@@ -167,6 +167,10 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bxdfs\FresnelDielectric.h" />
+    <ClInclude Include="bxdfs\ThinGlass.h">
+      <FileType>CppCode</FileType>
+    </ClInclude>
     <ClCompile Include="core\main.cpp" />
     <ClCompile Include="geometry\MatteTriangle.h" />
     <ClCompile Include="3rdparty\sutil\Arcball.cpp" />

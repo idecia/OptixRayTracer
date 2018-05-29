@@ -9,7 +9,7 @@ static RT_FUNCTION  float mod(float a, float m) {
 	return a - m *floorf(a / m);
 }
 
-static RT_FUNCTION int reinhart(float3 v, int m) {
+static RT_FUNCTION int reinhart(const float3 &v, int m) {
 
 	if (v.z <= 0.0)
 		return 0;

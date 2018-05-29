@@ -4,6 +4,7 @@
 #include "samplers/Hemisphere.h"
 #include "core/Payload.h"
 #include "bxdfs/Lambertian.h"
+#include "bxdfs/ThinGlass.h"
 #include "core/optix_global.h"
 #include "core/ONB.h"
 #include "core/math.h"
@@ -15,6 +16,9 @@ rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(HitRecord, hit, attribute hit, );
 rtDeclareVariable(Ray, ray, rtCurrentRay, );
 rtDeclareVariable(Lambertian, brdf, , );
+rtDeclareVariable(uint, glass, , );
+rtDeclareVariable(ThinGlass, brdfGlass, , );
+rtDeclareVariable(float3, point, , );
 rtDeclareVariable(ReinhartPayload, reinhartPayload, rtPayload, );
 rtDeclareVariable(ShadowPayload, shadowPayload, rtPayload, );
 rtDeclareVariable(rtObject, root, , );
@@ -56,7 +60,9 @@ RT_PROGRAM void closestHit() {
 */
 
 RT_PROGRAM void closestHit() {
-
+	
+	//	rtPrintf("Hit: %f %f %f %\n", hit.position.x, hit.position.y, hit.position.z);
+	//	return;
 	float3 value = make_float3(0.0f);
 	ONB onb(hit.normal);
 	float3 woW = -ray.direction;
@@ -68,9 +74,26 @@ RT_PROGRAM void closestHit() {
 		sampler.Next2D(&uniformSample);
 		float3 wi;
 		float pdf;
-		float3 BRDF = brdf.Sample(wo, &wi, &pdf, uniformSample);
+		float3 BRDF;
+		if ((glass == 0))
+			BRDF = brdf.Sample(wo, &wi, &pdf, uniformSample);
+		else {
+			BRDF = brdfGlass.Sample(wo, &wi, &pdf, uniformSample);
+			//float cost = brdfGlass.F.SnellCosine(AbsCosTheta(wo));
+		//	float r= brdfGlass.F.Reflectivity(CosTheta(wo), cost);
+			//rtPrintf("%f %f %f %f %f %f\n", wi.x, wi.y, wi.z, wo.x,wo.y,wo.z);
+		}
 		float3 wiW = onb.LocalToWorld(wi);
-		Ray radianceRay = make_Ray(hit.position + 0.00001*hit.normal, wiW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
+		Ray radianceRay;
+		if (glass==0)
+			 radianceRay = make_Ray(hit.position + 0.01*hit.normal, wiW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
+		else {
+			rtPrintf("%f %f %f %f %f %f \n", hit.position.x,hit.position.y,hit.position.z, wiW.x,wiW.y,wiW.z);
+			float3 hitP = hit.position;
+			hitP.y += 0.01*wiW.y;
+
+			radianceRay = make_Ray(hitP, wiW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
+		}
 		ReinhartPayload newReinhartPayload;
 		newReinhartPayload.depth = reinhartPayload.depth + 1;
 		newReinhartPayload.rng = reinhartPayload.rng;
@@ -97,10 +120,18 @@ RT_PROGRAM void miss() {
 	reinhartPayload.value = make_float3(1.0f);
 	reinhartPayload.patchID = reinhart(ray.direction, 1);
 
-	//if (reinhartPayload.patchID == 136)
-		//rtPrintf("(%f %f %f)  (%f %f %f) %d %f \n   ", ray.origin.x, ray.origin.y, ray.origin.z, ray.direction.x, ray.direction.y, ray.direction.z, reinhartPayload.patchID, reinhartPayload.value.x);
+	if (reinhartPayload.patchID == 0) {
+		//float t = -ray.origin.y / ray.direction.y;
+		//rtPrintf(" %f %f %f %f %f %f \n", (ray.origin + t* ray.direction).x, (ray.origin + t* ray.direction).y, (ray.origin + t* ray.direction).z, ray.direction.x, ray.direction.y, ray.direction.z);
+
+		//rtPrintf("%d %f %f %f %f %f %f \n", reinhartPayload.depth, ray.origin.x, ray.origin.y, ray.origin.z, ray.direction.x, ray.direction.y, ray.direction.z);
+
+		//rtPrintf(" %f %f %f    %f %f %f\n", ray.origin.x, ray.origin.y, ray.origin.z, (ray.origin + 10 * ray.direction).x, (ray.origin + 10 * ray.direction).y, (ray.origin + 10 * ray.direction).z);
+
+	//	rtPrintf("(%f %f %f)  (%f %f %f) %d %f \n   ", ray.origin.x, ray.origin.y, ray.origin.z, ray.direction.x, ray.direction.y, ray.direction.z, reinhartPayload.patchID, reinhartPayload.value.x);
 		//rtPrintf("%d\n",  reinhartPayload.patchID);
-		
-		//rtPrintf("%f %f %f   \n   ", ray.origin.x, ray.origin.y, ray.origin.z);*/
+
+		//rtPrintf("%f %f %f   \n   ", ray.origin.x, ray.origin.y, ray.origin.z);*/ 
+	}
 }
 
