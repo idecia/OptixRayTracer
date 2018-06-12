@@ -17,6 +17,7 @@ public:
    RT_FUNCTION float Pdf(const float3 &wo, const float3 &wi) const;
    RT_FUNCTION float3 Sample(const float3 &wo, float3 *wi, float *pdf, const float2 &sample) const;
    RT_FUNCTION float3 Eval(const float3 &wo, const float3 &wi) const;
+   RT_FUNCTION float3 getR();
 
 private:
 
@@ -24,6 +25,11 @@ private:
 	float3 RoverPI;
 
 };
+
+RT_FUNCTION float3 Lambertian::getR() {
+	return R;
+}
+
 
 RT_FUNCTION Lambertian::Lambertian() { }
 

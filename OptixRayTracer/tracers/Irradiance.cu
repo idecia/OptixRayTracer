@@ -1,4 +1,4 @@
-#include "lights/Reinhart.h"
+#include "skyes/Reinhart144.h"
 #include "core/Ray.h"
 #include "samplers/Random2D.h"
 #include "samplers/Hemisphere.h"
@@ -10,7 +10,7 @@
 #include "core/math.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 29
+#define MAX_DEPTH 6
 
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(HitRecord, hit, attribute hit, );
@@ -75,8 +75,10 @@ RT_PROGRAM void closestHit() {
 		float3 wi;
 		float pdf;
 		float3 BRDF;
-		if ((glass == 0))
+		if ((glass == 0)) {
 			BRDF = brdf.Sample(wo, &wi, &pdf, uniformSample);
+		//	rtPrintf("%f \n", brdf.getR().x);
+		}
 		else {
 			BRDF = brdfGlass.Sample(wo, &wi, &pdf, uniformSample);
 			//float cost = brdfGlass.F.SnellCosine(AbsCosTheta(wo));
@@ -86,9 +88,9 @@ RT_PROGRAM void closestHit() {
 		float3 wiW = onb.LocalToWorld(wi);
 		Ray radianceRay;
 		if (glass==0)
-			 radianceRay = make_Ray(hit.position + 0.01*hit.normal, wiW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
+			 radianceRay = make_Ray(hit.position + 0.00*hit.normal, wiW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
 		else {
-			rtPrintf("%f %f %f %f %f %f \n", hit.position.x,hit.position.y,hit.position.z, wiW.x,wiW.y,wiW.z);
+			//rtPrintf("%f %f %f %f %f %f \n", hit.position.x,hit.position.y,hit.position.z, wiW.x,wiW.y,wiW.z);
 			float3 hitP = hit.position;
 			hitP.y += 0.01*wiW.y;
 

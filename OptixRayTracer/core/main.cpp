@@ -6,7 +6,7 @@
 #include "core/RNG.h"
 #include "core/Ray.h"
 #include "shapes/Sphere.h"
-#include "lights/Reinhart.h"
+#include "skyes/Reinhart144.h"
 #include "shapes/Parallelogram.h"
 #include "bxdfs/Lambertian.h"
 #include "materials/Matte.h"
@@ -18,9 +18,9 @@
 #include "3rdparty/sutil/GL/glew.h"
 #include "3rdparty/freeglut/include/GL/freeglut.h"
 #include "core/Scene.h"
-#include "lights/Reinhart.h"
 #include "core/SceneBuilder.h"
 #include <iostream>
+#include <stdio.h>
 #include <vector>
 using namespace std;
 
@@ -372,12 +372,12 @@ int main(int argc, char* argv[]) {
   try {
 
 	
-
+	  
 	 //sutil::initGlut(&argc, argv);
-	  string filename = "./LIGHTWELL_GLASS3.obj";
+	  /*string filename = "./LIGHTWELL.obj";
 	   scene =  SceneBuilder::BuildFromFile(filename);
 	   for (int i = 0; i < 6 ; i++) 
-		   for (int j = 0; j < 1 ; j++) {
+		   for (int j = 0; j < 12 ; j++) {
 			   float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 0.7);
 			   scene.ChangeSensorPosition(p);
 			   scene.ResetSensorValues();
@@ -427,7 +427,33 @@ int main(int argc, char* argv[]) {
 		  cout << f << "\n";
 	  }*/
 
+
+	 FILE * pFile;
+     pFile = fopen("SensorsIgnacio.txt", "r");
+	 float3 p; float d;
+	 string filename = "./LIGHTWELL.obj";
+	 scene = SceneBuilder::BuildFromFile(filename);
+	// while (fscanf(pFile, "%f\t%f\t%f\t%f\t%f\t%f\n", &p.x, &p.y, &p.z, &d, &d, &d) != EOF) {
+	 fscanf(pFile, "%f\t%f\t%f\t%f\t%f\t%f\n", &p.x, &p.y, &p.z, &d, &d, &d);
+		 scene.ChangeSensorPosition(p);
+		scene.ResetSensorValues();
+		scene.Render();
+
+		Buffer coeff = scene.GetSensorValues();
+		float3* values = (float3*)coeff->map();
+		RTsize RTwidth; coeff->getSize(RTwidth);
+		int width = static_cast<int>(RTwidth);
+		for (int i = 0; i < width; i++) {
+			 float3 v = values[i];
+			 cout << "   " << v.x << "   " << v.y << "   " << v.z;
+		}
+		cout << "\n";
+		coeff->unmap();
+	//}
+
    }
+
+
    catch (optix::Exception e) {
 	   std::cout << e.getErrorString();
    }

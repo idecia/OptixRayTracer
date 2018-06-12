@@ -56,6 +56,6 @@ RT_FUNCTION float3 ThinGlass::Sample(const float3 &wo, float3 *wi, float *pdf, c
 	*wi = -wo;
 	*pdf = 1.0f;
 	float T = F.Transmittance(AbsCosTheta(wo));
-	return make_float3(1 / AbsCosTheta(*wi));
+	return make_float3(T / AbsCosTheta(*wi));
 	
 }

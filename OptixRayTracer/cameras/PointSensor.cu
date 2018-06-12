@@ -27,7 +27,7 @@ rtDeclareVariable(unsigned int, NskyPatches, , );
 
 RT_PROGRAM void sensor(void) {
 
-	int nSamples = 100;
+	int nSamples = 1000;
 	ReinhartPayload pl;
 	pl.rng = rngs[pixelIdx];
 
