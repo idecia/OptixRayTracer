@@ -45,7 +45,7 @@ RT_FUNCTION float Lambertian::Pdf(const float3 &wo, const float3 &wi) const {
 
 RT_FUNCTION float3 Lambertian::Sample(const float3 &wo, float3 *wi, float *pdf, const float2 &sample) const {
 
-	*wi  = UniformHemisphereSample(sample.x, sample.y);
+	*wi  = CosineHemisphereSample(sample.x, sample.y);
 	*pdf = Pdf(wo, *wi);
 	return Eval(wo, *wi);
 }

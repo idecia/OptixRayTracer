@@ -42,7 +42,7 @@ RT_PROGRAM void sensor(void) {
 
 
 		ONB onb(sensorNormal);
-		float3 dir   = UniformHemisphereSample(unifSample.x, unifSample.y);
+		float3 dir   = CosineHemisphereSample(unifSample.x, unifSample.y);
 		float3 dirW  = onb.LocalToWorld(dir);
 		//float3 sensorPos2 = make_float3(1.118916, 4.990000, 3.026103);
 		//float3 sensorPos2 = make_float3(-1.444052f, -0.000000f, 3.0005f);

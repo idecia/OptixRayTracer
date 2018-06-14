@@ -427,7 +427,7 @@ int main(int argc, char* argv[]) {
 		  cout << f << "\n";
 	  }*/
 
-
+	  /*
 	 FILE * pFile;
      pFile = fopen("SensorsIgnacio.txt", "r");
 	 float3 p; float d;
@@ -449,8 +449,25 @@ int main(int argc, char* argv[]) {
 		}
 		cout << "\n";
 		coeff->unmap();
-	//}
+	//}*/
 
+		string filename = "./LIGHTWELL.obj";
+		scene = SceneBuilder::BuildFromFile(filename);
+	    scene.Render();
+		Buffer coeff = scene.GetSensorValues();
+	    float3* values = (float3*)coeff->map();
+		RTsize RTwidth; RTsize RTheight; 
+		coeff->getSize(RTwidth, RTheight);
+		int width = static_cast<int>(RTwidth);
+		int height = static_cast<int>(RTheight);
+		for (int i = 0; i < width; i++)  {
+			for (int j = 0; j < height; j++) {
+				float3 v = values[(i-1)*height + j];
+				cout << "   " << v.x << "   " << v.y << "   " << v.z;
+			}
+			cout << "\n";
+		}
+		coeff->unmap();
    }
 
 

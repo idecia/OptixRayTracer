@@ -118,6 +118,7 @@ RT_PROGRAM void anyHit() {
 }
 
 RT_PROGRAM void miss() {
+
 	//reinhartPayload.value = make_double3(1.0,1.0,1.0);
 	reinhartPayload.value = make_float3(1.0f);
 	reinhartPayload.patchID = reinhart(ray.direction, 1);

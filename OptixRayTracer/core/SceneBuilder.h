@@ -500,7 +500,7 @@ void SceneBuilder::loadCamera(const aiScene* scene, Context &context, int width,
 	context["rngs"]->setBuffer(RNGBuffer);
 }
 
-
+/*
 optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, int width) {
 
 
@@ -551,22 +551,48 @@ optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, 
 	RNGBuffer->unmap();
 	context["rngs"]->setBuffer(RNGBuffer);
 
-	/*optix::Buffer u = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
-	u->setFormat(RT_FORMAT_FLOAT2);
-	u->setSize(width);
-	float2* umap = (float2*)u->map();
-	RNG rng(1234567,0);
-	Random2D sampler(&rng, width);
-	float2 unifSample;
-	int i = 0;
-	while (sampler.Next2D(&unifSample)) {
-		umap[i] = unifSample;
-		i++;
-	}
-	u->unmap();
-	context["u"]->setBuffer(u); */
-
-
 	return coeff;
+
+} */
+
+optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, int width) {
+
+
+	const char* path = "./Environmental.ptx";
+	Program program = context->createProgramFromPTXFile(path, "sensor");
+	context->setRayGenerationProgram(0, program);
+	context->setExceptionEnabled(RT_EXCEPTION_ALL, 1);
+	Program exception = context->createProgramFromPTXFile(path, "exception");
+	context->setExceptionProgram(0, exception);
+	context->setRayGenerationProgram(0, program);
+
+	context["sensorPos"]->setFloat(10000.0f, 10000.0f, 10000.0f);
+	context["sensorNormal"]->setFloat(0.0f, 0.0f, 1.0f);
+	context["N"]->setInt(width);
+
+	optix::Buffer environmentMap = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	environmentMap->setFormat(RT_FORMAT_FLOAT3);
+	unsigned int NskyPatches = 146; //145 + 1
+	unsigned int NEnvironmentalPatches = 288;
+	environmentMap->setSize(NEnvironmentalPatches, NskyPatches);
+	float* values = (float*)environmentMap->map();
+	for (unsigned int i = 0; i < NEnvironmentalPatches*NskyPatches*3; i++) {
+		values[i] = 0.0f;
+	}
+	environmentMap->unmap();
+	context["coeff"]->set(environmentMap);
+
+	optix::Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	RNGBuffer->setFormat(RT_FORMAT_USER);
+	RNGBuffer->setElementSize(sizeof(RNG));
+	RNGBuffer->setSize(width);
+	RNG* rng = (RNG*)RNGBuffer->map();
+	for (unsigned int i = 0; i < width; i++) {
+		rng[i] = RNG(0u, i);
+	}
+	RNGBuffer->unmap();
+	context["rngs"]->setBuffer(RNGBuffer);
+
+	return environmentMap;
 
 }
