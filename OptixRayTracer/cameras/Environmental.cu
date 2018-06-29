@@ -33,15 +33,17 @@ RT_PROGRAM void sensor(void) {
 		pl.depth = 0;
 
 		ONB onb(sensorNormal);
-		float3 dir  = UniformHemisphereSample(unifSample.x, unifSample.y);
+		float3 dir = UniformHemisphereSample(unifSample.x, unifSample.y);
 		float3 dirW = onb.LocalToWorld(dir);
 		Ray ray = make_Ray(sensorPos, dirW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
 		rtTrace(root, ray, pl);
-
 		if (fmaxf(pl.value) > 0.0) {
 			uint2 index;
 			index.x = beckers(dir);
 			index.y = pl.patchID;
+			//if (index.x == 242) {
+				//rtPrintf("- %f %f %f %f %d %d\n", dir.x, dir.y, dir.z, coeff[index].x, beckers(dir), index.y);
+			//}
 			float3 value = pl.value;
 			atomicAdd(&coeff[index].x, (float)value.x);
 			atomicAdd(&coeff[index].y, (float)value.y);
@@ -51,6 +53,17 @@ RT_PROGRAM void sensor(void) {
 
 	}
 	rngs[pixelIdx] = pl.rng;
+
+	/*for (int i = 0; i < 288; i++)  {
+		for (int j = 0; j < 146; j++) {
+			uint2 index;
+			index.x = i;
+			index.y = j;
+			float3 v = coeff[index];
+			rtPrintf("%f    ", v.x);
+		}
+		rtPrintf("\n");
+	}*/
 
 }
 

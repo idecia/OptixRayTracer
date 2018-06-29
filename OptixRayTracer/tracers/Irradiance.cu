@@ -1,4 +1,4 @@
-#include "skyes/Reinhart144.h"
+#include "skyes/Reinhart145.h"
 #include "core/Ray.h"
 #include "samplers/Random2D.h"
 #include "samplers/Hemisphere.h"

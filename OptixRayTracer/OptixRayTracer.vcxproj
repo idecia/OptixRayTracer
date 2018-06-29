@@ -267,7 +267,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="core\Light.h" />
     <ClInclude Include="lights\AllLights.h" />
     <ClInclude Include="lights\PointLight.h" />
-    <ClInclude Include="Skyes\Reinhart144.h" />
+    <ClInclude Include="Skyes\Reinhart145.h" />
     <ClInclude Include="materials\Matte.h" />
     <ClInclude Include="samplers\Hemisphere.h" />
     <ClInclude Include="samplers\Random2D.h" />

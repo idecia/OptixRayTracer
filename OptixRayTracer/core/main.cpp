@@ -6,7 +6,7 @@
 #include "core/RNG.h"
 #include "core/Ray.h"
 #include "shapes/Sphere.h"
-#include "skyes/Reinhart144.h"
+#include "skyes/Reinhart145.h"
 #include "shapes/Parallelogram.h"
 #include "bxdfs/Lambertian.h"
 #include "materials/Matte.h"
@@ -19,6 +19,7 @@
 #include "3rdparty/freeglut/include/GL/freeglut.h"
 #include "core/Scene.h"
 #include "core/SceneBuilder.h"
+#include "skyes/Beckers288.h"
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -339,6 +340,7 @@ void glutRun()
 
 
 int main(int argc, char* argv[]) {
+
 	/*
    try {
       //glutInitialize(&argc, argv,width,height);
@@ -450,7 +452,7 @@ int main(int argc, char* argv[]) {
 		cout << "\n";
 		coeff->unmap();
 	//}*/
-
+	  
 		string filename = "./LIGHTWELL.obj";
 		scene = SceneBuilder::BuildFromFile(filename);
 	    scene.Render();
@@ -460,14 +462,17 @@ int main(int argc, char* argv[]) {
 		coeff->getSize(RTwidth, RTheight);
 		int width = static_cast<int>(RTwidth);
 		int height = static_cast<int>(RTheight);
-		for (int i = 0; i < width; i++)  {
+	    for (int i = 0; i < width; i++)  {
 			for (int j = 0; j < height; j++) {
-				float3 v = values[(i-1)*height + j];
-				cout << "   " << v.x << "   " << v.y << "   " << v.z;
+				float3 v = values[j*width + i];
+				cout << "   " << v.x;
 			}
 			cout << "\n";
 		}
 		coeff->unmap();
+	//float3 d = make_float3(0.078184273264963,   0.126575159385289,   0.988871047427630);
+		//cout << beckers(d);
+	 
    }
 
 
