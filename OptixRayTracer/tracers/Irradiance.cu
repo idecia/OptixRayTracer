@@ -9,7 +9,7 @@
 #include "core/math.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 29
+#define MAX_DEPTH 20
 
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(HitRecord, hit, attribute hit, );
@@ -56,7 +56,8 @@ RT_PROGRAM void closestHit() {
 */
 
 RT_PROGRAM void closestHit() {
-
+//	if ((ray.origin.x > 1.5 || ray.origin.x < -1.5) && ray.origin.y < 0)
+	//	rtPrintf("%f %f %f \n   ", ray.origin.x, ray.origin.y, ray.origin.z);
 	float3 value = make_float3(0.0f);
 	ONB onb(hit.normal);
 	float3 woW = -ray.direction;
@@ -70,7 +71,7 @@ RT_PROGRAM void closestHit() {
 		float pdf;
 		float3 BRDF = brdf.Sample(wo, &wi, &pdf, uniformSample);
 		float3 wiW = onb.LocalToWorld(wi);
-		Ray radianceRay = make_Ray(hit.position + 0.00001*hit.normal, wiW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
+		Ray radianceRay = make_Ray(hit.position + 0.0001*hit.normal, wiW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
 		ReinhartPayload newReinhartPayload;
 		newReinhartPayload.depth = reinhartPayload.depth + 1;
 		newReinhartPayload.rng = reinhartPayload.rng;
@@ -97,8 +98,9 @@ RT_PROGRAM void miss() {
 	reinhartPayload.value = make_float3(1.0f);
 	reinhartPayload.patchID = reinhart(ray.direction, 1);
 
-	//if (reinhartPayload.patchID == 136)
-		//rtPrintf("(%f %f %f)  (%f %f %f) %d %f \n   ", ray.origin.x, ray.origin.y, ray.origin.z, ray.direction.x, ray.direction.y, ray.direction.z, reinhartPayload.patchID, reinhartPayload.value.x);
+	if (reinhartPayload.patchID == 0)
+		//rtPrintf("%f %f %f \n   ", ray.origin.x, ray.origin.y, ray.origin.z);
+		rtPrintf("%f %f %f - %f %f %f \n   ", ray.origin.x, ray.origin.y, ray.origin.z, ray.direction.x, ray.direction.y, ray.direction.z);
 		//rtPrintf("%d\n",  reinhartPayload.patchID);
 		
 		//rtPrintf("%f %f %f   \n   ", ray.origin.x, ray.origin.y, ray.origin.z);*/

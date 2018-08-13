@@ -15,6 +15,7 @@ rtDeclareVariable(Ray, ray, rtCurrentRay, );
 //rtDeclareVariable(float3, geometricNormal, attribute geometricNormal, );
 //rtDeclareVariable(float3, shadingNormal, attribute shadingNormal, );
 
+/*
 
 RT_PROGRAM void intersect(int primIdx) {
 
@@ -41,6 +42,7 @@ RT_PROGRAM void intersect(int primIdx) {
 	float t = dot(E2, S2) * invDivisor;
 	if (rtPotentialIntersection(t)) {
 		float3 p = ray.origin + ray.direction * t;
+		p = p0 + u*E1 + v*E2;
 		float3 normal = normalize(cross(E1, E2));
 		//rtPrintf("(%f, %f, %f)\n", normal.x, normal.y, normal.z);
 		hit.position = p;
@@ -49,9 +51,8 @@ RT_PROGRAM void intersect(int primIdx) {
 
 	}
 
-}
+}*/
 
-/*
 
 RT_PROGRAM void intersect(int primIdx) {
 
@@ -86,7 +87,7 @@ RT_PROGRAM void intersect(int primIdx) {
 
 	}
 
-}*/
+}
 
 RT_PROGRAM void boundingBox(int primIdx, float result[6]) {
 
