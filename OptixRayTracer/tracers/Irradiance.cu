@@ -10,7 +10,7 @@
 #include "core/math.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 6
+#define MAX_DEPTH 30
 
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(HitRecord, hit, attribute hit, );
@@ -120,7 +120,8 @@ RT_PROGRAM void anyHit() {
 RT_PROGRAM void miss() {
 
 	//reinhartPayload.value = make_double3(1.0,1.0,1.0);
-	reinhartPayload.value = make_float3(1.0f);
+	
+		reinhartPayload.value = make_float3(1.0f);
 	reinhartPayload.patchID = reinhart(ray.direction, 1);
 
 	if (reinhartPayload.patchID == 0) {

@@ -21,7 +21,7 @@ rtDeclareVariable(rtObject, root, , );
 
 RT_PROGRAM void sensor(void) {
 
-	int nSamples = 1000;
+	int nSamples = 10000;
 	ReinhartPayload pl;
 	pl.rng = rngs[pixelIdx];
 
