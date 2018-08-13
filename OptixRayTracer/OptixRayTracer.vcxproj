@@ -167,6 +167,10 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bxdfs\FresnelDielectric.h" />
+    <ClInclude Include="bxdfs\ThinGlass.h">
+      <FileType>CppCode</FileType>
+    </ClInclude>
     <ClCompile Include="core\main.cpp" />
     <ClCompile Include="geometry\MatteTriangle.h" />
     <ClCompile Include="3rdparty\sutil\Arcball.cpp" />
@@ -178,6 +182,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="3rdparty\sutil\rply-1.01\rply.c" />
     <ClCompile Include="3rdparty\sutil\sutil.cpp" />
     <ClCompile Include="3rdparty\sutil\tinyobjloader\tiny_obj_loader.cc" />
+    <CudaCompile Include="cameras\Environmental.cu" />
+    <ClInclude Include="Skyes\Beckers288.h" />
     <CudaCompile Include="cameras\Pinhole.cu" />
     <CudaCompile Include="shapes\Mesh.cu" />
     <CudaCompile Include="shapes\Parallelogram.cu" />
@@ -261,7 +267,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="core\Light.h" />
     <ClInclude Include="lights\AllLights.h" />
     <ClInclude Include="lights\PointLight.h" />
-    <ClInclude Include="lights\Reinhart.h" />
+    <ClInclude Include="Skyes\Reinhart145.h" />
     <ClInclude Include="materials\Matte.h" />
     <ClInclude Include="samplers\Hemisphere.h" />
     <ClInclude Include="samplers\Random2D.h" />

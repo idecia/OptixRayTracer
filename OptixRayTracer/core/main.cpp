@@ -6,7 +6,7 @@
 #include "core/RNG.h"
 #include "core/Ray.h"
 #include "shapes/Sphere.h"
-#include "lights/Reinhart.h"
+#include "skyes/Reinhart145.h"
 #include "shapes/Parallelogram.h"
 #include "bxdfs/Lambertian.h"
 #include "materials/Matte.h"
@@ -18,9 +18,10 @@
 #include "3rdparty/sutil/GL/glew.h"
 #include "3rdparty/freeglut/include/GL/freeglut.h"
 #include "core/Scene.h"
-#include "lights/Reinhart.h"
 #include "core/SceneBuilder.h"
+#include "skyes/Beckers288.h"
 #include <iostream>
+#include <stdio.h>
 #include <vector>
 using namespace std;
 
@@ -339,6 +340,7 @@ void glutRun()
 
 
 int main(int argc, char* argv[]) {
+
 	/*
    try {
       //glutInitialize(&argc, argv,width,height);
@@ -372,12 +374,12 @@ int main(int argc, char* argv[]) {
   try {
 
 	
-
+	  
 	 //sutil::initGlut(&argc, argv);
-	  string filename = "./LIGHTWELL.obj";
+	  /*string filename = "./LIGHTWELL.obj";
 	   scene =  SceneBuilder::BuildFromFile(filename);
-	   for (int i = 1; i < 2 ; i++) 
-		   for (int j = 11; j < 12 ; j++) {
+	   for (int i = 0; i < 6 ; i++) 
+		   for (int j = 0; j < 12 ; j++) {
 			   float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 0.7);
 			   scene.ChangeSensorPosition(p);
 			   scene.ResetSensorValues();
@@ -387,7 +389,7 @@ int main(int argc, char* argv[]) {
 			   float3* values = (float3*)coeff->map();
 			   RTsize RTwidth; coeff->getSize(RTwidth);
 			   int width = static_cast<int>(RTwidth);
-			  for (int i = 0; i < width; i++) {
+		 for (int i = 0; i < width; i++) {
 				   float3 v = values[i];
 			   cout << "   " << v.x << "   " << v.y << "   " << v.z;
 			   }
@@ -419,9 +421,61 @@ int main(int argc, char* argv[]) {
 	  cout << "\n";
 	  cout << sum.x*M_PIf/10000000;
 	  coeff->unmap();*/
+	/*  float R0 = 0.12f, T0 = 0.85f, d = 0.004, lambda = 898e-9;
+	  ThinGlass brdf(R0, T0, d, lambda);
+	  for (int i = 0; i <= 90; i++) {
+		  float teta = i * (M_PIf/ 180.0f);
+		  float f = brdf.F.Transmittance(cosf(teta));
+		  cout << f << "\n";
+	  }*/
 
+	  /*
+	 FILE * pFile;
+     pFile = fopen("SensorsIgnacio.txt", "r");
+	 float3 p; float d;
+	 string filename = "./LIGHTWELL.obj";
+	 scene = SceneBuilder::BuildFromFile(filename);
+	// while (fscanf(pFile, "%f\t%f\t%f\t%f\t%f\t%f\n", &p.x, &p.y, &p.z, &d, &d, &d) != EOF) {
+	 fscanf(pFile, "%f\t%f\t%f\t%f\t%f\t%f\n", &p.x, &p.y, &p.z, &d, &d, &d);
+		 scene.ChangeSensorPosition(p);
+		scene.ResetSensorValues();
+		scene.Render();
 
+		Buffer coeff = scene.GetSensorValues();
+		float3* values = (float3*)coeff->map();
+		RTsize RTwidth; coeff->getSize(RTwidth);
+		int width = static_cast<int>(RTwidth);
+		for (int i = 0; i < width; i++) {
+			 float3 v = values[i];
+			 cout << "   " << v.x << "   " << v.y << "   " << v.z;
+		}
+		cout << "\n";
+		coeff->unmap();
+	//}*/
+	  
+		string filename = "./LIGHTWELL.obj";
+		scene = SceneBuilder::BuildFromFile(filename);
+	    scene.Render();
+		Buffer coeff = scene.GetSensorValues();
+	    float3* values = (float3*)coeff->map();
+		RTsize RTwidth; RTsize RTheight; 
+		coeff->getSize(RTwidth, RTheight);
+		int width = static_cast<int>(RTwidth);
+		int height = static_cast<int>(RTheight);
+	    for (int i = 0; i < width; i++)  {
+			for (int j = 0; j < height; j++) {
+				float3 v = values[j*width + i];
+				cout << "   " << v.x;
+			}
+			cout << "\n";
+		}
+		coeff->unmap();
+	//float3 d = make_float3(0.078184273264963,   0.126575159385289,   0.988871047427630);
+		//cout << beckers(d);
+	 
    }
+
+
    catch (optix::Exception e) {
 	   std::cout << e.getErrorString();
    }

@@ -13,6 +13,7 @@
 #include "films/Film.h"
 #include "cameras/Pinhole.h"
 #include "bxdfs/Lambertian.h"
+#include "bxdfs/ThinGlass.h"
 #include  "samplers/Random2D.h"
 #include "core/Ray.h"
 #include <vector> 
@@ -111,7 +112,7 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 	loadGeometry(scene, context, geometryMeshes, materials);
 	//ver si es necesario calcular el ABBox de la escena
 
-	int width = 100000;
+	int width = 1000;
 	int height = 0;
 	//loadCamera(scene, context, width, height);
 	optix::Buffer coeff = loadSensors(scene, context, width);
@@ -260,7 +261,21 @@ void SceneBuilder::loadMaterials(const aiScene* scene,
 		}
 	
 		//[TODO] Textured material
+
 		//[TODO] Reflective/mirror material
+		float indexOfRefraction;
+		if (material->Get(AI_MATKEY_REFRACTI, indexOfRefraction) == AI_SUCCESS && indexOfRefraction > 1.0f) {
+			//printf("\tGlass: IOR: %g\n", indexOfRefraction);
+			Material optixMaterial = context->createMaterial();
+			optixMaterial->setClosestHitProgram(RayType::RADIANCE, closestHitRadiance);
+			optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
+			float R0 = 0.12f, T0 = 0.78f, d = 0.004, lambda = 898e-9;//575e-9;
+			ThinGlass brdf(R0, T0, d, lambda);
+			optixMaterial["brdfGlass"]->setUserData(sizeof(ThinGlass), &brdf);
+			materials.push_back(optixMaterial);
+			optixMaterial["glass"]->setUint(1);
+			continue;
+		}
 
 		aiColor3D diffuseColor;
 		if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS) {
@@ -270,7 +285,9 @@ void SceneBuilder::loadMaterials(const aiScene* scene,
 			optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
 			Lambertian brdf(toFloat3(diffuseColor));
 			optixMaterial["brdf"]->setUserData(sizeof(Lambertian), &brdf);
+			optixMaterial["glass"]->setUint(0);
 			materials.push_back(optixMaterial);
+			continue;
 
 		}
 
@@ -289,6 +306,8 @@ void SceneBuilder::loadMeshes(const aiScene* scene,
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
 
 		aiMesh* mesh = scene->mMeshes[i];
+		mesh->mName;
+
 		unsigned int numFaces = mesh->mNumFaces;
 		unsigned int numVertices = mesh->mNumVertices;
 
@@ -481,7 +500,7 @@ void SceneBuilder::loadCamera(const aiScene* scene, Context &context, int width,
 	context["rngs"]->setBuffer(RNGBuffer);
 }
 
-
+/*
 optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, int width) {
 
 
@@ -532,22 +551,49 @@ optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, 
 	RNGBuffer->unmap();
 	context["rngs"]->setBuffer(RNGBuffer);
 
-	/*optix::Buffer u = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
-	u->setFormat(RT_FORMAT_FLOAT2);
-	u->setSize(width);
-	float2* umap = (float2*)u->map();
-	RNG rng(1234567,0);
-	Random2D sampler(&rng, width);
-	float2 unifSample;
-	int i = 0;
-	while (sampler.Next2D(&unifSample)) {
-		umap[i] = unifSample;
-		i++;
-	}
-	u->unmap();
-	context["u"]->setBuffer(u); */
-
-
 	return coeff;
+
+} */
+
+optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, int width) {
+
+
+	const char* path = "./Environmental.ptx";
+	Program program = context->createProgramFromPTXFile(path, "sensor");
+	context->setRayGenerationProgram(0, program);
+	context->setExceptionEnabled(RT_EXCEPTION_ALL, 1);
+	Program exception = context->createProgramFromPTXFile(path, "exception");
+	context->setExceptionProgram(0, exception);
+	context->setRayGenerationProgram(0, program);
+
+	context["sensorPos"]->setFloat(1000000.0f, 1000000.0f, 1000000.0f);
+	context["sensorNormal"]->setFloat(0.0f, 0.0f, 1.0f);
+	context["N"]->setInt(width);
+
+	optix::Buffer environmentMap = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	environmentMap->setFormat(RT_FORMAT_FLOAT3);
+	unsigned int NskyPatches = 146; //145 + 1
+	//unsigned int NEnvironmentalPatches = 289;
+	unsigned int NEnvironmentalPatches = 4097;
+	environmentMap->setSize(NEnvironmentalPatches, NskyPatches);
+	float* values = (float*)environmentMap->map();
+	for (unsigned int i = 0; i < NEnvironmentalPatches*NskyPatches*3; i++) {
+		values[i] = 0.0f;
+	}
+	environmentMap->unmap();
+	context["coeff"]->set(environmentMap);
+
+	optix::Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	RNGBuffer->setFormat(RT_FORMAT_USER);
+	RNGBuffer->setElementSize(sizeof(RNG));
+	RNGBuffer->setSize(width);
+	RNG* rng = (RNG*)RNGBuffer->map();
+	for (unsigned int i = 0; i < width; i++) {
+		rng[i] = RNG(0u, i);
+	}
+	RNGBuffer->unmap();
+	context["rngs"]->setBuffer(RNGBuffer);
+
+	return environmentMap;
 
 }

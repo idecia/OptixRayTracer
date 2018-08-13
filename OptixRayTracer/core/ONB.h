@@ -39,7 +39,7 @@ RT_FUNCTION ONB::ONB(float3 normal)
 	}
 
 	s = normalize(s);
-	t = cross(s, n);
+	t = cross(n, s);
 
 }
 
