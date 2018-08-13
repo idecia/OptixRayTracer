@@ -12,6 +12,7 @@
 
 #define MAX_DEPTH 30
 
+
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(HitRecord, hit, attribute hit, );
 rtDeclareVariable(Ray, ray, rtCurrentRay, );
@@ -60,9 +61,7 @@ RT_PROGRAM void closestHit() {
 */
 
 RT_PROGRAM void closestHit() {
-	
-	//	rtPrintf("Hit: %f %f %f %\n", hit.position.x, hit.position.y, hit.position.z);
-	//	return;
+
 	float3 value = make_float3(0.0f);
 	ONB onb(hit.normal);
 	float3 woW = -ray.direction;
@@ -96,6 +95,7 @@ RT_PROGRAM void closestHit() {
 
 			radianceRay = make_Ray(hitP, wiW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
 		}
+
 		ReinhartPayload newReinhartPayload;
 		newReinhartPayload.depth = reinhartPayload.depth + 1;
 		newReinhartPayload.rng = reinhartPayload.rng;
@@ -123,7 +123,6 @@ RT_PROGRAM void miss() {
 	
 		reinhartPayload.value = make_float3(1.0f);
 	reinhartPayload.patchID = reinhart(ray.direction, 1);
-
 	if (reinhartPayload.patchID == 0) {
 		//float t = -ray.origin.y / ray.direction.y;
 		//rtPrintf(" %f %f %f %f %f %f \n", (ray.origin + t* ray.direction).x, (ray.origin + t* ray.direction).y, (ray.origin + t* ray.direction).z, ray.direction.x, ray.direction.y, ray.direction.z);

@@ -1,0 +1,120 @@
+#pragma once
+
+#include "core/optix_global.h"
+#include "geometry/Mesh2D.h"
+#include "geometry/GeometryUtil.h"
+#include <vector>
+
+using namespace std;
+
+class Polygon2D {
+
+private:
+
+	vector<float2> vertices;
+
+public:
+	
+	const vector<float2>& GetVertices() const;
+	void AddVertex(const float2& v);
+	float PolygonArea();
+	WindingType PolygonWinding();
+	Mesh2D* Triangulate();
+
+
+};
+
+const vector<float2>& Polygon2D::GetVertices() const {
+
+	return vertices;
+
+}
+
+void Polygon2D::AddVertex(const float2& v) {
+	
+	vertices.push_back(v);
+
+}
+
+float Polygon2D::PolygonArea() {
+
+	const vector<float2> &v = vertices;
+	int n = v.size();
+	float area = 0.0f;
+	for (int i = 0, j = n - 1; i < n; j = i, i++) {
+		area += (v[i].x + v[j].x) * (v[i].y - v[j].y);
+	}
+	return 0.5f * area;
+}
+
+WindingType Polygon2D::PolygonWinding() {
+
+	float area = PolygonArea();
+	return (area > 0.0f) ? WindingType::CCW : WindingType::CW;
+
+}
+
+
+Mesh2D* Polygon2D::Triangulate() {
+
+	int n = vertices.size();
+
+	vector<int> prev(n), next(n);
+	for (int i = 1; i < n-1; i++) {
+		prev[i] = i - 1;
+		next[i] = i + 1;	
+	}
+	prev[0]   = n - 1;
+	next[n-1] = 0;
+
+	Mesh2D* mesh = new Mesh2D();
+	for (int i = 0; i < n; i++) {
+		mesh->AddVertex(vertices[i]);
+	}
+
+	Polygon2D p;
+	WindingType PW = PolygonWinding();
+	int i = 0;
+	while (n > 3) {
+
+		bool isEar = 1;
+		float2 a = vertices[prev[i]];
+		float2 b = vertices[i];
+		float2 c = vertices[next[i]];
+		if (TriangleWinding(a, b, c) == PW) {
+			int k = next[next[i]];
+			do {
+				if (TestPointTriangle(vertices[k], a, b, c)) {
+					isEar = 0;
+					break;
+				}
+				k = next[k];
+			} while (k != prev[i]);
+		}
+		else {
+			isEar = 0;
+		}
+
+		if (isEar) {
+			Face* f = new Face(prev[i], i, next[i]);
+			mesh->AddFace(f);
+			next[prev[i]] = next[i];
+			prev[next[i]] = prev[i];
+			i = prev[i];
+			n--;
+		}
+		else {
+			i = next[i];
+		}
+
+	}
+
+	if (n == 3) {
+		Face* f = new Face(prev[i], i, next[i]);
+		mesh->AddFace(f);
+	}
+
+	return mesh;
+
+}
+
