@@ -56,4 +56,28 @@ Mesh3D::~Mesh3D() {
 
 void Mesh3D::Triangulate() {
 
+	/*for (int i = 0; i < faces.size(); i++) {
+		
+		Face* oldFace = faces[i];
+		vector<int> ind = oldFace->GetIndices();
+		Polygon3D* poly = new Polygon2D();
+		for (int j = 0; j < ind.size(); j++){
+			poly.AddVertex(vertices[ind[j]]);
+		}
+		float3 normal = poly.NewellNormal();
+
+
+
+
+		Face* newFace = new Face();*/
+
+
+
+
+
+
+	
+	
+
+
 }

@@ -15,6 +15,8 @@ private:
 
 public:
 	
+	Polygon2D();
+	Polygon2D(const vector<float2> &vertices);
 	const vector<float2>& GetVertices() const;
 	void AddVertex(const float2& v);
 	float PolygonArea();
@@ -24,8 +26,16 @@ public:
 
 };
 
-const vector<float2>& Polygon2D::GetVertices() const {
+Polygon2D::Polygon2D() { }
 
+Polygon2D::Polygon2D(const vector<float2> &vertices) {
+	//TODO: Double Linked List instead of vector data structure?
+}
+
+
+const vector<float2>& Polygon2D::GetVertices() const {
+	//TODO: Substitute by an iterator to encapsulate
+	//internal data.
 	return vertices;
 
 }
@@ -41,14 +51,16 @@ float Polygon2D::PolygonArea() {
 	const vector<float2> &v = vertices;
 	int n = v.size();
 	float area = 0.0f;
-	for (int i = 0, j = n - 1; i < n; j = i, i++) {
+	for (int i = 0, j = n-1; i < n; j = i, i++) {
 		area += (v[i].x + v[j].x) * (v[i].y - v[j].y);
 	}
 	return 0.5f * area;
 }
 
-WindingType Polygon2D::PolygonWinding() {
 
+
+WindingType Polygon2D::PolygonWinding() {
+	//TODO: Return NONE when we have a degenerated polygon
 	float area = PolygonArea();
 	return (area > 0.0f) ? WindingType::CCW : WindingType::CW;
 
@@ -60,7 +72,7 @@ Mesh2D* Polygon2D::Triangulate() {
 	int n = vertices.size();
 
 	vector<int> prev(n), next(n);
-	for (int i = 1; i < n-1; i++) {
+	for (int i = 0; i < n; i++) {
 		prev[i] = i - 1;
 		next[i] = i + 1;	
 	}
@@ -68,23 +80,24 @@ Mesh2D* Polygon2D::Triangulate() {
 	next[n-1] = 0;
 
 	Mesh2D* mesh = new Mesh2D();
-	for (int i = 0; i < n; i++) {
-		mesh->AddVertex(vertices[i]);
+	for (int z = 0; z < n; z++) {
+		mesh->AddVertex(vertices[z]);
 	}
 
-	Polygon2D p;
+	//TODO: Ver que hacer cuando no se encuentra oreja, por ejemplo,
+	//en poligonos degenrados.
 	WindingType PW = PolygonWinding();
 	int i = 0;
 	while (n > 3) {
 
 		bool isEar = 1;
-		float2 a = vertices[prev[i]];
-		float2 b = vertices[i];
-		float2 c = vertices[next[i]];
+		const float2 &a = vertices[prev[i]];
+		const float2 &b = vertices[i];
+		const float2 &c = vertices[next[i]];
 		if (TriangleWinding(a, b, c) == PW) {
 			int k = next[next[i]];
 			do {
-				if (TestPointTriangle(vertices[k], a, b, c)) {
+				if (TestPointTriangle(a, b, c, vertices[k])) {
 					isEar = 0;
 					break;
 				}

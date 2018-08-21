@@ -20,6 +20,8 @@
 #include "core/Scene.h"
 #include "core/SceneBuilder.h"
 #include "skyes/Beckers288.h"
+#include "geometry\Polygon2D.h"
+#include "geometry\Mesh2D.h"
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -341,6 +343,24 @@ void glutRun()
 
 int main(int argc, char* argv[]) {
 
+	Polygon2D* p = new Polygon2D();
+	p->AddVertex(make_float2(0.0f, 0.0f));
+	p->AddVertex(make_float2(1.0f, 0.0f));
+	p->AddVertex(make_float2(1.0f, 1.0f));
+	p->AddVertex(make_float2(2.0f, 2.0f));
+	p->AddVertex(make_float2(3.0f, 2.0f));
+	p->AddVertex(make_float2(3.0f, 3.0f));
+	p->AddVertex(make_float2(0.0f, 3.0f));
+
+	Mesh2D* m = p->Triangulate();
+	const vector<Face*> f = m->GetFaces();
+	for (int i = 0; i < f.size(); i++) {
+		const vector<int> ind = f[i]->GetIndices();
+		cout << ind[0] << "  " << ind[1] << "  "<<  ind[2] << "\n";
+	}
+
+
+
 	/*
    try {
       //glutInitialize(&argc, argv,width,height);
@@ -369,11 +389,13 @@ int main(int argc, char* argv[]) {
       std::cout << e.getErrorString();
    }*/
   
-
+	
 
 	try {
 
 
+
+		/*
 
 		//sutil::initGlut(&argc, argv);
 		string filename = "./LIGHTWELL.obj";
@@ -400,7 +422,7 @@ int main(int argc, char* argv[]) {
 		//Buffer image = scene.GetOutputImage();*/
 		//float3 v = make_float3(0.5f, 0.5f, 2.5f);
 		//cout << reinhart(v, 1);
-
+		
 
 		/* float3 p = make_float3(0.0f, 0.0f, 2.5f);
 		 scene.ChangeSensorPosition(p);
@@ -476,10 +498,13 @@ int main(int argc, char* argv[]) {
 
 		 }*/
 
-	}
+	} 
+	
+	
    catch (optix::Exception e) {
 	   std::cout << e.getErrorString();
    }
+   
   
    
    

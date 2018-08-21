@@ -251,7 +251,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="core\Payload.h" />
     <ClInclude Include="core\RNG.h" />
     <ClInclude Include="core\Scene.h" />
-    <ClInclude Include="core\SceneBuilder.h" />
+    <ClInclude Include="Debug\SceneBuilder.h" />
     <ClInclude Include="films\Film.h" />
     <ClInclude Include="core\optix_global.h" />
     <ClInclude Include="core\Ray.h" />
