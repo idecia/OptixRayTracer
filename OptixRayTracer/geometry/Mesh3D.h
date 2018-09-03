@@ -17,6 +17,7 @@ private:
 
 	Polygon3D* FaceToPoly3D(const Face* &f);
 	Polygon2D* ProjectFace(const Face* &f);
+	vector<Face*> TriangulatePoly2D(Polygon2D* poly2D, const vector<int> &ind);
 
 public:
 
@@ -45,7 +46,7 @@ void Mesh3D::AddFace(Face* f) {
 	faces.push_back(f);
 }
 
-void Mesh3D::AddVertex(const float3& v) {
+void Mesh3D::AddVertex(const float3& v) { 
 
 	vertices.push_back(v);
 
@@ -75,6 +76,7 @@ float ValueAt(float3 v, int i) {
 		return v.y;
 	return v.z;
 }
+
 
 void GetProjectionAxes(const float3 &normal, int &u, int &v) {
 
@@ -107,7 +109,7 @@ Polygon2D* ProjectPoly3D(Polygon3D* poly3D) {
 	const vector<float3> &vertices = poly3D->GetVertices();
 	for (int i = 0; i < vertices.size(); i++) {
 		float3 vec = vertices[i];
-		poly2D->AddVertex(ProjectVec3DTo2D(vec, u, v);
+		poly2D->AddVertex(ProjectVec3DTo2D(vec, u, v));
 	}
 	return poly2D;
 }
@@ -132,7 +134,7 @@ Polygon2D* Mesh3D::ProjectFace(const Face* &f) {
 
 }
 
-vector<Face*> TriangulatePoly2D(Polygon2D* poly2D) {
+vector<Face*> Mesh3D::TriangulatePoly2D(Polygon2D* poly2D, const vector<int> &ind) {
 
 	vector<Face*> faces;
 	const vector<float2> &vertices = poly2D->GetVertices();
@@ -191,12 +193,14 @@ vector<Face*> TriangulatePoly2D(Polygon2D* poly2D) {
 void Mesh3D::Triangulate() {
 
 	vector<Face*> triFaces;
-	int nFaces = faces.size()
+	int nFaces = faces.size();
 	for (int i = 0; i < nFaces; i++) {
-		Polygon2D* poly2D = ProjectFace(faces[i]);
-		vector<Face*> newFaces = TriangulatePoly2D(poly2D);
+		const Face* face = faces[i];
+		const vector<int> &ind = face->GetIndices();
+		Polygon2D* poly2D = ProjectFace(face);
+		vector<Face*> newFaces = TriangulatePoly2D(poly2D, ind);
 		delete poly2D;
-		Append(triFaces, newFaces)
+		Append(triFaces, newFaces);
 	}
 	faces.clear();
 	faces = triFaces;

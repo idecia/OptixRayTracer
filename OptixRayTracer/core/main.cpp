@@ -22,6 +22,8 @@
 #include "skyes/Beckers288.h"
 #include "geometry\Polygon2D.h"
 #include "geometry\Mesh2D.h"
+#include "geometry\Mesh3D.h"
+#include "geometry\Face.h"
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -356,8 +358,51 @@ int main(int argc, char* argv[]) {
 	const vector<Face*> f = m->GetFaces();
 	for (int i = 0; i < f.size(); i++) {
 		const vector<int> ind = f[i]->GetIndices();
-		cout << ind[0] << "  " << ind[1] << "  "<<  ind[2] << "\n";
+		//cout << ind[0] << "  " << ind[1] << "  "<<  ind[2] << "\n";
 	}
+
+	Mesh3D* m3D = new Mesh3D();
+	m3D->AddVertex(make_float3(0.0f, 0.0f, 0.0f));  //v0
+	m3D->AddVertex(make_float3(0.0f, -1.0f, 0.0f)); //v1
+	m3D->AddVertex(make_float3(1.0f, -1.0f, 0.0f));//v2
+	m3D->AddVertex(make_float3(1.0f, 0.0f, 0.0f));//v3
+	m3D->AddVertex(make_float3(0.0f, 0.0f, 1.0f));//v4
+	m3D->AddVertex(make_float3(0.0f, -1.0f, 1.0f)); //v5
+	m3D->AddVertex(make_float3(1.0f, -1.0f, 1.0f));//v6
+	m3D->AddVertex(make_float3(1.0f, 0.0f, 1.0f));//v7
+	m3D->AddVertex(make_float3(0.5f, -0.5f, 2.0f));//v8
+
+	Face* fac = new Face(0,1,2,3);
+	m3D->AddFace(fac);
+	fac = new Face(1, 2, 6, 5);
+	m3D->AddFace(fac);
+	fac = new Face(2, 3, 7, 6);
+	m3D->AddFace(fac);
+	fac = new Face(3, 0, 4, 7);
+	m3D->AddFace(fac);
+	fac = new Face(0, 1, 5, 4);
+	m3D->AddFace(fac);
+	fac = new Face(4, 5, 6, 7);
+	m3D->AddFace(fac);
+	fac = new Face(5, 6, 8);
+	m3D->AddFace(fac);
+	fac = new Face(6, 7, 8);
+	m3D->AddFace(fac);
+	fac = new Face(7, 4, 8);
+	m3D->AddFace(fac);
+	fac = new Face(4, 5, 8);
+	m3D->AddFace(fac);
+
+
+	m3D->Triangulate();
+	const vector<Face*> f2 = m3D->GetFaces();
+	for (int i = 0; i < f2.size(); i++) {
+		const vector<int> ind = f2[i]->GetIndices();
+		cout << ind[0] << "  " << ind[1] << "  " << ind[2] << "\n";
+	}
+
+
+
 
 
 

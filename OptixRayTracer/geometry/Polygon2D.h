@@ -2,6 +2,7 @@
 
 #include "core/optix_global.h"
 #include "geometry/Mesh2D.h"
+#include "geometry/Mesh3D.h"
 #include "geometry/GeometryUtil.h"
 #include <vector>
 
@@ -22,6 +23,7 @@ public:
 	float PolygonArea();
 	WindingType PolygonWinding();
 	Mesh2D* Triangulate();
+	Mesh3D* Extrude(const float3 &direction);
 
 
 };
@@ -85,7 +87,7 @@ Mesh2D* Polygon2D::Triangulate() {
 	}
 
 	//TODO: Ver que hacer cuando no se encuentra oreja, por ejemplo,
-	//en poligonos degenrados.
+	//en poligonos degenerados.
 	WindingType PW = PolygonWinding();
 	int i = 0;
 	while (n > 3) {
@@ -131,3 +133,26 @@ Mesh2D* Polygon2D::Triangulate() {
 
 }
 
+Mesh3D* Polygon2D::Extrude(const float3 &direction) {
+	
+	Mesh3D* mesh = new Mesh3D();
+	int n = vertices.size();
+	for (int i = 0; i < n; i++) {
+		const float2 &v = vertices[i];
+		mesh->AddVertex(make_float3(v.x, v.y, 0.0f));
+	}
+	for (int i = 0; i < n; i++) {
+		const float2 &v = vertices[i];
+		mesh->AddVertex(make_float3(v.x, v.y, 0.0f) + direction);
+	}
+
+	
+	for (int i = 0; i < n; i++) {
+		Face* f = new Face();
+
+		mesh->AddFace(f);
+
+	}
+	return mesh;
+
+}
