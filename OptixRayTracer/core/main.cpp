@@ -398,11 +398,23 @@ int main(int argc, char* argv[]) {
 	const vector<Face*> f2 = m3D->GetFaces();
 	for (int i = 0; i < f2.size(); i++) {
 		const vector<int> ind = f2[i]->GetIndices();
-		cout << ind[0] << "  " << ind[1] << "  " << ind[2] << "\n";
+		//cout << ind[0] << "  " << ind[1] << "  " << ind[2] << "\n";
 	}
 
+	Polygon2D* p2D = new Polygon2D();
+	p2D->AddVertex(make_float2(0.0f, 0.0f));  //v0
+	p2D->AddVertex(make_float2(1.0f, 0.0f)); //v1
+	p2D->AddVertex(make_float2(1.0f, 2.0f));//v2
+	p2D->AddVertex(make_float2(-1.0f, 1.0f));//v3
+	p2D->AddVertex(make_float2(0.5f, 0.5f));//v4
 
-
+	m3D = Extrude(p2D, make_float3(1.0f, 1.0f, 1.0f));
+	m3D->Triangulate();
+	const vector<Face*> f3 = m3D->GetFaces();
+	for (int i = 0; i < f3.size(); i++) {
+		const vector<int> ind = f3[i]->GetIndices();
+		cout << ind[0] << "  " << ind[1] << "  " << ind[2] << "\n";
+	}
 
 
 

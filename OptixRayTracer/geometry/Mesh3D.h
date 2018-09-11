@@ -4,11 +4,12 @@
 #include "geometry/Face.h"
 #include "geometry/Polygon3D.h"
 #include "geometry/Polygon2D.h"
+#include "geometry/GeometricObject.h"
 #include <vector>
 
 using namespace std;
 
-class Mesh3D {
+class Mesh3D : public GeometricObject {
 
 private:
 
@@ -204,5 +205,32 @@ void Mesh3D::Triangulate() {
 	}
 	faces.clear();
 	faces = triFaces;
+
+}
+
+Mesh3D* Extrude(const Polygon2D* poly, const float3 &direction) {
+
+	Mesh3D* mesh = new Mesh3D();
+	const vector<float2> &vertices = poly->GetVertices();
+	int n = vertices.size();
+	Face* bottom = new Face();
+	for (int i = 0; i < n; i++) {
+		const float2 &v = vertices[i];
+		mesh->AddVertex(make_float3(v.x, v.y, 0.0f));
+		bottom->AddIndex(i);
+	}
+	mesh->AddFace(bottom);
+	Face* top = new Face();
+	for (int i = 0; i < n; i++) {
+		const float2 &v = vertices[i];
+		mesh->AddVertex(make_float3(v.x, v.y, 0.0f) + direction);
+		top->AddIndex(i + n);
+	}
+	mesh->AddFace(top);
+	for (int i = 0; i < n; i++) {
+		Face* lateral = new Face(i, (i + 1)%n, (i + 1)%n + n, i + n);
+		mesh->AddFace(lateral);
+	}
+	return mesh;
 
 }

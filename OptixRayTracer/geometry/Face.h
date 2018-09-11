@@ -3,6 +3,7 @@
 #include "core/optix_global.h"
 #include <vector>
 
+
 using namespace std;
 
 class Face {
