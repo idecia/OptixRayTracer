@@ -1,10 +1,9 @@
 #pragma once
 
 #include "core/optix_global.h"
-#include "geometry/GeometricObject.h"
-#include "math/Matrix4x4.h"
+#include "geometry/Primitive.h"
 
-class Instance: public GeometricObject {
+class Instance: public Primitive {
 
 public:
 
@@ -13,18 +12,20 @@ public:
 
 private:
 
-	GeometricObject* obj;
+	GeometricObject* object;
 
 };
 
 Instance::Instance(GeometricObject* obj) 
-	:GeometricObject(), obj(obj) {
+	:Primitive(), 
+	 object(obj) {
 	
 	
 }
 
+
 GeometricObject* Instance::GetGeometricObject() {
 
-	return obj;
+	return object;
 
 }

@@ -10,55 +10,62 @@ public:
 	GeometricObject();
 	void Translate(const float3& d);
 	void Scale(const float3& s);
-	void RotateX(const float r);
-	void RotateY(const float r);
-	void RotateZ(const float r);
-	Matrix4x4 GetTransform();
-	Matrix4x4 GetInverseTransform();
+	void RotateX(const float theta);
+	void RotateY(const float theta);
+	void RotateZ(const float theta);
+	Matrix4x4 GetTransformation();
+	Matrix4x4 GetInverseTransformation();
+	virtual bool IsPrimitive();
 	virtual ~GeometricObject();
 
 private:
 
-	Matrix4x4 transf;
-	Matrix4x4 invTransf;
+	Matrix4x4 transformation;
+	Matrix4x4 invTransformation;
+
+	void UpdateTransformation(const Matrix4x4 &m, const Matrix4x4 &invm);
 
 
 };
 
 GeometricObject::GeometricObject()
-	: transf(Matrix4x4::identity()),
-	  invTransf(Matrix4x4::identity()) {
+	: transformation(Matrix4x4::identity()),
+	  invTransformation(Matrix4x4::identity()) {
 
 }
 
-Matrix4x4 GeometricObject::GetTransform() {
+Matrix4x4 GeometricObject::GetTransformation() {
 
-	return transf;
+	return transformation;
 
 }
 
 
-Matrix4x4 GeometricObject::GetInverseTransform() {
+Matrix4x4 GeometricObject::GetInverseTransformation() {
 
-	return invTransf;
+	return invTransformation;
 
+}
+
+void GeometricObject::UpdateTransformation(const Matrix4x4 &m, const Matrix4x4 &invm) {
+
+	transformation = m * transformation;
+	invTransformation = invTransformation * invm;
 }
 
 void GeometricObject::RotateX(const float theta) {
 
 	Matrix4x4 m = RotationXMatrix(theta);
 	Matrix4x4 invm = RotationXMatrix(-theta);
-	transf = m * transf;
-	invTransf = invm * transf;
-
+	UpdateTransformation(m, invm);
+	
 }
 
 void GeometricObject::RotateY(const float theta) {
 
 	Matrix4x4 m = RotationYMatrix(theta);
 	Matrix4x4 invm = RotationYMatrix(-theta);
-	transf = m * transf;
-	invTransf = invm * transf;
+	UpdateTransformation(m, invm);
 
 }
 
@@ -66,19 +73,17 @@ void GeometricObject::RotateZ(const float theta) {
 
 
 	Matrix4x4 m = RotationZMatrix(theta);
-	Matrix4x4 invM = RotationZMatrix(-theta);
-	transf = m * transf;
-	invTransf = invM * transf;
+	Matrix4x4 invm = RotationZMatrix(-theta);
+	UpdateTransformation(m, invm);
 
 };
 
 void GeometricObject::Scale(const float3& s) {
 
-	Matrix4x4 M = ScalingMatrix(s);
-	float3 invs = make_float3(1.0f / s.x, 1.0f / s.y, 1.0f / s.z);
-	Matrix4x4 invM = ScalingMatrix(invs);
-	transf = M * transf;
-	invTransf = invM * transf;
+	Matrix4x4 m = ScalingMatrix(s);
+	float3 invs = make_float3(1.0f/s.x, 1.0f/s.y, 1.0f/s.z);
+	Matrix4x4 invm = ScalingMatrix(invs);
+	UpdateTransformation(m, invm);
 
 }
 
@@ -86,7 +91,12 @@ void GeometricObject::Translate(const float3& d) {
 
 	Matrix4x4 m = TranslationMatrix(d);
 	Matrix4x4 invm = TranslationMatrix(-d);
-	transf = m * transf;
-	invTransf = invm * transf;
+	UpdateTransformation(m, invm);
+
+}
+
+bool GeometricObject::IsPrimitive() {
+
+	return false;
 
 }

@@ -127,7 +127,7 @@ Matrix4x4 RotatationZMatrix(float theta) {
 
 }
 
-Matrix4x4 TranslationMatrix(float3 d) {
+Matrix4x4 TranslateMatrix(float3 d) {
 
 	Matrix4x4 m = Matrix4x4::identity();
 	m[0*4 + 3] = d.x;
@@ -137,7 +137,7 @@ Matrix4x4 TranslationMatrix(float3 d) {
 
 }
 
-Matrix4x4 ScalingMatrix(float3 s) {
+Matrix4x4 ScaleMatrix(float3 s) {
 
 	Matrix4x4 m = Matrix4x4::identity();
 	m[0*4 + 0] = s.x;

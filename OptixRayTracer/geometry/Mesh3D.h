@@ -4,12 +4,12 @@
 #include "geometry/Face.h"
 #include "geometry/Polygon3D.h"
 #include "geometry/Polygon2D.h"
-#include "geometry/GeometricObject.h"
+#include "geometry/Primitive.h"
 #include <vector>
 
 using namespace std;
 
-class Mesh3D : public GeometricObject {
+class Mesh3D : public Primitive {
 
 private:
 
@@ -22,6 +22,7 @@ private:
 
 public:
 
+	Mesh3D();
 	const vector<float3>& GetVertices() const;
 	const vector<Face*>& GetFaces() const;
 	void AddFace(Face* f);
@@ -30,6 +31,11 @@ public:
 	virtual ~Mesh3D();
 
 };
+
+Mesh3D::Mesh3D()
+	:Primitive() {
+
+}
 
 const vector<float3>& Mesh3D::GetVertices() const {
 

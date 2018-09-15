@@ -12,8 +12,9 @@ class Compound : public GeometricObject {
 public:
 
 	Compound();
-	const vector<GeometricObject*>& GetGeometricObjects();
-	void AddGeometricObject(GeometricObject* obj);
+	const vector<GeometricObject*>& GetChilds();
+	void AddChild(GeometricObject* obj);
+	bool IsPrimitive();
 
 private:
 
@@ -21,18 +22,24 @@ private:
 
 };
 
-Compound::Compound() {
+Compound::Compound() 
+	: GeometricObject() {
 
 }
 
-const vector<GeometricObject*>& Compound::GetGeometricObjects() {
+const vector<GeometricObject*>& Compound::GetChilds() {
 
 	return objects;
 
 }
 
-void Compound::AddGeometricObject(GeometricObject* obj) {
+void Compound::AddChild(GeometricObject* obj) {
 
 	objects.push_back(obj);
 
+}
+
+bool Compound::IsPrimitive() {
+
+	return false;
 }
