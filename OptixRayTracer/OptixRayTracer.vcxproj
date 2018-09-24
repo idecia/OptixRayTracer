@@ -167,10 +167,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bxdfs\FresnelDielectric.h" />
-    <ClInclude Include="bxdfs\ThinGlass.h">
-      <FileType>CppCode</FileType>
-    </ClInclude>
     <ClCompile Include="core\main.cpp" />
     <ClCompile Include="geometry\MatteTriangle.h" />
     <ClCompile Include="3rdparty\sutil\Arcball.cpp" />
@@ -182,8 +178,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="3rdparty\sutil\rply-1.01\rply.c" />
     <ClCompile Include="3rdparty\sutil\sutil.cpp" />
     <ClCompile Include="3rdparty\sutil\tinyobjloader\tiny_obj_loader.cc" />
-    <CudaCompile Include="cameras\Environmental.cu" />
-    <ClInclude Include="Skyes\Beckers288.h" />
     <CudaCompile Include="cameras\Pinhole.cu" />
     <CudaCompile Include="shapes\Mesh.cu" />
     <CudaCompile Include="shapes\Parallelogram.cu" />
@@ -236,6 +230,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="brdfs\SpecularReflection.h" />
     <ClInclude Include="brdfs\Lambertian.h" />
     <ClInclude Include="cameras\Pinhole.h" />
+    <ClInclude Include="skyes\Beckers288.h" />
+    <ClInclude Include="skyes\Reinhart145.h" />
     <CudaCompile Include="cameras\PointSensor.cu">
       <FileType>CppHeader</FileType>
     </CudaCompile>
@@ -249,6 +245,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="films\Film.h" />
     <ClInclude Include="core\optix_global.h" />
     <ClInclude Include="core\Ray.h" />
+    <ClInclude Include="geometry\Face.h" />
+    <ClInclude Include="geometry\GeometryUtil.h" />
     <ClInclude Include="geometry\MatteParallelogram.h" />
     <ClInclude Include="geometry\MatteSphere.h" />
     <ClInclude Include="3rdparty\sutil\Arcball.h" />
@@ -263,11 +261,15 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="3rdparty\sutil\rply-1.01\rply.h" />
     <ClInclude Include="3rdparty\sutil\sutil.h" />
     <ClInclude Include="3rdparty\sutil\tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="geometry\Mesh2D.h" />
+    <ClInclude Include="geometry\Mesh3D.h" />
+    <ClInclude Include="geometry\Polygon2D.h" />
+    <ClInclude Include="geometry\Polygon3D.h" />
     <ClInclude Include="lights\AreaLight.h" />
     <ClInclude Include="core\Light.h" />
     <ClInclude Include="lights\AllLights.h" />
     <ClInclude Include="lights\PointLight.h" />
-    <ClInclude Include="Skyes\Reinhart145.h" />
+    <ClInclude Include="lights\Reinhart.h" />
     <ClInclude Include="materials\Matte.h" />
     <ClInclude Include="samplers\Hemisphere.h" />
     <ClInclude Include="samplers\Random2D.h" />
