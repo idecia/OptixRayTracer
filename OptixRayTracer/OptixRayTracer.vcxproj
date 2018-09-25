@@ -168,7 +168,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="core\main.cpp" />
-    <ClCompile Include="geometry\MatteTriangle.h" />
+    <ClCompile Include="shapes\MatteTriangle.h" />
     <ClCompile Include="3rdparty\sutil\Arcball.cpp" />
     <ClCompile Include="3rdparty\sutil\glew.c" />
     <ClCompile Include="3rdparty\sutil\HDRLoader.cpp" />
@@ -178,6 +178,17 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="3rdparty\sutil\rply-1.01\rply.c" />
     <ClCompile Include="3rdparty\sutil\sutil.cpp" />
     <ClCompile Include="3rdparty\sutil\tinyobjloader\tiny_obj_loader.cc" />
+    <CudaCompile Include="cameras\Environmental.cu" />
+    <ClInclude Include="collections\Vector.h" />
+    <ClInclude Include="geometry\Compound.h" />
+    <ClInclude Include="geometry\Face.h" />
+    <ClInclude Include="geometry\GeometricObject.h" />
+    <ClInclude Include="geometry\GeometryUtil.h" />
+    <ClInclude Include="geometry\Instance.h" />
+    <ClInclude Include="geometry\Mesh2D.h" />
+    <ClInclude Include="geometry\Mesh3D.h" />
+    <ClInclude Include="geometry\Polygon2D.h" />
+    <ClInclude Include="geometry\Polygon3D.h" />
     <CudaCompile Include="cameras\Pinhole.cu" />
     <CudaCompile Include="shapes\Mesh.cu" />
     <CudaCompile Include="shapes\Parallelogram.cu" />
@@ -230,6 +241,11 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="brdfs\SpecularReflection.h" />
     <ClInclude Include="brdfs\Lambertian.h" />
     <ClInclude Include="cameras\Pinhole.h" />
+    <ClInclude Include="geometry\Primitive.h" />
+    <ClInclude Include="geometry\Triangle.h" />
+    <ClInclude Include="math\Matrix4x4.h" />
+    <ClInclude Include="math\Transform.h" />
+    <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="skyes\Beckers288.h" />
     <ClInclude Include="skyes\Reinhart145.h" />
     <CudaCompile Include="cameras\PointSensor.cu">
@@ -241,14 +257,12 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="core\Payload.h" />
     <ClInclude Include="core\RNG.h" />
     <ClInclude Include="core\Scene.h" />
-    <ClInclude Include="core\SceneBuilder.h" />
+    <ClInclude Include="Debug\SceneBuilder.h" />
     <ClInclude Include="films\Film.h" />
     <ClInclude Include="core\optix_global.h" />
     <ClInclude Include="core\Ray.h" />
-    <ClInclude Include="geometry\Face.h" />
-    <ClInclude Include="geometry\GeometryUtil.h" />
-    <ClInclude Include="geometry\MatteParallelogram.h" />
-    <ClInclude Include="geometry\MatteSphere.h" />
+    <ClInclude Include="shapes\MatteParallelogram.h" />
+    <ClInclude Include="shapes\MatteSphere.h" />
     <ClInclude Include="3rdparty\sutil\Arcball.h" />
     <ClInclude Include="3rdparty\sutil\glext.h" />
     <ClInclude Include="3rdparty\sutil\GL\glew.h" />
@@ -261,10 +275,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="3rdparty\sutil\rply-1.01\rply.h" />
     <ClInclude Include="3rdparty\sutil\sutil.h" />
     <ClInclude Include="3rdparty\sutil\tinyobjloader\tiny_obj_loader.h" />
-    <ClInclude Include="geometry\Mesh2D.h" />
-    <ClInclude Include="geometry\Mesh3D.h" />
-    <ClInclude Include="geometry\Polygon2D.h" />
-    <ClInclude Include="geometry\Polygon3D.h" />
     <ClInclude Include="lights\AreaLight.h" />
     <ClInclude Include="core\Light.h" />
     <ClInclude Include="lights\AllLights.h" />

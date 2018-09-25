@@ -1,22 +1,18 @@
 #pragma once
 
 #include "core/optix_global.h"
-#include "geometry/Polygon2D.h"
-#include "geometry/Polygon3D.h"
 
-enum WindingType {
+typedef enum {
 	CW,
 	CCW,
 	NONE
-};
+} WindingType;
+
 
 WindingType TriangleWinding(float2 a, float2 b, float2 c);
-float AreaParallelogram(float2 a, float2 b, float2 c);
-WindingType PolygonWinding(const Polygon2D &poly);
-float PolygonArea(const Polygon2D &poly);
 void Barycentric(float2 a, float2 b, float2 c, float2 p, float &u, float &v, float &w);
 bool TestPointTriangle(float2 p, float2 a, float2 b, float2 c);
-float3 NewellNormal(Polygon3D poly);
+
 
 
 float TriangleArea2D(float2 a, float2 b, float2 c) {
@@ -28,28 +24,10 @@ float TriangleArea2D(float2 a, float2 b, float2 c) {
 WindingType TriangleWinding(float2 a, float2 b, float2 c) {
 
 	float area = TriangleArea2D(a, b, c);
-	return area > 0 ? CCW : CW;
+	return (area > 0.0f) ? WindingType::CCW : WindingType::CW;
 	
 }
 
-float PolygonArea2D(const Polygon2D &poly) {
-
-	const vector<float2> v = poly.GetVertices();
-	int n = v.size();
-	float area = 0.0f;
-	for (int i = 0, j = n - 1; i < n; j = i, i++) {
-		area += (v[i].x + v[j].x) * (v[i].y - v[j].y);
-	}
-	return 0.5 * area;
-
-}
-
-WindingType PolygonWinding(const Polygon2D &poly) {
-
-	float area = PolygonArea2D(poly);
-	return area > 0 ? CCW : CW;
-
-}
 
 void Barycentric(float2 a, float2 b, float2 c, float2 p, float &u, float &v, float &w) {
 
@@ -66,24 +44,10 @@ void Barycentric(float2 a, float2 b, float2 c, float2 p, float &u, float &v, flo
 
 }
 
-bool TestPointTriangle(float2 p, float2 a, float2 b, float2 c) {
+bool TestPointTriangle(float2 a, float2 b, float2 c, float2 p) {
 	
 	float u, v, w;
 	Barycentric(a, b, c, p, u, v, w);
 	return v >= 0.0f && w >= 0.0f && (v + w) <= 1.0f;
 }
 
-float3 NewellNormal(Polygon3D poly) {
-
-	const vector<float3> v = poly.GetVertices();
-	int n = v.size();
-	float3 normal = make_float3(0.0f, 0.0f, 0.0f);
-	for (int i = 0, j = n - 1; i < n; j = i, i++) {
-		normal.x += (v[j].y - v[i].y) * (v[j].z + v[i].z); 
-		normal.y += (v[j].z - v[i].z) * (v[j].x + v[i].x); 
-		normal.z += (v[j].x - v[i].x) * (v[j].y + v[i].y); 
-	}
-	normalize(normal);
-	return normal;
-
-}

@@ -20,6 +20,10 @@
 #include "core/Scene.h"
 #include "core/SceneBuilder.h"
 #include "skyes/Beckers288.h"
+#include "geometry\Polygon2D.h"
+#include "geometry\Mesh2D.h"
+#include "geometry\Mesh3D.h"
+#include "geometry\Face.h"
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -341,6 +345,79 @@ void glutRun()
 
 int main(int argc, char* argv[]) {
 
+	Polygon2D* p = new Polygon2D();
+	p->AddVertex(make_float2(0.0f, 0.0f));
+	p->AddVertex(make_float2(1.0f, 0.0f));
+	p->AddVertex(make_float2(1.0f, 1.0f));
+	p->AddVertex(make_float2(2.0f, 2.0f));
+	p->AddVertex(make_float2(3.0f, 2.0f));
+	p->AddVertex(make_float2(3.0f, 3.0f));
+	p->AddVertex(make_float2(0.0f, 3.0f));
+
+	Mesh2D* m = p->Triangulate();
+	const vector<Face*> f = m->GetFaces();
+	for (int i = 0; i < f.size(); i++) {
+		const vector<int> ind = f[i]->GetIndices();
+		//cout << ind[0] << "  " << ind[1] << "  "<<  ind[2] << "\n";
+	}
+
+	Mesh3D* m3D = new Mesh3D();
+	m3D->AddVertex(make_float3(0.0f, 0.0f, 0.0f));  //v0
+	m3D->AddVertex(make_float3(0.0f, -1.0f, 0.0f)); //v1
+	m3D->AddVertex(make_float3(1.0f, -1.0f, 0.0f));//v2
+	m3D->AddVertex(make_float3(1.0f, 0.0f, 0.0f));//v3
+	m3D->AddVertex(make_float3(0.0f, 0.0f, 1.0f));//v4
+	m3D->AddVertex(make_float3(0.0f, -1.0f, 1.0f)); //v5
+	m3D->AddVertex(make_float3(1.0f, -1.0f, 1.0f));//v6
+	m3D->AddVertex(make_float3(1.0f, 0.0f, 1.0f));//v7
+	m3D->AddVertex(make_float3(0.5f, -0.5f, 2.0f));//v8
+
+	Face* fac = new Face(0,1,2,3);
+	m3D->AddFace(fac);
+	fac = new Face(1, 2, 6, 5);
+	m3D->AddFace(fac);
+	fac = new Face(2, 3, 7, 6);
+	m3D->AddFace(fac);
+	fac = new Face(3, 0, 4, 7);
+	m3D->AddFace(fac);
+	fac = new Face(0, 1, 5, 4);
+	m3D->AddFace(fac);
+	fac = new Face(4, 5, 6, 7);
+	m3D->AddFace(fac);
+	fac = new Face(5, 6, 8);
+	m3D->AddFace(fac);
+	fac = new Face(6, 7, 8);
+	m3D->AddFace(fac);
+	fac = new Face(7, 4, 8);
+	m3D->AddFace(fac);
+	fac = new Face(4, 5, 8);
+	m3D->AddFace(fac);
+
+
+	m3D->Triangulate();
+	const vector<Face*> f2 = m3D->GetFaces();
+	for (int i = 0; i < f2.size(); i++) {
+		const vector<int> ind = f2[i]->GetIndices();
+		//cout << ind[0] << "  " << ind[1] << "  " << ind[2] << "\n";
+	}
+
+	Polygon2D* p2D = new Polygon2D();
+	p2D->AddVertex(make_float2(0.0f, 0.0f));  //v0
+	p2D->AddVertex(make_float2(1.0f, 0.0f)); //v1
+	p2D->AddVertex(make_float2(1.0f, 2.0f));//v2
+	p2D->AddVertex(make_float2(-1.0f, 1.0f));//v3
+	p2D->AddVertex(make_float2(0.5f, 0.5f));//v4
+
+	m3D = Extrude(p2D, make_float3(1.0f, 1.0f, 1.0f));
+	m3D->Triangulate();
+	const vector<Face*> f3 = m3D->GetFaces();
+	for (int i = 0; i < f3.size(); i++) {
+		const vector<int> ind = f3[i]->GetIndices();
+		cout << ind[0] << "  " << ind[1] << "  " << ind[2] << "\n";
+	}
+
+
+
 	/*
    try {
       //glutInitialize(&argc, argv,width,height);
@@ -369,116 +446,122 @@ int main(int argc, char* argv[]) {
       std::cout << e.getErrorString();
    }*/
   
-
-
-  try {
-
 	
-	  
-	 //sutil::initGlut(&argc, argv);
-	  /*string filename = "./LIGHTWELL.obj";
-	   scene =  SceneBuilder::BuildFromFile(filename);
-	   for (int i = 0; i < 6 ; i++) 
-		   for (int j = 0; j < 12 ; j++) {
-			   float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 0.7);
-			   scene.ChangeSensorPosition(p);
-			   scene.ResetSensorValues();
-			   scene.Render();
-			
-			   Buffer coeff = scene.GetSensorValues();
-			   float3* values = (float3*)coeff->map();
-			   RTsize RTwidth; coeff->getSize(RTwidth);
-			   int width = static_cast<int>(RTwidth);
+
+	try {
+
+
+
+		/*
+
+		//sutil::initGlut(&argc, argv);
+		string filename = "./LIGHTWELL.obj";
+		scene = SceneBuilder::BuildFromFile(filename);
+		for (int i = 0; i < 6; i++)
+			for (int j = 0; j < 12; j++) {
+				float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 0.7);
+				scene.ChangeSensorPosition(p);
+				scene.ResetSensorValues();
+				scene.Render();
+
+				Buffer coeff = scene.GetSensorValues();
+				float3* values = (float3*)coeff->map();
+				RTsize RTwidth; coeff->getSize(RTwidth);
+				int width = static_cast<int>(RTwidth);
+				for (int i = 0; i < width; i++) {
+					float3 v = values[i];
+					cout << "   " << v.x * M_PIf /1000000;
+				}
+				cout << "\n";
+				coeff->unmap();
+			}
+		// glutRun();
+		//Buffer image = scene.GetOutputImage();*/
+		//float3 v = make_float3(0.5f, 0.5f, 2.5f);
+		//cout << reinhart(v, 1);
+		
+
+		/* float3 p = make_float3(0.0f, 0.0f, 2.5f);
+		 scene.ChangeSensorPosition(p);
+		 scene.ResetSensorValues();
+		 for (int i = 1; i <= 1; i++)
+		 scene.Render();
+		 Buffer coeff = scene.GetSensorValues();
+		 float3* values = (float3*)coeff->map();
+		 RTsize RTwidth; coeff->getSize(RTwidth);
+		 int width = static_cast<int>(RTwidth);
+		 float3 sum = make_float3(0.0f);
 		 for (int i = 0; i < width; i++) {
-				   float3 v = values[i];
-			   cout << "   " << v.x << "   " << v.y << "   " << v.z;
-			   }
-			   cout << "\n";
-			   coeff->unmap();
-		   } 
-	  // glutRun();
-	   //Buffer image = scene.GetOutputImage();*/
-	  //float3 v = make_float3(0.5f, 0.5f, 2.5f);
-	  //cout << reinhart(v, 1);*/
-	
-	
-	 /* float3 p = make_float3(0.0f, 0.0f, 2.5f);
-	  scene.ChangeSensorPosition(p);
-	  scene.ResetSensorValues();
-	  for (int i = 1; i <= 1; i++)
-		scene.Render();
-	  Buffer coeff = scene.GetSensorValues();
-	  float3* values = (float3*)coeff->map();
-	  RTsize RTwidth; coeff->getSize(RTwidth);
-	  int width = static_cast<int>(RTwidth);
-	  float3 sum = make_float3(0.0f);
-	  for (int i = 0; i < width; i++) {
-		  float3 v = values[i];
-		  if (i > 0)
-			sum += v;
-		cout << "   " << v.x << "   " << v.y << "   " << v.z;
-	  }
-	  cout << "\n";
-	  cout << sum.x*M_PIf/10000000;
-	  coeff->unmap();*/
-	/*  float R0 = 0.12f, T0 = 0.85f, d = 0.004, lambda = 898e-9;
-	  ThinGlass brdf(R0, T0, d, lambda);
-	  for (int i = 0; i <= 90; i++) {
+		 float3 v = values[i];
+		 if (i > 0)
+		 sum += v;
+		 cout << "   " << v.x << "   " << v.y << "   " << v.z;
+		 }
+		 cout << "\n";
+		 cout << sum.x*M_PIf/10000000;
+		 coeff->unmap();*/
+		/*  float R0 = 0.12f, T0 = 0.85f, d = 0.004, lambda = 898e-9;
+		  ThinGlass brdf(R0, T0, d, lambda);
+		  for (int i = 0; i <= 90; i++) {
 		  float teta = i * (M_PIf/ 180.0f);
 		  float f = brdf.F.Transmittance(cosf(teta));
 		  cout << f << "\n";
-	  }*/
+		  }*/
 
-	  /*
-	 FILE * pFile;
-     pFile = fopen("SensorsIgnacio.txt", "r");
-	 float3 p; float d;
-	 string filename = "./LIGHTWELL.obj";
-	 scene = SceneBuilder::BuildFromFile(filename);
-	// while (fscanf(pFile, "%f\t%f\t%f\t%f\t%f\t%f\n", &p.x, &p.y, &p.z, &d, &d, &d) != EOF) {
-	 fscanf(pFile, "%f\t%f\t%f\t%f\t%f\t%f\n", &p.x, &p.y, &p.z, &d, &d, &d);
-		 scene.ChangeSensorPosition(p);
-		scene.ResetSensorValues();
-		scene.Render();
+		/*
+	   FILE * pFile;
+	   pFile = fopen("SensorsIgnacio.txt", "r");
+	   float3 p; float d;
+	   string filename = "./LIGHTWELL.obj";
+	   scene = SceneBuilder::BuildFromFile(filename);
+	   // while (fscanf(pFile, "%f\t%f\t%f\t%f\t%f\t%f\n", &p.x, &p.y, &p.z, &d, &d, &d) != EOF) {
+	   fscanf(pFile, "%f\t%f\t%f\t%f\t%f\t%f\n", &p.x, &p.y, &p.z, &d, &d, &d);
+	   scene.ChangeSensorPosition(p);
+	   scene.ResetSensorValues();
+	   scene.Render();
 
-		Buffer coeff = scene.GetSensorValues();
-		float3* values = (float3*)coeff->map();
-		RTsize RTwidth; coeff->getSize(RTwidth);
-		int width = static_cast<int>(RTwidth);
-		for (int i = 0; i < width; i++) {
-			 float3 v = values[i];
-			 cout << "   " << v.x << "   " << v.y << "   " << v.z;
-		}
-		cout << "\n";
-		coeff->unmap();
-	//}*/
-	  
-		string filename = "./LIGHTWELL.obj";
-		scene = SceneBuilder::BuildFromFile(filename);
-	    scene.Render();
-		Buffer coeff = scene.GetSensorValues();
-	    float3* values = (float3*)coeff->map();
-		RTsize RTwidth; RTsize RTheight; 
-		coeff->getSize(RTwidth, RTheight);
-		int width = static_cast<int>(RTwidth);
-		int height = static_cast<int>(RTheight);
-	    for (int i = 0; i < width; i++)  {
-			for (int j = 0; j < height; j++) {
-				float3 v = values[j*width + i];
-				cout << "   " << v.x;
-			}
-			cout << "\n";
-		}
-		coeff->unmap();
-	//float3 d = make_float3(0.078184273264963,   0.126575159385289,   0.988871047427630);
-		//cout << beckers(d);
-	 
-   }
+	   Buffer coeff = scene.GetSensorValues();
+	   float3* values = (float3*)coeff->map();
+	   RTsize RTwidth; coeff->getSize(RTwidth);
+	   int width = static_cast<int>(RTwidth);
+	   for (int i = 0; i < width; i++) {
+	   float3 v = values[i];
+	   cout << "   " << v.x << "   " << v.y << "   " << v.z;
+	   }
+	   cout << "\n";
+	   coeff->unmap();
+	   //}*/
 
+		/*	//string filename = "./LIGHTWELL_DARK_WINDOW.obj";
+		 string filename = "./City.obj";
+		 scene = SceneBuilder::BuildFromFile(filename);
+		 scene.Render();
+		 Buffer coeff = scene.GetSensorValues();
+		 float3* values = (float3*)coeff->map();
+		 RTsize RTwidth; RTsize RTheight;
+		 coeff->getSize(RTwidth, RTheight);
+		 int width = static_cast<int>(RTwidth);
+		 int height = static_cast<int>(RTheight);
+		 for (int i = 0; i < width; i++)  {
+		 for (int j = 0; j < height; j++) {
+		 float3 v = values[j*width + i];
+		 cout << "   " << v.x;
+		 }
+		 cout << "\n";
+		 }
+		 coeff->unmap();
+		 //float3 d = make_float3(0.078184273264963,   0.126575159385289,   0.988871047427630);
+		 //cout << beckers(d);
 
+		 }*/
+
+	} 
+	
+	
    catch (optix::Exception e) {
 	   std::cout << e.getErrorString();
    }
+   
   
    
    

@@ -19,7 +19,6 @@ public:
 	const vector<Face*>& GetFaces() const;
 	void AddFace(Face* f);
 	void AddVertex(const float2& v);
-	void Triangulate();
 	virtual ~Mesh2D();
 
 };
@@ -54,6 +53,3 @@ Mesh2D::~Mesh2D() {
 	}
 }
 
-void Mesh2D::Triangulate() {
-
-}
