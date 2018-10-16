@@ -12,6 +12,7 @@ public:
 	Transformation(const Transformation &T);
 	Transformation& operator=(const Transformation &T);
 	Transformation operator*(const Transformation &T);
+	float3 operator*(const float3 &v);
 
 private:
 
@@ -52,6 +53,15 @@ Transformation Transformation::operator*(const Transformation &T) {
 
 }
 
+float3 Transformation::operator*(const float3 &v) {
+
+	/*float x = M[0][0] * v.x + M[0][1] * v.y + M[0][2] * v.z + M[0][3];
+	float y = M[1][0] * v.x + M[1][1] * v.y + M[1][2] * v.z + M[1][3];
+	float z = M[2][0] * v.x + M[2][1] * v.y + M[2][2] * v.z + M[2][3];
+	float w = M[3][0] * v.x + M[3][1] * v.y + M[3][2] * v.z + M[3][3];
+	return make_float3(x / w, y / w, z / w);*/
+	
+}
 
 Transformation RotationXTransformation(float theta) {
 	Matrix4x4 M = RotationXMatrix(theta);
@@ -76,7 +86,7 @@ Transformation RotationZTransformation (float theta) {
 
 Transformation ScalingTransformation(float3 s) {
 
-	Matrix4x4 M = ScalingMatrix(s);
+	Matrix4x4 M = ScalingMatrix(s); 
 	Matrix4x4 invM = ScalingMatrix(make_float3(1.0f/s.x, 1.0f/s.y, 1.0f/s.z));
 	return Transformation(M, invM);
 }

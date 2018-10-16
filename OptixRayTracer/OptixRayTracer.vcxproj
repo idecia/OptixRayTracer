@@ -179,7 +179,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="3rdparty\sutil\sutil.cpp" />
     <ClCompile Include="3rdparty\sutil\tinyobjloader\tiny_obj_loader.cc" />
     <CudaCompile Include="cameras\Environmental.cu" />
+    <ClInclude Include="blinds\RectangularBlind.h" />
     <ClInclude Include="collections\Vector.h" />
+    <ClInclude Include="exporters\obj.h" />
     <ClInclude Include="geometry\Compound.h" />
     <ClInclude Include="geometry\Face.h" />
     <ClInclude Include="geometry\GeometricObject.h" />

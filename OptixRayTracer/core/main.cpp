@@ -10,10 +10,10 @@
 #include "shapes/Parallelogram.h"
 #include "bxdfs/Lambertian.h"
 #include "materials/Matte.h"
-#include "geometry/MatteSphere.h"
+#include "shapes/MatteSphere.h"
 #include "shapes/Triangle.h"
-#include "geometry/MatteTriangle.h"
-#include "geometry/MatteParallelogram.h"
+#include "shapes/MatteTriangle.h"
+#include "shapes/MatteParallelogram.h"
 #include "3rdparty/sutil/sutil.h"
 #include "3rdparty/sutil/GL/glew.h"
 #include "3rdparty/freeglut/include/GL/freeglut.h"
@@ -24,6 +24,7 @@
 #include "geometry\Mesh2D.h"
 #include "geometry\Mesh3D.h"
 #include "geometry\Face.h"
+#include "exporters/obj.h"
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -415,7 +416,7 @@ int main(int argc, char* argv[]) {
 		const vector<int> ind = f3[i]->GetIndices();
 		cout << ind[0] << "  " << ind[1] << "  " << ind[2] << "\n";
 	}
-
+	ExportModel(".", m3D);
 
 
 	/*

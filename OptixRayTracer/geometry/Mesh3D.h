@@ -17,11 +17,11 @@ private:
 
 	vector<float3> vertices;
 	vector<Face*> faces;
+	bool isTesselated;
 
 	Polygon3D* FaceToPoly3D(const Face* face);
 	Polygon2D* ProjectFace(const Face* face);
 	vector<Face*> TriangulateFace(int faceIdx);
-	const Mesh3D* Tessellate();
 	
 
 public:
@@ -31,7 +31,7 @@ public:
 	const vector<Face*>& GetFaces() const;
 	void AddFace(Face* f);
 	void AddVertex(const float3& v);
-	void Triangulate();
+	const Mesh3D* Triangulate();
 	virtual ~Mesh3D();
 
 };
@@ -72,20 +72,6 @@ Mesh3D::~Mesh3D() {
 	for (it = faces.begin(); it != faces.end(); it++) {
 		delete (*it);
 	}
-}
-
-
-void Mesh3D::Triangulate() {
-
-	vector<Face*> triFaces;
-	int nFaces = faces.size();
-	for (int i = 0; i < nFaces; i++) {
-		vector<Face*> newFaces = TriangulateFace(i);
-		Append(triFaces, newFaces);
-	}
-	faces.clear();
-	faces = triFaces;
-
 }
 
 Mesh3D* Extrude(const Polygon2D* poly, const float3 &direction) {
@@ -205,8 +191,19 @@ vector<Face*> Mesh3D::TriangulateFace(int faceIdx) {
 
 }
 
-const Mesh3D* Mesh3D::Tessellate() {
+const Mesh3D* Mesh3D::Triangulate() {
 	
+	if (!isTesselated) {
+		vector<Face*> triFaces;
+		int nFaces = faces.size();
+		for (int i = 0; i < nFaces; i++) {
+			vector<Face*> newFaces = TriangulateFace(i);
+			Append(triFaces, newFaces);
+		}
+		faces.clear();
+		faces = triFaces;
+		isTesselated = true;
+	}
 	return this;
 
 }

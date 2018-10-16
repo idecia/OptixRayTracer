@@ -17,10 +17,10 @@ public:
 	void RotateY(const float theta);
 	void RotateZ(const float theta);
 	void SetObjectToWorldTransformation(const Transformation &T);
-	Transformation GetObjectToWorldTransformation();
+	Transformation GetObjectToWorldTransformation() const;
 	virtual vector<GeometricObject*> GetChilds();
 	virtual void AddChild(GeometricObject* obj);
-	virtual bool IsPrimitive();
+	virtual bool IsPrimitive() const;
 	virtual ~GeometricObject();
 
 private:
@@ -34,7 +34,7 @@ GeometricObject::GeometricObject()
 
 }
 
-Transformation GeometricObject::GetObjectToWorldTransformation() {
+Transformation GeometricObject::GetObjectToWorldTransformation() const {
 
 	return objectToWorld;
 
@@ -67,7 +67,7 @@ void GeometricObject::RotateZ(const float theta) {
 	Transformation Rz = RotationZTransformation(theta);
 	objectToWorld = Rz * objectToWorld;
 
-};
+}
 
 void GeometricObject::Scale(const float3& s) {
 
@@ -90,17 +90,18 @@ vector<GeometricObject*> GeometricObject::GetChilds() {
 
 }
 
-
 void GeometricObject::AddChild(GeometricObject* obj) {
 
 	//Throw Exception
 
 }
 
-
-bool GeometricObject::IsPrimitive() {
+bool GeometricObject::IsPrimitive() const {
 
 	return false;
 
 }
 
+GeometricObject::~GeometricObject() {
+
+}
