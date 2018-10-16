@@ -88,7 +88,7 @@ float4 Matrix4x4::operator*(const float4& v) const {
 }
 */
 
-Matrix4x4 RotatationXMatrix(float theta) {
+Matrix4x4 RotationXMatrix(float theta) {
 
 	float cost = cos(theta);
 	float sint = sin(theta);
@@ -102,7 +102,7 @@ Matrix4x4 RotatationXMatrix(float theta) {
 
 }
 
-Matrix4x4 RotatationYMatrix(float theta) {
+Matrix4x4 RotationYMatrix(float theta) {
 
 	float cost = cos(theta);
 	float sint = sin(theta);
@@ -116,7 +116,7 @@ Matrix4x4 RotatationYMatrix(float theta) {
 
 }
 
-Matrix4x4 RotatationZMatrix(float theta) {
+Matrix4x4 RotationZMatrix(float theta) {
 
 	float cost = cos(theta);
 	float sint = sin(theta);

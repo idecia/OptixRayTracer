@@ -5,9 +5,11 @@
 #include "geometry/Polygon3D.h"
 #include "geometry/Polygon2D.h"
 #include "geometry/Primitive.h"
+#include "collections/vector.h"
 #include <vector>
 
 using namespace std;
+
 
 class Mesh3D : public Primitive {
 
@@ -19,6 +21,8 @@ private:
 	Polygon3D* FaceToPoly3D(const Face* face);
 	Polygon2D* ProjectFace(const Face* face);
 	vector<Face*> TriangulateFace(int faceIdx);
+	const Mesh3D* Tessellate();
+	
 
 public:
 
@@ -71,8 +75,6 @@ Mesh3D::~Mesh3D() {
 }
 
 
-
-
 void Mesh3D::Triangulate() {
 
 	vector<Face*> triFaces;
@@ -91,29 +93,34 @@ Mesh3D* Extrude(const Polygon2D* poly, const float3 &direction) {
 	Mesh3D* mesh = new Mesh3D();
 	const vector<float2> &vertices = poly->GetVertices();
 	int n = vertices.size();
+
 	Face* bottom = new Face();
 	for (int i = 0; i < n; i++) {
-		const float2 &v = vertices[i];
-		mesh->AddVertex(make_float3(v.x, v.y, 0.0f));
+		const float2 &v2 = vertices[i];
+		float3 v3 = make_float3(v2.x, v2.y, 0.0f);
+		mesh->AddVertex(v3);
 		bottom->AddIndex(i);
 	}
 	mesh->AddFace(bottom);
+
 	Face* top = new Face();
 	for (int i = 0; i < n; i++) {
-		const float2 &v = vertices[i];
-		mesh->AddVertex(make_float3(v.x, v.y, 0.0f) + direction);
+		const float2 &v2 = vertices[i];
+		float3 v3 = make_float3(v2.x, v2.y, 0.0f);
+		mesh->AddVertex(v3 + direction);
 		top->AddIndex(i + n);
+
 	}
 	mesh->AddFace(top);
+
 	for (int i = 0; i < n; i++) {
-		Face* lateral = new Face(i, (i + 1)%n, (i + 1)%n + n, i + n);
-		mesh->AddFace(lateral);
+		Face* side = new Face(i, (i + 1)%n, (i + 1)%n + n, i + n);
+		mesh->AddFace(side);
 	}
+
 	return mesh;
 
 }
-
-
 
 Polygon3D* Mesh3D::FaceToPoly3D(const Face* face) {
 
@@ -195,5 +202,11 @@ vector<Face*> Mesh3D::TriangulateFace(int faceIdx) {
 	}
 
 	return triFaces;
+
+}
+
+const Mesh3D* Mesh3D::Tessellate() {
+	
+	return this;
 
 }

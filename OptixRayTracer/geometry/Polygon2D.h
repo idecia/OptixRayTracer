@@ -21,9 +21,10 @@ public:
 	void AddVertex(const float2& v);
 	float PolygonArea();
 	WindingType PolygonWinding();
-	Mesh2D* Triangulate(); //Esta operacion deberia estar en una clase Triangulator o algo asi, ademas esto evita
-						   //dependencia con Mesh2D
-
+	
+	//Esta operacion deberia estar en una clase Triangulator 
+	//o algo asi, ademas esto evitaria la dependencia con Mesh2D
+	Mesh2D* Triangulate();
 
 };
 
@@ -35,8 +36,7 @@ Polygon2D::Polygon2D(const vector<float2> &vertices) {
 
 
 const vector<float2>& Polygon2D::GetVertices() const {
-	//TODO: Substitute by an iterator to encapsulate
-	//internal data.
+	//TODO: Substitute by an iterator to encapsulate internal data.
 	return vertices;
 
 }

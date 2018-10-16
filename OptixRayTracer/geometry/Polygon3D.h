@@ -2,6 +2,7 @@
 
 #include "core/optix_global.h"
 #include "geometry/Polygon2D.h"
+#include "math/Vector3.h"
 #include <vector>
 
 using namespace std;
