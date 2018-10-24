@@ -16,7 +16,7 @@ public:
 
 private:
 
-   curandState rngState;
+   curandState state;
 
 };
 
@@ -34,19 +34,19 @@ RT_FUNCTION RNG::RNG() { }
 
 RT_FUNCTION RNG::RNG(uint32_t seed, uint32_t index) {
 
-   curand_init(WangHash(seed + index), 0, 0, &rngState);
+   curand_init(WangHash(seed + index), 0, 0, &state);
 }
 
 RT_FUNCTION float RNG::RandomFloat() {
 
-   return curand_uniform(&rngState);
+   return curand_uniform(&state);
 }
 
 RT_FUNCTION uint32_t RNG::RandomUInt() {
 
    // Here we assume that curand returns a 32-bit
    // unsigned int so we can cast it to a uint32_t.
-   return (uint32_t)curand(&rngState);
+   return (uint32_t)curand(&state);
 }
 
 RT_FUNCTION uint32_t RNG::RandomUInt(uint32_t bound) {

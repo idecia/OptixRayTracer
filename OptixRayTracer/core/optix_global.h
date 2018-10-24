@@ -15,3 +15,6 @@ using namespace optix;
 #ifndef RT_FUNCTION_HOST
    #define RT_FUNCTION_HOST __forceinline__ __host__ 
 #endif
+
+
+typedef rtBufferId<int, 1> RTBuffer1D;

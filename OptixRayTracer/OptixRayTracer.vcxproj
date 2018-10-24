@@ -168,6 +168,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="core\main.cpp" />
+    <ClCompile Include="samplers\DiscretePDF.h" />
     <ClCompile Include="shapes\MatteTriangle.h" />
     <ClCompile Include="3rdparty\sutil\Arcball.cpp" />
     <ClCompile Include="3rdparty\sutil\glew.c" />
@@ -248,6 +249,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\Transform.h" />
     <ClInclude Include="math\Vector3.h" />
+    <ClInclude Include="shapes\TriangleMesh.h" />
     <ClInclude Include="skyes\Beckers288.h" />
     <ClInclude Include="skyes\Reinhart145.h" />
     <CudaCompile Include="cameras\PointSensor.cu">
@@ -257,7 +259,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="core\math.h" />
     <ClInclude Include="core\ONB.h" />
     <ClInclude Include="core\Payload.h" />
-    <ClInclude Include="core\RNG.h" />
+    <ClInclude Include="samplers\RNG.h" />
     <ClInclude Include="core\Scene.h" />
     <ClInclude Include="Debug\SceneBuilder.h" />
     <ClInclude Include="films\Film.h" />
@@ -278,12 +280,11 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="3rdparty\sutil\sutil.h" />
     <ClInclude Include="3rdparty\sutil\tinyobjloader\tiny_obj_loader.h" />
     <ClInclude Include="lights\AreaLight.h" />
-    <ClInclude Include="core\Light.h" />
+    <ClInclude Include="lights\Light.h" />
     <ClInclude Include="lights\AllLights.h" />
     <ClInclude Include="lights\PointLight.h" />
     <ClInclude Include="lights\Reinhart.h" />
     <ClInclude Include="materials\Matte.h" />
-    <ClInclude Include="samplers\Hemisphere.h" />
     <ClInclude Include="samplers\Random2D.h" />
     <ClInclude Include="samplers\Util.h" />
     <ClInclude Include="shapes\Parallelogram.h" />

@@ -30,3 +30,11 @@ static RT_FUNCTION float3 UniformHemisphereSample(float u1, float u2) {
 
 }
 
+static RT_FUNCTION float2 UniformTriangleSample(float u1, float u2) {
+
+	float sqrtu1 = sqrtf(u1);
+	return make_float2(1 - sqrtu1, u2*sqrtu1);
+
+}
+
+

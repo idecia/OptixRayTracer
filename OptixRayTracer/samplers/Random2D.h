@@ -1,8 +1,7 @@
 #pragma once
 
-#include "core/RNG.h"
+#include "RNG.h"
 #include "core/optix_global.h"
-#include "Util.h"
 
 class Random2D {
 

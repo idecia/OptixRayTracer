@@ -10,6 +10,7 @@ public:
 
 	RT_FUNCTION Triangle();
 	RT_FUNCTION Triangle(const float3 &p0, const float3 &p1, const float3 &p2, bool flipNormal);
+	RT_FUNCTION Triangle(const float3 &p0, const float3 &p1, const float3 &p2);
 	RT_FUNCTION float3 NormalAt(const float3 &point) const;
 	RT_FUNCTION float3 GetP0() const;
 	RT_FUNCTION float3 GetP1() const;
@@ -36,6 +37,13 @@ RT_FUNCTION Triangle::Triangle(const float3 &p0, const float3 &p1, const float3 
 	normal = orientation * normalize(cross(p1 - p0, p2 - p0));
 }
 
+RT_FUNCTION Triangle::Triangle(const float3 &p0, const float3 &p1, const float3 &p2)
+	: p0(p0), p1(p1), p2(p2) {
+	
+	normal = normalize(cross(p1 - p0, p2 - p0));
+
+}
+
 RT_FUNCTION float3 Triangle::NormalAt(const float3 &point) const {
 
 	return  normal;
@@ -59,12 +67,12 @@ RT_FUNCTION float3 Triangle::GetP2() const {
 
 RT_FUNCTION float3 Triangle::Sample(const float2 &sample) {
 
-	float u = 1 - sqrtf(sample.x);
-	float v = sample.y * sqrtf(sample.x);
-	return (1.0f - u - v)*p0 + u*p1 + v*p2;
+	float2 b = UniformTriangleSample(sample.x, sample.y);
+	return (1.0f - b[0] - b[1])*p0 + b[1]*p1 + b[2]*p2;
 
 }
 
+/*
 RT_FUNCTION_HOST Geometry Triangle::GetOptixGeometry(Context context) {
 
 	Geometry optixGeometry = context->createGeometry();
@@ -75,6 +83,7 @@ RT_FUNCTION_HOST Geometry Triangle::GetOptixGeometry(Context context) {
 	optixGeometry["triangle"]->setUserData(sizeof(Triangle), this);
 	return optixGeometry;
 }
+*/
 
 RT_FUNCTION float  Triangle::GetArea() const {
 
