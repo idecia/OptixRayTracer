@@ -8,8 +8,8 @@ public:
 
 	RT_FUNCTION TriangleMesh();
 	RT_FUNCTION TriangleMesh(RTBuffer1D vertices, RTBuffer1D normals, float area);
-	RT_FUNCTION Sample(RNG &rng, float3 &point, float3 &normal);
-	RT_FUNCTION float Area();
+	RT_FUNCTION void Sample(RNG &rng, float3 &point, float3 &normal);
+	RT_FUNCTION float GetArea();
 
 private:
 	
@@ -24,23 +24,30 @@ RT_FUNCTION TriangleMesh::TriangleMesh() {
 
 }
 
-RT_FUNCTION TriangleMesh::TriangleMesh(RTBuffer1D vertices, RTBuffer1D normals) 
+RT_FUNCTION TriangleMesh::TriangleMesh(RTBuffer1D vertices, RTBuffer1D normals, float area) 
 	: vertexBuffer(vertices), normalBuffer(normals), area(area) {
 
 }
 
+RT_FUNCTION float TriangleMesh::GetArea() {
 
-RT_FUNCTION Sample(RNG &rng, float3 &point, float3 &normal) {
+	return area;
+}
+
+#ifdef  __CUDA_ARCH__
+
+RT_FUNCTION void TriangleMesh::Sample(RNG &rng, float3 &point, float3 &normal) {
 
 	int n =  vertexBuffer.size();
-	uint32_t ID = rng.RandomUInt(n);
-	const float3 &a = vertexBuffer[ID];
-	const float3 &b = vertexBuffer[ID + 1];
-	const float3 &c = vertexBuffer[ID + 2];
+	uint32_t triID = rng.RandomUInt(n);
+	const float3 &a = vertexBuffer[triID];
+	const float3 &b = vertexBuffer[triID + 1];
+	const float3 &c = vertexBuffer[triID + 2];
 	Triangle triangle(a, b, c);
-	point = triangle.Sample(rng.RandomFloat(), rng.RandomFloat());
-	normal = normalNBuffer[ID];
+	float2 u = make_float2(rng.RandomFloat(), rng.RandomFloat());
+	point = triangle.Sample(u);
+	normal = normalBuffer[triID];
 
 }
 
-
+#endif

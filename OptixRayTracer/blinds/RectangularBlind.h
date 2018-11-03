@@ -10,6 +10,7 @@
 
 class RectangularBlind {
 
+public:
 	GeometricObject* BuildRectangularBlind();
 
 };

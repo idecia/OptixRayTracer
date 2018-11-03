@@ -52,14 +52,12 @@ Transformation Transformation::operator*(const Transformation &T) {
 	return Transformation(M*T.M, T.invM*invM);
 
 }
-
+  
 float3 Transformation::operator*(const float3 &v) {
 
-	/*float x = M[0][0] * v.x + M[0][1] * v.y + M[0][2] * v.z + M[0][3];
-	float y = M[1][0] * v.x + M[1][1] * v.y + M[1][2] * v.z + M[1][3];
-	float z = M[2][0] * v.x + M[2][1] * v.y + M[2][2] * v.z + M[2][3];
-	float w = M[3][0] * v.x + M[3][1] * v.y + M[3][2] * v.z + M[3][3];
-	return make_float3(x / w, y / w, z / w);*/
+	float4 u = M * make_float4(v.x, v.y, v.z, 1.0f);
+	float x = u.x, y = u.y, z = u.z, w = u.w;
+	return make_float3(x/w, y/w, z/w);
 	
 }
 

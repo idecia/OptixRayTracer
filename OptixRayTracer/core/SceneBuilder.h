@@ -1,23 +1,22 @@
 #pragma once 
 
 #include <iostream>
-#include "core/Scene.h"
-#include "shapes/parallelogram.h"
-#include "lights/AllLights.h"
+#include <vector> 
+#include <time.h>
 #include "3rdparty/assimp/Importer.hpp"
 #include "3rdparty/assimp/scene.h"
 #include "3rdparty/assimp/material.h"
 #include "3rdparty/assimp/mesh.h"
 #include "3rdparty/assimp/postprocess.h"
+#include "core/Scene.h"
+#include "lights/AllLights.h"
 #include "core/optix_global.h"
 #include "films/Film.h"
 #include "cameras/Pinhole.h"
 #include "bxdfs/Lambertian.h"
 #include "bxdfs/ThinGlass.h"
-#include  "samplers/Random2D.h"
+#include "samplers/Random2D.h"
 #include "core/Ray.h"
-#include <vector> 
-#include <time.h>
 
 using namespace std;
 
@@ -29,75 +28,87 @@ public:
 
 private:
 
-	static void loadMaterials(const aiScene* scene, 
-		Context &context, vector<Material> &materials);
+	static void loadMaterials(const aiScene* scene, Context &context, vector<Material> &materials);
 
 	static bool ColorHasAnyComponent(const aiColor3D &color);
 
 	static bool IsMaterialEmissive(const aiMaterial* material);
 
-	static float3 toFloat3(aiVector3D  vector);
-	static float3 toFloat3(aiColor3D  vector);
+	static float3 toFloat3(aiVector3D vector);
+	static float3 toFloat3(aiColor3D vector);
 
-	static void ClassifyMeshes(const aiScene* scene,
-		vector<aiMesh*> &geometryMeshes, vector<aiMesh*> &areaLightMeshes);
+	static void ClassifyMeshes(const aiScene* scene, vector<aiMesh*> &geometryMeshes, vector<aiMesh*> &areaLightMeshes);
 
-	static void loadLights(const aiScene* scene,
-		Context &context, vector<aiMesh*> &areaLights, vector<Light*> &lights);
+	static void loadLights(const aiScene* scene, Context &context, vector<aiMesh*> &areaLights, vector<Light*> &lights);
 
-	static void loadGeometry(const aiScene* scene, 
-		Context &context, const vector<aiMesh*> geometryMeshes, 
-		const vector<Material> &materialsmaterials);
+	static void loadGeometry(const aiScene* scene, Context &context, const vector<aiMesh*> geometryMeshes, const vector<Material> &materials);
 
-	static void loadMeshes(const aiScene* scene,
-		Context &context, const vector<aiMesh*> &geometryMeshes,
-		vector<Geometry> &geometries);
+	static void loadMeshes(const aiScene* scene, Context &context, const vector<aiMesh*> &geometryMeshes, vector<Geometry> &geometries);
 
-	static GeometryInstance GetGeometryInstance(Context &context,
-		const Geometry &geometry, const Material &material);
+	static GeometryInstance GetGeometryInstance(Context &context, const Geometry &geometry, const Material &material);
 
-	static Group SceneBuilder::GetGroupFromNode(optix::Context &context, const aiScene* scene,
-		aiNode* node, const vector<Geometry> &geometries, const vector<Material> &materials);
-
+	static Group SceneBuilder::GetGroupFromNode(optix::Context &context, const aiScene* scene, aiNode* node, const vector<Geometry> &geometries, const vector<Material> &materials);
 
 	static void loadCamera(const aiScene* scene, Context &context, int width, int height);
 
 	static optix::Buffer loadSensors(const aiScene* scene, Context &context, int width);
 
+	static const aiScene* LoadSceneUsingAssimpImporter(const string &filename);
+
+	static Context CreateAndConfigureOptixContext();
+
 
 };
 
-Scene SceneBuilder::BuildFromFile(const string &filename) {
+const aiScene* SceneBuilder::LoadSceneUsingAssimpImporter(const string &filename) {
 
 	Assimp::Importer importer;
 
-	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, 
-		aiPrimitiveType_POINT    | 
+	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE,
+		aiPrimitiveType_POINT |
 		aiPrimitiveType_LINE);
 
 	const aiScene* scene = importer.ReadFile(filename,
-		aiProcess_Triangulate           |
-		aiProcess_CalcTangentSpace      |
-		aiProcess_FindInvalidData       |
-		aiProcess_GenUVCoords           |
-		aiProcess_TransformUVCoords     |
+		aiProcess_Triangulate |
+		aiProcess_CalcTangentSpace |
+		aiProcess_FindInvalidData |
+		aiProcess_GenUVCoords |
+		aiProcess_TransformUVCoords |
 		//aiProcess_FindInstances       |
 		aiProcess_JoinIdenticalVertices |
-		aiProcess_OptimizeGraph         |
-		aiProcess_OptimizeMeshes        |
-		aiProcess_PreTransformVertices  |
+		aiProcess_OptimizeGraph |
+		aiProcess_OptimizeMeshes |
+		aiProcess_PreTransformVertices |
 		aiProcess_GenSmoothNormals
 		);
-		
+
 	if (scene == NULL) {
 		string msg = "Assimp error while reading file: " + filename + "\n";
-		//throw  (msg.data);
+		//throw  exception
 	}
+
+	return scene;
+
+}
+
+Context SceneBuilder::CreateAndConfigureOptixContext() {
 
 	Context context = Context::create();
 	context->setRayTypeCount(RayType::RAY_TYPE_COUNT);
 	context->setEntryPointCount(1);
 	context->setStackSize(2800);
+	return context;
+
+}
+
+
+
+Scene SceneBuilder::BuildFromFile(const string &filename) {
+
+	const aiScene* scene = LoadSceneUsingAssimpImporter(filename);
+	Context context = CreateAndConfigureOptixContext();
+	vector<Material> materials = LoadMaterials(scene, context, materials);
+
 
 	vector<Material> materials;
 	loadMaterials(scene, context, materials);
@@ -121,9 +132,6 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 	optixScene.SetWidth(width);
 	optixScene.SetHeight(height);
 	return optixScene;
-
-
-		
 
 }
 

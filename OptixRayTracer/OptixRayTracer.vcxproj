@@ -169,7 +169,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   <ItemGroup>
     <ClCompile Include="core\main.cpp" />
     <ClCompile Include="samplers\DiscretePDF.h" />
-    <ClCompile Include="shapes\MatteTriangle.h" />
     <ClCompile Include="3rdparty\sutil\Arcball.cpp" />
     <ClCompile Include="3rdparty\sutil\glew.c" />
     <ClCompile Include="3rdparty\sutil\HDRLoader.cpp" />
@@ -193,11 +192,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="geometry\Polygon2D.h" />
     <ClInclude Include="geometry\Polygon3D.h" />
     <CudaCompile Include="cameras\Pinhole.cu" />
-    <CudaCompile Include="shapes\Mesh.cu" />
-    <CudaCompile Include="shapes\Parallelogram.cu" />
+    <CudaCompile Include="shapes\TriangleMesh.cu" />
     <CudaCompile Include="shapes\Sphere.cu" />
-    <CudaCompile Include="shapes\Triangle.cu" />
-    <CudaCompile Include="tracers\Whitted.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdparty\assimp\ai_assert.h" />
@@ -255,7 +251,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <CudaCompile Include="cameras\PointSensor.cu">
       <FileType>CppHeader</FileType>
     </CudaCompile>
-    <ClInclude Include="core\BxDF.h" />
+    <ClInclude Include="bxdfs\BxDF.h" />
     <ClInclude Include="core\math.h" />
     <ClInclude Include="core\ONB.h" />
     <ClInclude Include="core\Payload.h" />
@@ -265,8 +261,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="films\Film.h" />
     <ClInclude Include="core\optix_global.h" />
     <ClInclude Include="core\Ray.h" />
-    <ClInclude Include="shapes\MatteParallelogram.h" />
-    <ClInclude Include="shapes\MatteSphere.h" />
     <ClInclude Include="3rdparty\sutil\Arcball.h" />
     <ClInclude Include="3rdparty\sutil\glext.h" />
     <ClInclude Include="3rdparty\sutil\GL\glew.h" />
@@ -284,10 +278,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="lights\AllLights.h" />
     <ClInclude Include="lights\PointLight.h" />
     <ClInclude Include="lights\Reinhart.h" />
-    <ClInclude Include="materials\Matte.h" />
     <ClInclude Include="samplers\Random2D.h" />
     <ClInclude Include="samplers\Util.h" />
-    <ClInclude Include="shapes\Parallelogram.h" />
     <ClInclude Include="shapes\Sphere.h" />
     <ClInclude Include="shapes\Triangle.h" />
     <CudaCompile Include="tracers\Irradiance.cu" />

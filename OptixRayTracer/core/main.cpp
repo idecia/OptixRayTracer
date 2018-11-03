@@ -25,6 +25,7 @@
 #include "geometry\Mesh3D.h"
 #include "geometry\Face.h"
 #include "exporters/obj.h"
+#include "blinds/RectangularBlind.h"
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -409,14 +410,15 @@ int main(int argc, char* argv[]) {
 	p2D->AddVertex(make_float2(-1.0f, 1.0f));//v3
 	p2D->AddVertex(make_float2(0.5f, 0.5f));//v4
 
-	m3D = Extrude(p2D, make_float3(1.0f, 1.0f, 1.0f));
+	m3D = Extrude(p2D, make_float3(0.0f, 0.0f, 1.0f));
 	m3D->Triangulate();
 	const vector<Face*> f3 = m3D->GetFaces();
 	for (int i = 0; i < f3.size(); i++) {
 		const vector<int> ind = f3[i]->GetIndices();
 		cout << ind[0] << "  " << ind[1] << "  " << ind[2] << "\n";
 	}
-	ExportModel(".", m3D);
+	RectangularBlind blind;
+	ExportModel("./hola.obj", blind.BuildRectangularBlind());
 
 
 	/*

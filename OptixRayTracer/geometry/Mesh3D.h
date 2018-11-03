@@ -37,7 +37,8 @@ public:
 };
 
 Mesh3D::Mesh3D()
-	:Primitive() {
+	:Primitive(),
+	 isTesselated(false) {
 
 }
 

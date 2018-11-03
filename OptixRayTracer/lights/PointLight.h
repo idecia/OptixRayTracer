@@ -16,7 +16,6 @@ public:
    RT_FUNCTION float3 Sample(const float3 &point, RNG &rng,
       float3 &wo, float &pdf, float &tMax) ;
 
-   
 private:
 
    float3 position;

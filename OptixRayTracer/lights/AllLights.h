@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/Light.h"
+#include "lights/Light.h"
 #include "lights/AreaLight.h"
 #include "lights/PointLight.h"
 #include <algorithm>

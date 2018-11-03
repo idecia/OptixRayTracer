@@ -47,13 +47,3 @@ RT_FUNCTION float Sphere::GetRadius() const {
    return radius;
 }
 
-RT_FUNCTION_HOST Geometry Sphere::GetOptixGeometry(Context context) {
-
-   Geometry optixGeometry = context->createGeometry();
-   optixGeometry->setPrimitiveCount(1u);
-   const char* path = "./Sphere.ptx";
-   optixGeometry->setBoundingBoxProgram(context->createProgramFromPTXFile(path, "boundingBox"));
-   optixGeometry->setIntersectionProgram(context->createProgramFromPTXFile(path, "intersect"));
-   optixGeometry["sphere"]->setUserData(sizeof(Sphere), this);
-   return optixGeometry;
-}

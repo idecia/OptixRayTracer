@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/optix_global.h"
-
 #include "core/Ray.h"
 
 class Triangle {
@@ -9,12 +8,9 @@ class Triangle {
 public:
 
 	RT_FUNCTION Triangle();
-	RT_FUNCTION Triangle(const float3 &p0, const float3 &p1, const float3 &p2, bool flipNormal);
-	RT_FUNCTION Triangle(const float3 &p0, const float3 &p1, const float3 &p2);
+	RT_FUNCTION Triangle(const float3 &a, const float3 &b, const float3 &c);
+	RT_FUNCTION Triangle(const float3 &a, const float3 &b, const float3 &c, bool flipNormal);
 	RT_FUNCTION float3 NormalAt(const float3 &point) const;
-	RT_FUNCTION float3 GetP0() const;
-	RT_FUNCTION float3 GetP1() const;
-	RT_FUNCTION float3 GetP2() const;
 	RT_FUNCTION float  GetArea() const;
 	RT_FUNCTION float3 Sample(const float2 &sample);
 	RT_FUNCTION_HOST Geometry GetOptixGeometry(Context context);
@@ -22,7 +18,7 @@ public:
 
 private:
 
-	float3 p0, p1, p2;
+	float3 a, b, c;
 	float3 normal;
 
 };
@@ -30,17 +26,17 @@ private:
 
 RT_FUNCTION Triangle::Triangle() { }
 
-RT_FUNCTION Triangle::Triangle(const float3 &p0, const float3 &p1, const float3 &p2, bool flipNormal)
-	: p0(p0), p1(p1), p2(p2) {
+RT_FUNCTION Triangle::Triangle(const float3 &a, const float3 &b, const float3 &c, bool flipNormal)
+	: a(a), b(b), c(c) {
 
 	int orientation = flipNormal ? 1 : -1;
-	normal = orientation * normalize(cross(p1 - p0, p2 - p0));
+	normal = orientation * normalize(cross(b - a, c - a));
 }
 
-RT_FUNCTION Triangle::Triangle(const float3 &p0, const float3 &p1, const float3 &p2)
-	: p0(p0), p1(p1), p2(p2) {
+RT_FUNCTION Triangle::Triangle(const float3 &a, const float3 &b, const float3 &c)
+	: a(a), b(b), c(c) {
 	
-	normal = normalize(cross(p1 - p0, p2 - p0));
+	normal = normalize(cross(b - a, c - a));
 
 }
 
@@ -50,45 +46,17 @@ RT_FUNCTION float3 Triangle::NormalAt(const float3 &point) const {
 
 }
 
-RT_FUNCTION float3 Triangle::GetP0() const {
-
-	return p0;
-}
-
-RT_FUNCTION float3 Triangle::GetP1() const {
-
-	return p1;
-}
-
-RT_FUNCTION float3 Triangle::GetP2() const {
-
-	return p2;
-}
-
 RT_FUNCTION float3 Triangle::Sample(const float2 &sample) {
 
 	float2 b = UniformTriangleSample(sample.x, sample.y);
-	return (1.0f - b[0] - b[1])*p0 + b[1]*p1 + b[2]*p2;
+	return (1.0f - b[0] - b[1])*a + b[1]*b + b[2]*c;
 
 }
-
-/*
-RT_FUNCTION_HOST Geometry Triangle::GetOptixGeometry(Context context) {
-
-	Geometry optixGeometry = context->createGeometry();
-	optixGeometry->setPrimitiveCount(1u);
-	const char* path = "./Triangle.ptx";
-	optixGeometry->setBoundingBoxProgram(context->createProgramFromPTXFile(path, "boundingBox"));
-	optixGeometry->setIntersectionProgram(context->createProgramFromPTXFile(path, "intersect"));
-	optixGeometry["triangle"]->setUserData(sizeof(Triangle), this);
-	return optixGeometry;
-}
-*/
 
 RT_FUNCTION float  Triangle::GetArea() const {
 
-	float3 e1 = p1 - p0;
-	float3 e2 = p2 - p0;
+	float3 e1 = b - a;
+	float3 e2 = c - a;
 	return 0.5f * length(cross(e1, e2));
 
 }
