@@ -107,17 +107,17 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 	ClassifyMeshes(scene, geometryMeshes, areaLightMeshes);
 
 	vector<Light*> lights;
-	//loadLights(scene, context, areaLightMeshes,lights);
+	loadLights(scene, context, areaLightMeshes,lights);
 	
 	loadGeometry(scene, context, geometryMeshes, materials);
 	//ver si es necesario calcular el ABBox de la escena
 
-	int width = 5000;
-	int height = 0;
-	//loadCamera(scene, context, width, height);
-	optix::Buffer coeff = loadSensors(scene, context, width);
-
-	Scene optixScene(context, coeff);
+	int width = 400;
+	int height = 600;
+	loadCamera(scene, context, width, height);
+	//optix::Buffer coeff = loadSensors(scene, context, width);
+	//Scene optixScene(context, coeff);
+	Scene optixScene;
 	optixScene.SetWidth(width);
 	optixScene.SetHeight(height);
 	return optixScene;
