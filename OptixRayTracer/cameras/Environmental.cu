@@ -5,7 +5,7 @@
 #include "core/Ray.h"
 #include "core/Payload.h"
 #include "samplers/Util.h"
-#include "core/RNG.h"
+#include "samplers/RNG.h"
 #include "core/ONB.h"
 #include "core/math.h"
 #include "skyes/Beckers288.h"

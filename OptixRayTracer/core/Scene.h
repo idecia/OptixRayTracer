@@ -5,7 +5,7 @@ class Scene {
 
 public:
 	RT_FUNCTION Scene();
-	RT_FUNCTION Scene(Context context, Buffer coeff);
+	RT_FUNCTION Scene(Context context);
 	RT_FUNCTION void Render();
 	RT_FUNCTION Buffer GetOutputImage();
 	RT_FUNCTION Buffer GetSensorValues();
@@ -29,8 +29,8 @@ RT_FUNCTION  Scene::Scene() {
 
 }
 
-RT_FUNCTION  Scene::Scene(Context context, Buffer coeff) 
-	: context(context), coeff(coeff) {
+RT_FUNCTION  Scene::Scene(Context context) 
+	: context(context) {
 
 }
 

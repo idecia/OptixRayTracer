@@ -1,3 +1,4 @@
+#pragma once
 #include "core/optix_global.h"
 
 

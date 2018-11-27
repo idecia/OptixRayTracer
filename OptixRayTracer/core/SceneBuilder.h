@@ -91,7 +91,7 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 		
 	if (scene == NULL) {
 		string msg = "Assimp error while reading file: " + filename + "\n";
-		//throw  (msg.data);
+		throw  (msg);
 	}
 
 	Context context = Context::create();
@@ -117,13 +117,12 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 	loadCamera(scene, context, width, height);
 	//optix::Buffer coeff = loadSensors(scene, context, width);
 	//Scene optixScene(context, coeff);
-	Scene optixScene;
+	Scene optixScene(context);
 	optixScene.SetWidth(width);
 	optixScene.SetHeight(height);
 	return optixScene;
 
 
-		
 
 }
 
@@ -239,8 +238,8 @@ void SceneBuilder::loadLights(const aiScene* scene,
 void SceneBuilder::loadMaterials(const aiScene* scene,
 	Context &context, vector<Material> &materials) {
 
-	//const char* path = "./PathTracer.ptx";
-	const char* path = "./Irradiance.ptx";
+	const char* path = "./PathTracer.ptx";
+	//const char* path = "./Irradiance.ptx";
 	Program closestHitRadiance = context->createProgramFromPTXFile(path, "closestHit");
 	Program anyHit = context->createProgramFromPTXFile(path, "anyHit");
 	Program miss = context->createProgramFromPTXFile(path, "miss");
@@ -285,7 +284,7 @@ void SceneBuilder::loadMaterials(const aiScene* scene,
 			optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
 			Lambertian brdf(toFloat3(diffuseColor));
 			optixMaterial["brdf"]->setUserData(sizeof(Lambertian), &brdf);
-			optixMaterial["glass"]->setUint(0);
+			//optixMaterial["glass"]->setUint(0);
 			materials.push_back(optixMaterial);
 			continue;
 
@@ -462,7 +461,7 @@ void SceneBuilder::loadGeometry(const aiScene* scene,
 void SceneBuilder::loadCamera(const aiScene* scene, Context &context, int width, int height) {
 
 	aiNode* cameraNode = scene->mRootNode->FindNode(scene->mCameras[0]->mName);
-	aiCamera* camera = scene->mCameras[0];
+ 	aiCamera* camera = scene->mCameras[0];
 
 	aiVector3D eye = camera->mPosition;
 	aiVector3D lookAt = eye + camera->mLookAt;

@@ -1,7 +1,6 @@
 #include "lights/AllLights.h"
 #include "core/Ray.h"
 #include "samplers/Random2D.h"
-#include "samplers/Hemisphere.h"
 #include "core/Payload.h"
 #include "bxdfs/Lambertian.h"
 #include "core/optix_global.h"
@@ -36,7 +35,7 @@ RT_PROGRAM void closestHit() {
 	  sampler.Next2D(&uniformSample);
       float3 wiW, L; 
       float pdf, tMax;
-      CALL_LIGHT_VIRTUAL_FUNCTION(L, = , light, Sample, hit.position, uniformSample, wiW, pdf, tMax);
+	  CALL_LIGHT_VIRTUAL_FUNCTION(L, = , light, Sample, hit.position, uniformSample, wiW, pdf, tMax);
       ShadowPayload shadowPayload;
       shadowPayload.attenuation = 1.0f;
       Ray shadowRay = make_Ray(hit.position, wiW, RayType::SHADOW, 0.01, tMax);

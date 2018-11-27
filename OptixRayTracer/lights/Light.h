@@ -4,9 +4,9 @@
 
 #define CALL_LIGHT_VIRTUAL_FUNCTION(lvalue, op, light, function, ...) \
     if (light->GetType() == Light::POINT ) \
-        lvalue op reinterpret_cast<PointLight*>(light)->function(__VA_ARGS__); \
-	else if (light->GetType() == Light::AREA ) \
-       lvalue op reinterpret_cast<AreaLight*>(light)->function(__VA_ARGS__); 
+        lvalue op (reinterpret_cast<PointLight*>(light))->function(__VA_ARGS__); \
+		else if (light->GetType() == Light::AREA ) \
+       lvalue op (reinterpret_cast<AreaLight*>(light))->function(__VA_ARGS__); 
 
 class Light {
 

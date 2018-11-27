@@ -1,5 +1,7 @@
+#pragma once
+
 #include "core/optix_global.h"
-#include "core/RNG.H"
+#include "samplers/RNG.h"
 
 struct RadiancePayload {
 
