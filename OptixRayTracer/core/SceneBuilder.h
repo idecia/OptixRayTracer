@@ -112,8 +112,8 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 	loadGeometry(scene, context, geometryMeshes, materials);
 	//ver si es necesario calcular el ABBox de la escena
 
-	int width = 400;
-	int height = 600;
+	int width = 1024;
+	int height = 1024;
 	loadCamera(scene, context, width, height);
 	//optix::Buffer coeff = loadSensors(scene, context, width);
 	//Scene optixScene(context, coeff);
@@ -190,7 +190,7 @@ void SceneBuilder::loadLights(const aiScene* scene,
 			memcpy(buffer + lightIdx*MAX_LIGHT_SIZE, &light, sizeof(light));
 			lightBuffer->unmap();
 			buffer = (char*)lightPtrBuffer->map();
-			void* adress = basePtr + lightIdx*sizeof(void*);
+			void* adress = basePtr + lightIdx*MAX_LIGHT_SIZE;
 			memcpy(buffer + lightIdx*sizeof(void*), &adress, sizeof(void*));
 			lightPtrBuffer->unmap();
 
@@ -209,7 +209,7 @@ void SceneBuilder::loadLights(const aiScene* scene,
 			m_scene->mMaterials[mesh->mMaterialIndex]->Get(AI_MATKEY_NAME, name);
 			printf("Material %s: Does only support quadrangle light source NumFaces: %d.\n", name.C_Str(), mesh->mNumFaces);
 		}*/
-
+		aiString s = mesh->mName;
 		aiFace face = mesh->mFaces[0];
 		if (face.mNumIndices == 3) {
 			float3 p0 = toFloat3(mesh->mVertices[face.mIndices[0]]);
@@ -217,6 +217,9 @@ void SceneBuilder::loadLights(const aiScene* scene,
 			float3 p2 = toFloat3(mesh->mVertices[face.mIndices[2]]);
 			Parallelogram parallelogram(p0, p1, p2, true); //cuidado aqui
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		
+				aiString name;
+			material->Get(AI_MATKEY_NAME, name);
 			aiColor3D color;
 			material->Get(AI_MATKEY_COLOR_EMISSIVE, color);
 			AreaLight light(parallelogram, toFloat3(color));
@@ -224,7 +227,7 @@ void SceneBuilder::loadLights(const aiScene* scene,
 			memcpy(buffer + lightIdx*MAX_LIGHT_SIZE, &light, sizeof(light));
 			lightBuffer->unmap();
 			buffer = (char*)lightPtrBuffer->map();
-			void* adress = basePtr + lightIdx*sizeof(void*);
+			void* adress = basePtr + lightIdx*MAX_LIGHT_SIZE;
 			memcpy(buffer + lightIdx*sizeof(void*), &adress, sizeof(void*));
 			lightPtrBuffer->unmap();
 	  }
@@ -251,14 +254,19 @@ void SceneBuilder::loadMaterials(const aiScene* scene,
 		
 		aiString name;
 		material->Get(AI_MATKEY_NAME, name);
-		
+
 		if (IsMaterialEmissive(material))  {
 			Material optixMaterial = context->createMaterial();
+			optixMaterial->setClosestHitProgram(RayType::RADIANCE, closestHitRadiance);
+			optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
+			aiColor3D emissivePower;
+			material->Get(AI_MATKEY_COLOR_EMISSIVE, emissivePower);
+			float Le[3] = { emissivePower.r, emissivePower.g, emissivePower.b };
+			optixMaterial["Le"]->set3fv(Le);
 			materials.push_back(optixMaterial);
 			continue;
 			//ver que hacer aqui
 		}
-	
 		//[TODO] Textured material
 
 		//[TODO] Reflective/mirror material
@@ -283,6 +291,8 @@ void SceneBuilder::loadMaterials(const aiScene* scene,
 			optixMaterial->setClosestHitProgram(RayType::RADIANCE, closestHitRadiance);
 			optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
 			Lambertian brdf(toFloat3(diffuseColor));
+			float Le[3] = { 0.0f, 0.0f, 0.0f };
+			optixMaterial["Le"]->set3fv(Le);
 			optixMaterial["brdf"]->setUserData(sizeof(Lambertian), &brdf);
 			//optixMaterial["glass"]->setUint(0);
 			materials.push_back(optixMaterial);
@@ -379,13 +389,6 @@ Group SceneBuilder::GetGroupFromNode(optix::Context &context, const aiScene* sce
 			unsigned int meshIndex = node->mMeshes[i];
 			aiMesh* mesh = scene->mMeshes[meshIndex];
 			unsigned int materialIndex = mesh->mMaterialIndex;
-			if (IsMaterialEmissive(scene->mMaterials[materialIndex])) {
-				Group emptyGroup = context->createGroup();
-				emptyGroup->setChildCount(0);
-				Acceleration acceleration = context->createAcceleration("NoAccel", "NoAccel");
-				emptyGroup->setAcceleration(acceleration);
-				return emptyGroup;
-			}
 			Material geometryMaterial = materials.at(materialIndex);
 			GeometryInstance instance = GetGeometryInstance(context, geometries[meshIndex], geometryMaterial);
 			//geometryGroup->setChild(i, instance);

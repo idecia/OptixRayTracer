@@ -18,7 +18,7 @@ rtDeclareVariable(rtObject, root, , );
 
 
 RT_PROGRAM void pinhole(void) {
-	int nSamples = 100;
+	int nSamples = 300;
 	
 
 	RadiancePayload radiancePayload;
@@ -40,7 +40,7 @@ RT_PROGRAM void pinhole(void) {
 		//rtPrintf("(%f, %f)\n", filmSample.x, filmSample.y);
 		Ray ray = camera.GenerateRay(filmSample);
 		rtTrace(root, ray, radiancePayload);
-		rtPrintf("(%f, %f, %f)\n", radiancePayload.color.x, radiancePayload.color.y, radiancePayload.color.z);
+		//rtPrintf("(%f, %f, %f)\n", radiancePayload.color.x, radiancePayload.color.y, radiancePayload.color.z);
 		result += radiancePayload.color;
 
 	}

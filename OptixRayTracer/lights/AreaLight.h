@@ -91,7 +91,7 @@ private:
 RT_FUNCTION AreaLight::AreaLight() { }
 
 RT_FUNCTION AreaLight::AreaLight(const Parallelogram &parallelogram, const float3 &color)
-	:parallelogram(parallelogram), color(color) {
+	:Light(Light::AREA), parallelogram(parallelogram), color(color) {
 
 }
 
