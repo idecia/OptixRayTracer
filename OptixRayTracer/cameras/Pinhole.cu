@@ -6,7 +6,7 @@
 #include "core/Payload.h"
 #include "cameras/Pinhole.h"
 #include "films/Film.h"
-#include "core/RNG.h"
+#include "samplers/RNG.h"
 #include "samplers/Random2D.h"
 #include <optix_device.h>
 
@@ -18,7 +18,7 @@ rtDeclareVariable(rtObject, root, , );
 
 
 RT_PROGRAM void pinhole(void) {
-	int nSamples = 1000;
+	int nSamples = 2;
 	
 
 	RadiancePayload radiancePayload;

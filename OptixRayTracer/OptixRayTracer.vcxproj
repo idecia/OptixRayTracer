@@ -167,21 +167,32 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="3rdparty\sutil\glew.c" />
+    <ClCompile Include="3rdparty\sutil\sutil.cpp" />
     <ClCompile Include="core\main.cpp" />
     <ClCompile Include="samplers\DiscretePDF.h" />
     <ClCompile Include="shapes\MatteTriangle.h" />
-    <ClCompile Include="3rdparty\sutil\Arcball.cpp" />
-    <ClCompile Include="3rdparty\sutil\glew.c" />
-    <ClCompile Include="3rdparty\sutil\HDRLoader.cpp" />
-    <ClCompile Include="3rdparty\sutil\Mesh.cpp" />
-    <ClCompile Include="3rdparty\sutil\OptiXMesh.cpp" />
-    <ClCompile Include="3rdparty\sutil\PPMLoader.cpp" />
-    <ClCompile Include="3rdparty\sutil\rply-1.01\rply.c" />
-    <ClCompile Include="3rdparty\sutil\sutil.cpp" />
-    <ClCompile Include="3rdparty\sutil\tinyobjloader\tiny_obj_loader.cc" />
     <CudaCompile Include="cameras\Environmental.cu" />
+    <ClInclude Include="3rdparty\freeglut\include\GL\freeglut.h" />
+    <ClInclude Include="3rdparty\freeglut\include\GL\freeglut_ext.h" />
+    <ClInclude Include="3rdparty\freeglut\include\GL\freeglut_std.h" />
+    <ClInclude Include="3rdparty\freeglut\include\GL\glut.h" />
+    <ClInclude Include="3rdparty\sutil\glext.h" />
+    <ClInclude Include="3rdparty\sutil\GL\glew.h" />
+    <ClInclude Include="3rdparty\sutil\GL\glxew.h" />
+    <ClInclude Include="3rdparty\sutil\GL\wglew.h" />
+    <ClInclude Include="3rdparty\sutil\sutil.h" />
     <ClInclude Include="blinds\RectangularBlind.h" />
+    <ClInclude Include="bxdfs\AllBxDFs.h" />
+    <ClInclude Include="bxdfs\FresnelDielectric.h" />
+    <ClInclude Include="bxdfs\Lambertian.h" />
+    <ClInclude Include="bxdfs\SpecularReflection.h" />
+    <ClInclude Include="bxdfs\ThinGlass.h" />
     <ClInclude Include="collections\Vector.h" />
+    <ClInclude Include="core\BSDF.h" />
+    <ClInclude Include="core\LoadForOptimization.h" />
+    <ClInclude Include="core\LoadForRender.h" />
+    <ClInclude Include="core\SceneBuilder.h" />
     <ClInclude Include="exporters\obj.h" />
     <ClInclude Include="geometry\Compound.h" />
     <ClInclude Include="geometry\Face.h" />
@@ -237,15 +248,10 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="3rdparty\assimp\vector2.h" />
     <ClInclude Include="3rdparty\assimp\vector3.h" />
     <ClInclude Include="3rdparty\assimp\version.h" />
-    <ClInclude Include="3rdparty\freeglut\include\GL\freeglut.h" />
-    <ClInclude Include="3rdparty\freeglut\include\GL\freeglut_ext.h" />
-    <ClInclude Include="3rdparty\freeglut\include\GL\freeglut_std.h" />
-    <ClInclude Include="3rdparty\freeglut\include\GL\glut.h" />
     <ClInclude Include="brdfs\SpecularReflection.h" />
     <ClInclude Include="brdfs\Lambertian.h" />
     <ClInclude Include="cameras\Pinhole.h" />
     <ClInclude Include="geometry\Primitive.h" />
-    <ClInclude Include="geometry\Triangle.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\Transform.h" />
     <ClInclude Include="math\Vector3.h" />
@@ -267,18 +273,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="core\Ray.h" />
     <ClInclude Include="shapes\MatteParallelogram.h" />
     <ClInclude Include="shapes\MatteSphere.h" />
-    <ClInclude Include="3rdparty\sutil\Arcball.h" />
-    <ClInclude Include="3rdparty\sutil\glext.h" />
-    <ClInclude Include="3rdparty\sutil\GL\glew.h" />
-    <ClInclude Include="3rdparty\sutil\GL\glxew.h" />
-    <ClInclude Include="3rdparty\sutil\GL\wglew.h" />
-    <ClInclude Include="3rdparty\sutil\HDRLoader.h" />
-    <ClInclude Include="3rdparty\sutil\Mesh.h" />
-    <ClInclude Include="3rdparty\sutil\OptiXMesh.h" />
-    <ClInclude Include="3rdparty\sutil\PPMLoader.h" />
-    <ClInclude Include="3rdparty\sutil\rply-1.01\rply.h" />
-    <ClInclude Include="3rdparty\sutil\sutil.h" />
-    <ClInclude Include="3rdparty\sutil\tinyobjloader\tiny_obj_loader.h" />
     <ClInclude Include="lights\AreaLight.h" />
     <ClInclude Include="lights\Light.h" />
     <ClInclude Include="lights\AllLights.h" />
@@ -290,7 +284,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="shapes\Parallelogram.h" />
     <ClInclude Include="shapes\Sphere.h" />
     <ClInclude Include="shapes\Triangle.h" />
-    <CudaCompile Include="tracers\Irradiance.cu" />
+    <CudaCompile Include="tracers\Reinhart.cu" />
     <CudaCompile Include="tracers\PathTracer.cu" />
   </ItemGroup>
   <ItemGroup>

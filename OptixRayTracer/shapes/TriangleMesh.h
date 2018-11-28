@@ -1,6 +1,8 @@
 #pragma once
 
 #include "core/optix_global.h"
+#include "samplers/RNG.h"
+/*
 
 class TriangleMesh {
 
@@ -8,7 +10,7 @@ public:
 
 	RT_FUNCTION TriangleMesh();
 	RT_FUNCTION TriangleMesh(RTBuffer1D vertices, RTBuffer1D normals, float area);
-	RT_FUNCTION Sample(RNG &rng, float3 &point, float3 &normal);
+	RT_FUNCTION void Sample(RNG &rng, float3 &point, float3 &normal);
 	RT_FUNCTION float Area();
 
 private:
@@ -24,13 +26,13 @@ RT_FUNCTION TriangleMesh::TriangleMesh() {
 
 }
 
-RT_FUNCTION TriangleMesh::TriangleMesh(RTBuffer1D vertices, RTBuffer1D normals) 
+RT_FUNCTION TriangleMesh::TriangleMesh(RTBuffer1D vertices, RTBuffer1D normals, float area) 
 	: vertexBuffer(vertices), normalBuffer(normals), area(area) {
 
 }
 
 
-RT_FUNCTION Sample(RNG &rng, float3 &point, float3 &normal) {
+RT_FUNCTION TriangleMesh::Sample(RNG &rng, float3 &point, float3 &normal) {
 
 	int n =  vertexBuffer.size();
 	uint32_t ID = rng.RandomUInt(n);
@@ -44,3 +46,4 @@ RT_FUNCTION Sample(RNG &rng, float3 &point, float3 &normal) {
 }
 
 
+*/

@@ -5,7 +5,7 @@
 #include "core/Ray.h"
 #include "core/Payload.h"
 #include "samplers/Util.h"
-#include "core/RNG.h"
+#include "samplers/RNG.h"
 #include "core/ONB.h"
 #include "core/math.h"
 #include "samplers/Random2D.h"
@@ -27,7 +27,7 @@ rtDeclareVariable(unsigned int, NskyPatches, , );
 
 RT_PROGRAM void sensor(void) {
 
-	int nSamples = 200;
+	int nSamples = 4;
 	ReinhartPayload pl;
 	pl.rng = rngs[pixelIdx];
 

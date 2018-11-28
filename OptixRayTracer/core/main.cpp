@@ -3,7 +3,7 @@
 #include "cameras/Pinhole.h"
 #include "core/optix_global.h"
 #include "lights/AllLights.h"
-#include "core/RNG.h"
+#include "samplers/RNG.h"
 #include "core/Ray.h"
 #include "shapes/Sphere.h"
 #include "skyes/Reinhart145.h"
@@ -346,6 +346,7 @@ void glutRun()
 
 int main(int argc, char* argv[]) {
 
+	/*
 	Polygon2D* p = new Polygon2D();
 	p->AddVertex(make_float2(0.0f, 0.0f));
 	p->AddVertex(make_float2(1.0f, 0.0f));
@@ -416,16 +417,16 @@ int main(int argc, char* argv[]) {
 		const vector<int> ind = f3[i]->GetIndices();
 		cout << ind[0] << "  " << ind[1] << "  " << ind[2] << "\n";
 	}
-	ExportModel(".", m3D);
+	ExportModel(".", m3D);*/
 
 
-	/*
+	
    try {
       //glutInitialize(&argc, argv,width,height);
       sutil::initGlut(&argc, argv);
 
 
-      context = CreateContext();
+     /* context = CreateContext();
       Pinhole camera = CreateCamera(context);
       film = CreateFilm(context,width, height);
       CreateLights(context);
@@ -434,18 +435,23 @@ int main(int argc, char* argv[]) {
 
       context->setPrintEnabled(true);
       context->validate();
-      context->launch(0, width, height);
-      glutRun();
-      Buffer bufferImage = film.GetBuffer(context);
+      context->launch(0, width, height);*/
+
+     
+	   string filename = "./cornell.dae";
+	  scene = SceneBuilder::BuildFromFile(filename);
+	  scene.Render();
+	  glutRun();
+	//  Buffer bufferImage = scene.GetOutputImage(); 
       //sutil::displayBufferPPM("image", bufferImage);
       //sutil::displayBufferGlut("dd", bufferImage->get());
       //sutil::displayBufferGL(bufferImage);
 
-      context->destroy();
+      //context->destroy();
    }
    catch (optix::Exception e) {
       std::cout << e.getErrorString();
-   }*/
+   }
   
 	
 

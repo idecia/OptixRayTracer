@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/optix_global.h"
-
+#include "samplers/Util.h"
 #include "core/Ray.h"
 
 class Triangle {
@@ -68,11 +68,11 @@ RT_FUNCTION float3 Triangle::GetP2() const {
 RT_FUNCTION float3 Triangle::Sample(const float2 &sample) {
 
 	float2 b = UniformTriangleSample(sample.x, sample.y);
-	return (1.0f - b[0] - b[1])*p0 + b[1]*p1 + b[2]*p2;
+	return (1.0f - b.x - b.y)*p0 + b.x*p1 + b.y*p2;
 
 }
 
-/*
+
 RT_FUNCTION_HOST Geometry Triangle::GetOptixGeometry(Context context) {
 
 	Geometry optixGeometry = context->createGeometry();
@@ -83,7 +83,7 @@ RT_FUNCTION_HOST Geometry Triangle::GetOptixGeometry(Context context) {
 	optixGeometry["triangle"]->setUserData(sizeof(Triangle), this);
 	return optixGeometry;
 }
-*/
+
 
 RT_FUNCTION float  Triangle::GetArea() const {
 

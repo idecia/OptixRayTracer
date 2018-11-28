@@ -25,11 +25,21 @@ class SceneBuilder {
 
 public:
 
+	enum ALGORITHM {
+		RENDER,
+		DAYLIGHT,
+		ENVIRONMENT,
+		OPTIMIZATION
+	};
+
 	static Scene BuildFromFile(const string &filename);
 
 private:
 
-	static void loadMaterials(const aiScene* scene, 
+	static void loadMaterialsForRender(const aiScene* scene, 
+		Context &context, vector<Material> &materials);
+
+	static void loadMaterialsForOptimization(const aiScene* scene,
 		Context &context, vector<Material> &materials);
 
 	static bool ColorHasAnyComponent(const aiColor3D &color);
@@ -42,12 +52,15 @@ private:
 	static void ClassifyMeshes(const aiScene* scene,
 		vector<aiMesh*> &geometryMeshes, vector<aiMesh*> &areaLightMeshes);
 
-	static void loadLights(const aiScene* scene,
+	static void loadLightsForRender(const aiScene* scene,
 		Context &context, vector<aiMesh*> &areaLights, vector<Light*> &lights);
 
-	static void loadGeometry(const aiScene* scene, 
+	static void loadGeometryForRender(const aiScene* scene, 
 		Context &context, const vector<aiMesh*> geometryMeshes, 
 		const vector<Material> &materialsmaterials);
+
+	void SceneBuilder::loadGeometryForOptimization(const aiScene* scene,
+		Context &context, const vector<Material> &materials);
 
 	static void loadMeshes(const aiScene* scene,
 		Context &context, const vector<aiMesh*> &geometryMeshes,
@@ -64,10 +77,24 @@ private:
 
 	static optix::Buffer loadSensors(const aiScene* scene, Context &context, int width);
 
+	static Scene LoadForRender(Context context, const aiScene* scene);
+
+	static Scene LoadForOptimization(Context context, const aiScene* scene);
+
+	void loadMeshesForOptimization(const aiScene* scene,
+		Context &context, vector<Geometry> &geometries);
 
 };
 
+
+#include "LoadForRender.h"
+#include "LoadForOptimization.h"
+
+
+
 Scene SceneBuilder::BuildFromFile(const string &filename) {
+
+	ALGORITHM algorithm = ALGORITHM::RENDER;
 
 	Assimp::Importer importer;
 
@@ -91,36 +118,22 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 		
 	if (scene == NULL) {
 		string msg = "Assimp error while reading file: " + filename + "\n";
-		//throw  (msg.data);
+		throw  (msg);
 	}
 
 	Context context = Context::create();
-	context->setRayTypeCount(RayType::RAY_TYPE_COUNT);
-	context->setEntryPointCount(1);
-	context->setStackSize(2800);
-
-	vector<Material> materials;
-	loadMaterials(scene, context, materials);
-	
-	vector<aiMesh*> geometryMeshes;
-	vector<aiMesh*> areaLightMeshes;
-	ClassifyMeshes(scene, geometryMeshes, areaLightMeshes);
-
-	vector<Light*> lights;
-	loadLights(scene, context, areaLightMeshes,lights);
-	
-	loadGeometry(scene, context, geometryMeshes, materials);
-	//ver si es necesario calcular el ABBox de la escena
-
-	int width = 400;
-	int height = 600;
-	loadCamera(scene, context, width, height);
-	//optix::Buffer coeff = loadSensors(scene, context, width);
-	//Scene optixScene(context, coeff);
-	Scene optixScene;
-	optixScene.SetWidth(width);
-	optixScene.SetHeight(height);
-	return optixScene;
+	if (algorithm == RENDER) {
+		return LoadForRender(context, scene);
+	}
+	else if (algorithm == DAYLIGHT) {
+		//return LoadForDaylight(context, scene);
+	}
+	else if (algorithm == ENVIRONMENT) {
+		//return LoadForEnvironment(context, scene);
+	}
+	else if (algorithm == OPTIMIZATION) {
+		return LoadForOptimization(context, scene);
+	}
 
 }
 
@@ -162,135 +175,6 @@ void SceneBuilder::ClassifyMeshes(const aiScene* scene,
 	}
 }
 
-void SceneBuilder::loadLights(const aiScene* scene,
-	Context &context, vector<aiMesh*> &areaLights, vector<Light*> &lights) {
-
-	unsigned int nLights = areaLights.size() + scene->mNumLights;
-
-	Buffer lightBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
-		RT_FORMAT_USER, nLights);
-	lightBuffer->setElementSize(MAX_LIGHT_SIZE);
-	Buffer lightPtrBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT,
-		RT_FORMAT_USER, nLights);
-	lightPtrBuffer->setElementSize(sizeof(void*));
-	
-	char* basePtr = (char*)lightBuffer->getDevicePointer(0);
-
-	int lightIdx = 0;
-	for (unsigned int i = 0; i < scene->mNumLights; i++) {
-		aiLight* lightPtr = scene->mLights[i];
-		if (lightPtr->mType == aiLightSource_POINT) {
-
-			float3 position = toFloat3(lightPtr->mPosition);
-			float3 color    = toFloat3(lightPtr->mColorDiffuse);
-			PointLight light(position, color);
-			char* buffer = (char*)lightBuffer->map();
-			memcpy(buffer + lightIdx*MAX_LIGHT_SIZE, &light, sizeof(light));
-			lightBuffer->unmap();
-			buffer = (char*)lightPtrBuffer->map();
-			void* adress = basePtr + lightIdx*sizeof(void*);
-			memcpy(buffer + lightIdx*sizeof(void*), &adress, sizeof(void*));
-			lightPtrBuffer->unmap();
-
-		}
-		lightIdx++;
-		//[TODO] Directional light
-		//[TODO] Spot light
-	}
-
-	for (unsigned int i = 0; i < areaLights.size(); i++) {
-
-		aiMesh* mesh = areaLights[i];
-		/*if (mesh->mNumFaces < 1 || mesh->mNumFaces > 2)
-		{
-			aiString name;
-			m_scene->mMaterials[mesh->mMaterialIndex]->Get(AI_MATKEY_NAME, name);
-			printf("Material %s: Does only support quadrangle light source NumFaces: %d.\n", name.C_Str(), mesh->mNumFaces);
-		}*/
-
-		aiFace face = mesh->mFaces[0];
-		if (face.mNumIndices == 3) {
-			float3 p0 = toFloat3(mesh->mVertices[face.mIndices[0]]);
-			float3 p1 = toFloat3(mesh->mVertices[face.mIndices[1]]);
-			float3 p2 = toFloat3(mesh->mVertices[face.mIndices[2]]);
-			Parallelogram parallelogram(p0, p1, p2, true); //cuidado aqui
-			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-			aiColor3D color;
-			material->Get(AI_MATKEY_COLOR_EMISSIVE, color);
-			AreaLight light(parallelogram, toFloat3(color));
-			char* buffer = (char*)lightBuffer->map();
-			memcpy(buffer + lightIdx*MAX_LIGHT_SIZE, &light, sizeof(light));
-			lightBuffer->unmap();
-			buffer = (char*)lightPtrBuffer->map();
-			void* adress = basePtr + lightIdx*sizeof(void*);
-			memcpy(buffer + lightIdx*sizeof(void*), &adress, sizeof(void*));
-			lightPtrBuffer->unmap();
-	  }
-	  lightIdx++;
-	}
-	context["lights"]->setBuffer(lightPtrBuffer);
-	
-}
-
-
-void SceneBuilder::loadMaterials(const aiScene* scene,
-	Context &context, vector<Material> &materials) {
-
-	const char* path = "./PathTracer.ptx";
-	//const char* path = "./Irradiance.ptx";
-	Program closestHitRadiance = context->createProgramFromPTXFile(path, "closestHit");
-	Program anyHit = context->createProgramFromPTXFile(path, "anyHit");
-	Program miss = context->createProgramFromPTXFile(path, "miss");
-	context->setMissProgram(RayType::RADIANCE, miss);
-
-	for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
-
-		aiMaterial* material = scene->mMaterials[i];
-		
-		aiString name;
-		material->Get(AI_MATKEY_NAME, name);
-		
-		if (IsMaterialEmissive(material))  {
-			Material optixMaterial = context->createMaterial();
-			materials.push_back(optixMaterial);
-			continue;
-			//ver que hacer aqui
-		}
-	
-		//[TODO] Textured material
-
-		//[TODO] Reflective/mirror material
-		float indexOfRefraction;
-		if (material->Get(AI_MATKEY_REFRACTI, indexOfRefraction) == AI_SUCCESS && indexOfRefraction > 1.0f) {
-			//printf("\tGlass: IOR: %g\n", indexOfRefraction);
-			Material optixMaterial = context->createMaterial();
-			optixMaterial->setClosestHitProgram(RayType::RADIANCE, closestHitRadiance);
-			optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
-			float R0 = 0.12f, T0 = 0.78f, d = 0.004, lambda = 898e-9;//575e-9;
-			ThinGlass brdf(R0, T0, d, lambda);
-			optixMaterial["brdfGlass"]->setUserData(sizeof(ThinGlass), &brdf);
-			materials.push_back(optixMaterial);
-			optixMaterial["glass"]->setUint(1);
-			continue;
-		}
-
-		aiColor3D diffuseColor;
-		if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS) {
-
-			Material optixMaterial = context->createMaterial();
-			optixMaterial->setClosestHitProgram(RayType::RADIANCE, closestHitRadiance);
-			optixMaterial->setAnyHitProgram(RayType::SHADOW, anyHit);
-			Lambertian brdf(toFloat3(diffuseColor));
-			optixMaterial["brdf"]->setUserData(sizeof(Lambertian), &brdf);
-			optixMaterial["glass"]->setUint(0);
-			materials.push_back(optixMaterial);
-			continue;
-
-		}
-
-	}
-
-}
 
 void SceneBuilder::loadMeshes(const aiScene* scene,
 	Context &context, const vector<aiMesh*> &geometryMeshes,
@@ -377,13 +261,6 @@ Group SceneBuilder::GetGroupFromNode(optix::Context &context, const aiScene* sce
 			unsigned int meshIndex = node->mMeshes[i];
 			aiMesh* mesh = scene->mMeshes[meshIndex];
 			unsigned int materialIndex = mesh->mMaterialIndex;
-			if (IsMaterialEmissive(scene->mMaterials[materialIndex])) {
-				Group emptyGroup = context->createGroup();
-				emptyGroup->setChildCount(0);
-				Acceleration acceleration = context->createAcceleration("NoAccel", "NoAccel");
-				emptyGroup->setAcceleration(acceleration);
-				return emptyGroup;
-			}
 			Material geometryMaterial = materials.at(materialIndex);
 			GeometryInstance instance = GetGeometryInstance(context, geometries[meshIndex], geometryMaterial);
 			//geometryGroup->setChild(i, instance);
@@ -439,63 +316,7 @@ GeometryInstance SceneBuilder::GetGeometryInstance(Context &context, const Geome
 }
 
 
-void SceneBuilder::loadGeometry(const aiScene* scene,
-	Context &context, const vector<aiMesh*> geometryMeshes,
-	const vector<Material> &materials) {
 
-	vector<Geometry> geometries;
-	loadMeshes(scene, context, geometryMeshes, geometries);
-
-	Group rootNodeGroup = GetGroupFromNode(context, scene, scene->mRootNode, geometries, materials);
-
-	Acceleration acceleration = context->createAcceleration("Sbvh", "Bvh");
-	rootNodeGroup->setAcceleration(acceleration);
-	acceleration->markDirty(); //_? Estudiar
-
-	context["root"]->set(rootNodeGroup); //ver si esto esta bien
-
-}
-
-void SceneBuilder::loadCamera(const aiScene* scene, Context &context, int width, int height) {
-
-	aiNode* cameraNode = scene->mRootNode->FindNode(scene->mCameras[0]->mName);
-	aiCamera* camera = scene->mCameras[0];
-
-	aiVector3D eye = camera->mPosition;
-	aiVector3D lookAt = eye + camera->mLookAt;
-	aiVector3D up = camera->mUp;
-
-	Pinhole pinhole(toFloat3(eye), toFloat3(lookAt), normalize(toFloat3(up)), 2.0f);
-
-	const char* path = "./Pinhole.ptx";
-	Program program = context->createProgramFromPTXFile(path, "pinhole");
-	context->setRayGenerationProgram(0, program);
-	//TODO: Exception program 
-	context->setExceptionEnabled(RT_EXCEPTION_ALL, 1);
-	Program exception = context->createProgramFromPTXFile(path, "exception");
-	context->setExceptionProgram(0, exception);
-	context->setRayGenerationProgram(0, program);
-	
-	context["camera"]->setUserData(sizeof(Pinhole), &pinhole);
-	
-	Film film(width, height);
-	Buffer output = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
-	output->setFormat(RT_FORMAT_FLOAT4);
-	output->setSize(width, height);
-	context["film"]->setUserData(sizeof(Film), &film);
-	context["output"]->set(output);
-
-	Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
-	RNGBuffer->setFormat(RT_FORMAT_USER);
-	RNGBuffer->setElementSize(sizeof(RNG));
-	RNGBuffer->setSize(width, height);
-	RNG* rng = (RNG*)RNGBuffer->map();
-	for (unsigned int i = 0; i < width * height; i++) {
-		rng[i] = RNG(0u, i);
-	}
-	RNGBuffer->unmap();
-	context["rngs"]->setBuffer(RNGBuffer);
-}
 
 
 optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, int width) {

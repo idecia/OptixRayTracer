@@ -10,6 +10,7 @@ public:
 
    RT_FUNCTION Parallelogram();
    RT_FUNCTION Parallelogram(const float3 &p0, const float3 &p1, const float3 &p2, bool flipNormal);
+   RT_FUNCTION Parallelogram(const float3 &p0, const float3 &p1, const float3 &p2, const float3 &n);
    RT_FUNCTION float3 NormalAt(const float3 &point) const;
    RT_FUNCTION float3 GetP0() const;
    RT_FUNCTION float3 GetP1() const;
@@ -29,6 +30,14 @@ private:
 
 
 RT_FUNCTION Parallelogram::Parallelogram() { }
+
+RT_FUNCTION Parallelogram::Parallelogram(const float3 &p0, const float3 &p1, const float3 &p2, const float3 &n)
+	:p0(p0), p1(p1), p2(p2) {
+
+	float d = dot(n, p0);
+	plane = make_float4(n, d);
+
+}
 
 RT_FUNCTION Parallelogram::Parallelogram(const float3 &p0, const float3 &p1, const float3 &p2, bool flipNormal)
    : p0(p0), p1(p1), p2(p2) {
