@@ -388,6 +388,7 @@ Group SceneBuilder::GetGroupFromNode(optix::Context &context, const aiScene* sce
 		for (unsigned int i = 0; i < node->mNumMeshes; i++) {
 			unsigned int meshIndex = node->mMeshes[i];
 			aiMesh* mesh = scene->mMeshes[meshIndex];
+			aiString name = mesh->mName; 
 			unsigned int materialIndex = mesh->mMaterialIndex;
 			Material geometryMaterial = materials.at(materialIndex);
 			GeometryInstance instance = GetGeometryInstance(context, geometries[meshIndex], geometryMaterial);

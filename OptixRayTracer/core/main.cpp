@@ -438,7 +438,7 @@ int main(int argc, char* argv[]) {
       context->launch(0, width, height);*/
 
      
-	   string filename = "./Cornell.dae";
+	   string filename = "./test.dae";
 	  scene = SceneBuilder::BuildFromFile(filename);
 	  scene.Render();
 	  glutRun();
