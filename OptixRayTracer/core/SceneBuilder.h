@@ -122,9 +122,6 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 	optixScene.SetHeight(height);
 	return optixScene;
 
-
-		
-
 }
 
 bool SceneBuilder::ColorHasAnyComponent(const aiColor3D &color) {
@@ -239,8 +236,8 @@ void SceneBuilder::loadLights(const aiScene* scene,
 void SceneBuilder::loadMaterials(const aiScene* scene,
 	Context &context, vector<Material> &materials) {
 
-	//const char* path = "./PathTracer.ptx";
-	const char* path = "./Irradiance.ptx";
+	const char* path = "./PathTracer.ptx";
+	//const char* path = "./Irradiance.ptx";
 	Program closestHitRadiance = context->createProgramFromPTXFile(path, "closestHit");
 	Program anyHit = context->createProgramFromPTXFile(path, "anyHit");
 	Program miss = context->createProgramFromPTXFile(path, "miss");
