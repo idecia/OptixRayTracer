@@ -39,7 +39,6 @@
 #endif
 
 #include <sutil.h>
-#include <HDRLoader.h>
 
 
 #include <optixu/optixu_math_namespace.h>

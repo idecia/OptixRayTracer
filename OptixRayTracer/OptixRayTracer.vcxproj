@@ -183,7 +183,15 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="3rdparty\sutil\GL\wglew.h" />
     <ClInclude Include="3rdparty\sutil\sutil.h" />
     <ClInclude Include="blinds\RectangularBlind.h" />
+    <ClInclude Include="bxdfs\AllBxDFs.h" />
+    <ClInclude Include="bxdfs\FresnelDielectric.h" />
+    <ClInclude Include="bxdfs\Lambertian.h" />
+    <ClInclude Include="bxdfs\SpecularReflection.h" />
+    <ClInclude Include="bxdfs\ThinGlass.h" />
     <ClInclude Include="collections\Vector.h" />
+    <ClInclude Include="core\BSDF.h" />
+    <ClInclude Include="core\LoadForOptimization.h" />
+    <ClInclude Include="core\LoadForRender.h" />
     <ClInclude Include="core\SceneBuilder.h" />
     <ClInclude Include="exporters\obj.h" />
     <ClInclude Include="geometry\Compound.h" />
@@ -276,7 +284,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="shapes\Parallelogram.h" />
     <ClInclude Include="shapes\Sphere.h" />
     <ClInclude Include="shapes\Triangle.h" />
-    <CudaCompile Include="tracers\Irradiance.cu" />
+    <CudaCompile Include="tracers\Reinhart.cu" />
     <CudaCompile Include="tracers\PathTracer.cu" />
   </ItemGroup>
   <ItemGroup>

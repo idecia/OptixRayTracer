@@ -7,7 +7,7 @@
 #include "core/ONB.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 2
+#define MAX_DEPTH 4
 
 rtDeclareVariable(uint2, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(HitRecord, hit, attribute hit, );
