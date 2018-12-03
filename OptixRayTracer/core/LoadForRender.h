@@ -98,10 +98,6 @@ void SceneBuilder::loadMaterialsForRender(const aiScene* scene,
 
 }
 
-Group SceneBuilder::GetGroup() {
-
-
-}
 
 void SceneBuilder::loadGeometryForRender(const aiScene* scene,
 	Context &context, const vector<aiMesh*> geometryMeshes,
