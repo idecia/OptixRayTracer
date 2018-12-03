@@ -73,28 +73,14 @@ RT_PROGRAM void closestHit() {
 		float3 wi;
 		float pdf;
 		float3 BRDF;
-		if ((glass == 0)) {
-			BRDF = brdf.Sample(wo, &wi, &pdf, uniformSample);
+		
+		BRDF = brdf.Sample(wo, &wi, &pdf, uniformSample);
 		//	rtPrintf("%f \n", brdf.getR().x);
-		}
-		else {
-			BRDF = brdfGlass.Sample(wo, &wi, &pdf, uniformSample);
-			//float cost = brdfGlass.F.SnellCosine(AbsCosTheta(wo));
-		//	float r= brdfGlass.F.Reflectivity(CosTheta(wo), cost);
-			//rtPrintf("%f %f %f %f %f %f\n", wi.x, wi.y, wi.z, wo.x,wo.y,wo.z);
-		}
+		
 		float3 wiW = onb.LocalToWorld(wi);
 		Ray radianceRay;
-		if (glass==0)
-			 radianceRay = make_Ray(hit.position + 0.00*hit.normal, wiW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
-		else {
-			//rtPrintf("%f %f %f %f %f %f \n", hit.position.x,hit.position.y,hit.position.z, wiW.x,wiW.y,wiW.z);
-			float3 hitP = hit.position;
-			hitP.y += 0.01*wiW.y;
-
-			radianceRay = make_Ray(hitP, wiW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
-		}
-
+		radianceRay = make_Ray(hit.position + 0.00*hit.normal, wiW, RayType::REINHART_RADIANCE, 0, RT_DEFAULT_MAX);
+		
 		ReinhartPayload newReinhartPayload;
 		newReinhartPayload.depth = reinhartPayload.depth + 1;
 		newReinhartPayload.rng = reinhartPayload.rng;
@@ -122,7 +108,7 @@ RT_PROGRAM void miss() {
 	
 		reinhartPayload.value = make_float3(1.0f);
 	reinhartPayload.patchID = reinhart(ray.direction, 1);
-	if (reinhartPayload.patchID == 0) {
+	//if (reinhartPayload.patchID == 0) {
 		//float t = -ray.origin.y / ray.direction.y;
 		//rtPrintf(" %f %f %f %f %f %f \n", (ray.origin + t* ray.direction).x, (ray.origin + t* ray.direction).y, (ray.origin + t* ray.direction).z, ray.direction.x, ray.direction.y, ray.direction.z);
 
@@ -134,6 +120,6 @@ RT_PROGRAM void miss() {
 		//rtPrintf("%d\n",  reinhartPayload.patchID);
 
 		//rtPrintf("%f %f %f   \n   ", ray.origin.x, ray.origin.y, ray.origin.z);*/ 
-	}
+	//}
 }
 

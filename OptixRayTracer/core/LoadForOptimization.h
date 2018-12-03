@@ -15,6 +15,10 @@ Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 	loadLightsForOptimization(scene, context, idxLight);
 
 	Scene optixScene;
+	int width = 1000;
+	optixScene.width = width;
+	loadSensorsForOptimization(context, width, optixScene);
+	Scene optixScene;
 	return optixScene;
 
 }
@@ -273,4 +277,74 @@ void SceneBuilder::loadMeshesForOptimization(const aiScene* scene,
 
 	}
 
+}
+
+optix::Buffer SceneBuilder::loadSensorsForOptimization(Context &context, int width, Scene optixScene) {
+
+	optix::Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	RNGBuffer->setFormat(RT_FORMAT_USER);
+	RNGBuffer->setElementSize(sizeof(RNG));
+	RNGBuffer->setSize(width);
+	RNG* rng = (RNG*)RNGBuffer->map();
+	for (unsigned int i = 0; i < width; i++) {
+		rng[i] = RNG(0u, i + 915711);
+	}
+	RNGBuffer->unmap();
+	context["rngs"]->setBuffer(RNGBuffer);
+
+	const char* path = "./Environmental.ptx";
+	Program program = context->createProgramFromPTXFile(path, "sensor");
+	context->setRayGenerationProgram(0, program);
+	context->setExceptionEnabled(RT_EXCEPTION_ALL, 1);
+	Program exception = context->createProgramFromPTXFile(path, "exception");
+	context->setExceptionProgram(0, exception);
+
+	/*
+	//context["sensorPos"]->setFloat(0.0f, 0.1f, 1.75f);
+	context["sensorPos"]->setFloat(-421.4f, -288.0f, 8.05f);
+	context["sensorNormal"]->setFloat(0.0f, 0.0f, 1.0f);
+	//context["sensorPos"]->setFloat(-593.6f, -236.2f, 93.6f);
+	//context["sensorNormal"]->setFloat(0.966f, -0.255f, 0.0f);
+	*/
+	int nSamples = width / 100;
+	context["Ntot"]->setInt(width);
+	context["nSamples"]->setInt(nSamples);
+	optix::Buffer environmentMap = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	environmentMap->setFormat(RT_FORMAT_FLOAT3);
+	unsigned int NskyPatches = 146; //145 + 1
+	unsigned int NEnvironmentalPatches = 289; //288 + 1;
+	//unsigned int NEnvironmentalPatches = 4097;
+	environmentMap->setSize(NEnvironmentalPatches, NskyPatches);
+	float* values = (float*)environmentMap->map();
+	for (unsigned int i = 0; i < NEnvironmentalPatches*NskyPatches * 3; i++) {
+		values[i] = 0.0f;
+	}
+	environmentMap->unmap();
+	context["env"]->set(environmentMap);
+	optixScene.env = environmentMap;
+
+
+	path = "./PointSensorBeckers.ptx";
+	Program program = context->createProgramFromPTXFile(path, "sensor");
+	context->setRayGenerationProgram(1, program);
+
+	/*
+	context["sensorPos"]->setFloat(-1.25f, -0.5f, 0.70f);
+	//context["sensorPos"]->setFloat(100000000.0f, 100000000.0f, 100000000.0f);
+	context["sensorNormal"]->setFloat(0.0f, 0.0f, 1.0f);
+	context["N"]->setInt(width);
+	*/
+
+	optix::Buffer coeff = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	coeff->setFormat(RT_FORMAT_FLOAT3);
+	coeff->setSize(NEnvironmentalPatches);
+	float* values = (float*)coeff->map();
+	for (unsigned int i = 0; i < NEnvironmentalPatches * 3; i++) {
+		values[i] = 0.0f;
+	}
+	coeff->unmap();
+	context["coeff"]->set(coeff);
+	optixScene.coeff = coeff;
+
+	
 }

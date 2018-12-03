@@ -330,6 +330,8 @@ GeometryInstance SceneBuilder::GetGeometryInstance(Context &context, const Geome
 optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, int width) {
 
 
+
+
 	const char* path = "./PointSensor.ptx";
 	Program program = context->createProgramFromPTXFile(path, "sensor");
 	context->setRayGenerationProgram(0, program);

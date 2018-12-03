@@ -16,13 +16,15 @@ public:
 	RT_FUNCTION void ChangeSensorPosition(float3 position);
 	RT_FUNCTION void ResetSensorValues();
 
-private:
 	Context context;
 	int width;
 	int height;
 
 	Buffer coeff;
-	
+	Buffer env;
+
+private:
+
 };
 
 RT_FUNCTION  Scene::Scene() {

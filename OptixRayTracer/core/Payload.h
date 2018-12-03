@@ -27,3 +27,13 @@ struct ReinhartPayload {
 	//double3 value;
 };
 
+struct BeckersPayload {
+
+	RNG rng;
+	int depth;
+	int dirID;
+	float3 value;
+	//double3 value;
+};
+
+

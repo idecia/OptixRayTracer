@@ -13,15 +13,16 @@
 #include <optix_device.h>
 
 rtBuffer<RNG> rngs;
-rtBuffer<float3, 2> coeff ;
+rtBuffer<float3, 2> env ;
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(float3, sensorNormal, , );
 rtDeclareVariable(float3, sensorPos, , );
 rtDeclareVariable(rtObject, root, , );
+rtDeclareVariable(int, Ntot, , );
+rtDeclareVariable(int, nSamples , , );
 
 RT_PROGRAM void sensor(void) {
 
-	int nSamples = 10000;
 	ReinhartPayload pl;
 	pl.rng = rngs[pixelIdx];
 
@@ -35,19 +36,19 @@ RT_PROGRAM void sensor(void) {
 		ONB onb(sensorNormal);
 		float3 dir = UniformHemisphereSample(unifSample.x, unifSample.y);
 		float3 dirW = onb.LocalToWorld(dir);
-		Ray ray = make_Ray(sensorPos, dirW, RayType::RADIANCE, 0, RT_DEFAULT_MAX);
+		Ray ray = make_Ray(sensorPos, dirW, RayType::REINHART_RADIANCE, 0, RT_DEFAULT_MAX);
 		rtTrace(root, ray, pl);
 		if (fmaxf(pl.value) > 0.0) {
 			uint2 index;
 			index.x = beckers(dir);
 			index.y = pl.patchID;
 			//if (index.x == 242) {
-				//rtPrintf("- %f %f %f %f %d %d\n", dir.x, dir.y, dir.z, coeff[index].x, beckers(dir), index.y);
+				//rtPrintf("- %f %f %f %f %d %d\n", dir.x, dir.y, dir.z, env[index].x, beckers(dir), index.y);
 			//}
-			float3 value = pl.value;
-			atomicAdd(&coeff[index].x, (float)value.x);
-			atomicAdd(&coeff[index].y, (float)value.y);
-			atomicAdd(&coeff[index].z, (float)value.z); // falta multiplicar por 2pi/N
+			float3 value = 2*M_1_PIf*pl.value/Ntot;
+			atomicAdd(&env[index].x, (float)value.x);
+			atomicAdd(&env[index].y, (float)value.y);
+			atomicAdd(&env[index].z, (float)value.z); // falta multiplicar por 2pi/N
 		}
 
 
@@ -59,7 +60,7 @@ RT_PROGRAM void sensor(void) {
 			uint2 index;
 			index.x = i;
 			index.y = j;
-			float3 v = coeff[index];
+			float3 v = env[index];
 			rtPrintf("%f    ", v.x);
 		}
 		rtPrintf("\n");
