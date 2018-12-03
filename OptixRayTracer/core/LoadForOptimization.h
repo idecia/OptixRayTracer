@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lights/EnvironmentLight.h"
+
 Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 
 	context->setRayTypeCount(4);
@@ -8,7 +10,10 @@ Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 
 	vector<Material> materials;
 	loadMaterialsForOptimization(scene, context, materials);
-	loadGeometryForOptimization(scene, context, materials);
+	int idxLight;
+	loadGeometryForOptimization(scene, context, materials, idxLight);
+	loadLightsForOptimization(scene, context, idxLight);
+
 	Scene optixScene;
 	return optixScene;
 
@@ -75,9 +80,9 @@ void SceneBuilder::loadMaterialsForOptimization(const aiScene* scene,
 
 }
 
-Group SceneBuilder::GetGroup(optix::Context &context, Material material, GeometryInstance geometry) {
+Group SceneBuilder::GetGroup(optix::Context &context, const GeometryInstance &geometry) {
 
-	GeometryGroup geometryGroup = context->createGeometryGroup(instances.begin(), instances.end())
+	GeometryGroup geometryGroup = context->createGeometryGroup(&geometry, &geometry+1);
 	Acceleration acceleration = context->createAcceleration("Sbvh", "Bvh");
 	acceleration->setProperty("vertex_buffer_name", "vertexBuffer");
 	acceleration->setProperty("index_buffer_name", "indexBuffer");
@@ -97,24 +102,54 @@ Group SceneBuilder::GetGroup(optix::Context &context, Material material, Geometr
 }
 
 
+void SceneBuilder::loadLightsForOptimization(const aiScene* scene,
+	Context &context, int idxLight, float3 &p, float3& n) {
+
+	aiMesh* mesh = scene->mMeshes[idxLight];
+	aiFace face = mesh->mFaces[0];
+	if (face.mNumIndices == 3) {
+		float3 p0 = toFloat3(mesh->mVertices[face.mIndices[0]]);
+		float3 p1 = toFloat3(mesh->mVertices[face.mIndices[1]]);
+		float3 p2 = toFloat3(mesh->mVertices[face.mIndices[2]]);
+		n = toFloat3(mesh->mNormals[0]);
+		Parallelogram parallelogram(p0, p1, p2, n);
+
+		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		EnvironmentLight light(parallelogram);
+		context["light"]->setUserData(sizeof(EnvironmentLight), &light);
+
+	}
+}
+
 void SceneBuilder::loadGeometryForOptimization(const aiScene* scene,
-	Context &context, const vector<Material> &materials) {
+	Context &context, const vector<Material> &materials, int& idxLight) {
 
 	vector<Geometry> geometries;
-	loadMeshesForOptimization(scene, context, geometries);
+
+	int geometryIdx[3];
+	int materialIdx[3];
+
+	loadMeshesForOptimization(scene, context, geometries, geometryIdx, materialIdx);
 
 	Geometry city, building, window;
 	Material cityM, buildingM, windowM;
 
-	ClassifyGeometries(geometries, materials, city, building, window, cityM, buildingM, windowM);
+	idxLight = geometryIdx[0];
+	window = geometries[geometryIdx[0]];
+	building = geometries[geometryIdx[1]];
+	city = geometries[geometryIdx[2]];
+
+	windowM = materials[materialIdx[0]];
+	buildingM = materials[materialIdx[1]];
+	cityM = materials[materialIdx[2]];
 
 	GeometryInstance cityInst = GetGeometryInstance(context,city, cityM);
 	GeometryInstance buildingInst = GetGeometryInstance(context, building, buildingM);
 	GeometryInstance windowInst = GetGeometryInstance(context, window, windowM);
 
-	Group cityGroup = GetGroup(context, cityM, city);
-	Group buildingGroup = GetGroup(context, buildingM, building);
-	Group windowGroup = GetGroup(context, windowM, window);
+	Group cityGroup = GetGroup(context, cityInst);
+	Group buildingGroup = GetGroup(context, buildingInst);
+	Group windowGroup = GetGroup(context, windowInst);
 
 	Group buildingWindowGroup = context->createGroup();
 	buildingWindowGroup->setChildCount(2);
@@ -124,6 +159,7 @@ void SceneBuilder::loadGeometryForOptimization(const aiScene* scene,
 		optix::Acceleration acceleration = context->createAcceleration("NoAccel", "NoAccel");
 		buildingWindowGroup->setAcceleration(acceleration);
 	}
+	context["buildingWindows"]->set(buildingWindowGroup);
 
 	Group root = context->createGroup();
 	root->setChildCount(2);
@@ -135,20 +171,46 @@ void SceneBuilder::loadGeometryForOptimization(const aiScene* scene,
 		root->setAcceleration(acceleration);
 		acceleration->markDirty(); 
 	}
-
 	context["root"]->set(root); //ver si esto esta bien
 
 }
 
+static void swap(int ord[], int i, int j) {
+	int aux = ord[i];
+	ord[i] = ord[j];
+	ord[j] = aux;
+}
 
+static void sortByNumFaces(const aiScene* scene, int  ord[]) {
+
+	if (scene->mMeshes[ord[0]]->mNumFaces > scene->mMeshes[ord[1]]->mNumFaces) {
+		swap(ord, 0, 1);
+	}
+	if (scene->mMeshes[ord[0]]->mNumFaces > scene->mMeshes[ord[2]]->mNumFaces) {
+		swap(ord, 0, 2);
+		swap(ord, 1, 2);
+	}
+	else {
+		if (scene->mMeshes[ord[1]]->mNumFaces > scene->mMeshes[ord[2]]->mNumFaces)
+			swap(ord, 1, 2);
+	}
+
+}
 
 void SceneBuilder::loadMeshesForOptimization(const aiScene* scene,
-	Context &context, vector<Geometry> &geometries) {
+	Context &context, vector<Geometry> &geometries, int geometryIdx[], int materialIdx[]) {
 
 	const char* path = "./Mesh.ptx";
 	Program bboxProg = context->createProgramFromPTXFile(path, "boundingBox");
 	Program intersecProg = context->createProgramFromPTXFile(path, "intersect");
 
+	int geometryIdx[3] = { 0, 1, 2 };
+	sortByNumFaces(scene, geometryIdx);
+
+	materialIdx[0] = scene->mMeshes[geometryIdx[0]]->mMaterialIndex;
+	materialIdx[1] = scene->mMeshes[geometryIdx[1]]->mMaterialIndex;
+	materialIdx[2] = scene->mMeshes[geometryIdx[2]]->mMaterialIndex;
+	
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
 
 		aiMesh* mesh = scene->mMeshes[i];

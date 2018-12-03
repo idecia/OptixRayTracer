@@ -59,8 +59,11 @@ private:
 		Context &context, const vector<aiMesh*> geometryMeshes, 
 		const vector<Material> &materialsmaterials);
 
-	void SceneBuilder::loadGeometryForOptimization(const aiScene* scene,
-		Context &context, const vector<Material> &materials);
+	static void SceneBuilder::loadGeometryForOptimization(const aiScene* scene,
+		Context &context, const vector<Material> &materials, int& idxLight);
+
+	static void loadLightsForOptimization(const aiScene* scene,
+		Context &context, int idxLight);
 
 	static void loadMeshes(const aiScene* scene,
 		Context &context, const vector<aiMesh*> &geometryMeshes,
@@ -72,6 +75,7 @@ private:
 	static Group SceneBuilder::GetGroupFromNode(optix::Context &context, const aiScene* scene,
 		aiNode* node, const vector<Geometry> &geometries, const vector<Material> &materials);
 
+	static Group GetGroup(optix::Context &context, const GeometryInstance &geometry);
 
 	static void loadCamera(const aiScene* scene, Context &context, int width, int height);
 
@@ -81,8 +85,11 @@ private:
 
 	static Scene LoadForOptimization(Context context, const aiScene* scene);
 
-	void loadMeshesForOptimization(const aiScene* scene,
-		Context &context, vector<Geometry> &geometries);
+	static void loadMeshesForOptimization(const aiScene* scene,
+		Context &context, vector<Geometry> &geometries, int geometryIdx[], int materialIdx[]);
+
+	static void loadGeometryForOptimization(const aiScene* scene,
+		Context &context, const vector<Material> &materials);
 
 };
 
@@ -260,6 +267,7 @@ Group SceneBuilder::GetGroupFromNode(optix::Context &context, const aiScene* sce
 		for (unsigned int i = 0; i < node->mNumMeshes; i++) {
 			unsigned int meshIndex = node->mMeshes[i];
 			aiMesh* mesh = scene->mMeshes[meshIndex];
+			aiString name = mesh->mName; 
 			unsigned int materialIndex = mesh->mMaterialIndex;
 			Material geometryMaterial = materials.at(materialIndex);
 			GeometryInstance instance = GetGeometryInstance(context, geometries[meshIndex], geometryMaterial);
