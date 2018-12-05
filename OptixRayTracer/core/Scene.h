@@ -15,11 +15,18 @@ public:
 	RT_FUNCTION int GetHeight();
 	RT_FUNCTION void ChangeSensorPosition(float3 position);
 	RT_FUNCTION void ResetSensorValues();
+	RT_FUNCTION Buffer GetEnvValues();
+	RT_FUNCTION void ComputeEnv();
+	RT_FUNCTION void ComputeDayLight();
 
 	Context context;
 	int width;
+	int nSamples;
 	int height;
-
+	float3 sensorPos;
+	float3 sensorNormal;
+	unsigned int NskyPatches;
+	unsigned int NEnvironmentalPatches;
 	Buffer coeff;
 	Buffer env;
 
@@ -67,6 +74,18 @@ RT_FUNCTION void Scene::Render() {
 }
 
 
+RT_FUNCTION void Scene::ComputeEnv() {
+
+	context["sensorPos"]->setFloat(sensorPos);
+	context["sensorNormal"]->setFloat(sensorNormal);
+	context->setPrintEnabled(true);
+	context->validate();
+	context->compile();
+    context->launch(0, width);
+	
+}
+
+
 
 RT_FUNCTION Buffer Scene::GetOutputImage() {
 
@@ -78,6 +97,12 @@ RT_FUNCTION Buffer Scene::GetSensorValues() {
 	return context["coeff"]->getBuffer();
 }
 
+RT_FUNCTION Buffer Scene::GetEnvValues() {
+
+	return context["env"]->getBuffer();
+}
+
+
 RT_FUNCTION void Scene::ChangeSensorPosition(float3 position) {
 
 	context["sensorPos"]->setFloat(position);
@@ -86,7 +111,6 @@ RT_FUNCTION void Scene::ChangeSensorPosition(float3 position) {
 
 RT_FUNCTION void Scene::ResetSensorValues() {
 
-	int NskyPatches = 146;
 	float* values = (float*)coeff->map();
 	for (unsigned int i = 0; i < NskyPatches * 3; i++) {
 		values[i] = 0.0f;

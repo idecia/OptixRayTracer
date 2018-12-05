@@ -342,10 +342,77 @@ void glutRun()
    glutMainLoop();
 }
 
+void render(int argc, char* argv[]) {
+
+	try {
+		//glutInitialize(&argc, argv,width,height);
+		sutil::initGlut(&argc, argv);
+
+
+		/* context = CreateContext();
+		Pinhole camera = CreateCamera(context);
+		film = CreateFilm(context,width, height);
+		CreateLights(context);
+		CreateRNGS(context, width, height);
+		CreateGeometry(context);
+
+		context->setPrintEnabled(true);
+		context->validate();
+		context->launch(0, width, height);*/
+
+
+		string filename = "./cornell.dae";
+		scene = SceneBuilder::BuildFromFile(filename);
+		scene.Render();
+		glutRun();
+		//  Buffer bufferImage = scene.GetOutputImage(); 
+		//sutil::displayBufferPPM("image", bufferImage);
+		//sutil::displayBufferGlut("dd", bufferImage->get());
+		//sutil::displayBufferGL(bufferImage);
+
+		//context->destroy();
+	}
+	catch (optix::Exception e) {
+		std::cout << e.getErrorString();
+	}
+
+}
+
+void optimize(int argc, char* argv[]) {
+
+	try {
+
+		string filename = "./LIGHTWELL.dae";
+		scene = SceneBuilder::BuildFromFile(filename);
+		scene.ComputeEnv();
+		Buffer coeff = scene.GetEnvValues();
+		float3* values = (float3*)coeff->map();
+		RTsize RTwidth; RTsize RTheight;
+		coeff->getSize(RTwidth, RTheight);
+		int width = static_cast<int>(RTwidth);
+		int height = static_cast<int>(RTheight);
+		for (int i = 0; i < width; i++)  {
+			for (int j = 0; j < height; j++) {
+				float3 v = values[j*width + i];
+				cout << "   " << v.x;
+			}
+			cout << "\n";
+		}
+		coeff->unmap();
+	
+	}
+	catch (optix::Exception e) {
+		std::cout << e.getErrorString();
+	}
+
+}
+
 
 
 int main(int argc, char* argv[]) {
 
+
+	optimize(argc, argv);
 	/*
 	Polygon2D* p = new Polygon2D();
 	p->AddVertex(make_float2(0.0f, 0.0f));
@@ -421,37 +488,7 @@ int main(int argc, char* argv[]) {
 
 
 	
-   try {
-      //glutInitialize(&argc, argv,width,height);
-      sutil::initGlut(&argc, argv);
-
-
-     /* context = CreateContext();
-      Pinhole camera = CreateCamera(context);
-      film = CreateFilm(context,width, height);
-      CreateLights(context);
-      CreateRNGS(context, width, height);
-      CreateGeometry(context);
-
-      context->setPrintEnabled(true);
-      context->validate();
-      context->launch(0, width, height);*/
-
-     
-	   string filename = "./cornell.dae";
-	  scene = SceneBuilder::BuildFromFile(filename);
-	  scene.Render();
-	  glutRun();
-	//  Buffer bufferImage = scene.GetOutputImage(); 
-      //sutil::displayBufferPPM("image", bufferImage);
-      //sutil::displayBufferGlut("dd", bufferImage->get());
-      //sutil::displayBufferGL(bufferImage);
-
-      //context->destroy();
-   }
-   catch (optix::Exception e) {
-      std::cout << e.getErrorString();
-   }
+ 
   
 	
 

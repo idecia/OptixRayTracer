@@ -63,7 +63,7 @@ private:
 		Context &context, const vector<Material> &materials, int& idxLight);
 
 	static void loadLightsForOptimization(const aiScene* scene,
-		Context &context, int idxLight);
+		Context &context, int idxLight, Scene optixScene);
 
 	static void loadMeshes(const aiScene* scene,
 		Context &context, const vector<aiMesh*> &geometryMeshes,
@@ -91,6 +91,8 @@ private:
 	static void loadGeometryForOptimization(const aiScene* scene,
 		Context &context, const vector<Material> &materials);
 
+	static void loadSensorsForOptimization(Context &context, Scene optixScene);
+
 };
 
 
@@ -101,7 +103,7 @@ private:
 
 Scene SceneBuilder::BuildFromFile(const string &filename) {
 
-	ALGORITHM algorithm = ALGORITHM::RENDER;
+	ALGORITHM algorithm = ALGORITHM::OPTIMIZATION;
 
 	Assimp::Importer importer;
 

@@ -17,11 +17,13 @@ rtDeclareVariable(HitRecord, hit, attribute hit, );
 rtDeclareVariable(Ray, ray, rtCurrentRay, );
 rtDeclareVariable(Lambertian, brdf, , );
 rtDeclareVariable(float3, point, , );
+rtDeclareVariable(float3, sensorNormal, , );
 rtDeclareVariable(BeckersPayload, beckersPayload, rtPayload, );
 rtDeclareVariable(ShadowPayload, shadowPayload, rtPayload, );
-rtDeclareVariable(rtObject, root, , );
+rtDeclareVariable(rtObject, buildingWindows, , );
 rtDeclareVariable(EnvironmentLight, light, , );
 rtBuffer<float3> coeff;
+rtDeclareVariable(float3, Le, , );
 
 /*
 RT_PROGRAM void closestHit() {
@@ -63,18 +65,20 @@ BeckersPayload.value = value;
 
 /*RT_PROGRAM void closestHit2() {
 
-	if ((beckersPayload.depth == 0) && (Le.x > 0)){
+	ONB onb(hit.normal);
+	ONB onbSensor(sensorNormal);
+	float3 woW = -ray.direction;
+	float3 wo = onb.WorldToLocal(woW);
+
+	if ((beckersPayload.depth == 0) && (Le.x > 0)) {
 		float3 value = beckersPayload.value;
-		float3 dirID = beckers(ray.direction);
+		float3 dirID = beckers(onbSensor.WorldToLocal(-woW));
 		atomicAdd(&coeff[dirID].x, (float)value.x);
 		atomicAdd(&coeff[dirID].y, (float)value.y);
 		atomicAdd(&coeff[dirID].z, (float)value.z);
 		return;
 	}
 
-	ONB onb(hit.normal);
-	float3 woW = -ray.direction;
-	float3 wo = onb.WorldToLocal(woW);
 
 	//direct light
 	unsigned int nLights = 1;
@@ -89,13 +93,13 @@ BeckersPayload.value = value;
 		ShadowPayload shadowPayload;
 		shadowPayload.attenuation = 1.0f;
 		Ray shadowRay = make_Ray(hit.position, wiW, RayType::BECKERS_SHADOW, 0.01, tMax);
-		rtTrace(root, shadowRay, shadowPayload);
+		rtTrace(buildingWindows, shadowRay, shadowPayload);
 		if (shadowPayload.attenuation > 0.0f) {
 			float3 wi = onb.WorldToLocal(wiW);
 			float3 BRDF = brdf.Eval(wo, wi);
 			float nDotWi = fmaxf(wi.z, 0.0f);
 			float3 value = beckersPayload.value * BRDF * nDotWi * L / pdf;
-			flaot3 dirID = beckers(shadowRay.direction);
+			flaot3 dirID = beckers(onbSensor.WorldToLocal(wiW));
 			atomicAdd(&coeff[dirID].x, (float)value.x);
 			atomicAdd(&coeff[dirID].y, (float)value.y);
 			atomicAdd(&coeff[dirID].z, (float)value.z);
@@ -121,25 +125,26 @@ BeckersPayload.value = value;
 		newBeckersPayload.depth = beckersPayload.depth + 1;
 		newBeckersPayload.rng = beckersPayload.rng;
 		newBeckersPayload.value = beckersPayload.value * BRDF * nDotWi * pdf;
-		rtTrace(root, radianceRay, newBeckersPayload);
+		rtTrace(buildingWindows, radianceRay, newBeckersPayload);
 	}
 }
 */
 
 RT_PROGRAM void closestHit() {
 
+	ONB onb(hit.normal);
+	ONB onbSensor(sensorNormal);
+	float3 woW = -ray.direction;
+	float3 wo = onb.WorldToLocal(woW);
 	if (Le.x > 0) {
 		beckersPayload.value = make_float3(1.0);
-		beckersPayload.dirID = beckers(ray.direction);
+		beckersPayload.dirID = beckers(onbSensor.WorldToLocal(-woW));
 		return;
 	}
 
 
 	float3 value = make_float3(0.0f);
 	if (beckersPayload.depth < MAX_DEPTH) {
-		ONB onb(hit.normal);
-		float3 woW = -ray.direction;
-		float3 wo = onb.WorldToLocal(woW);
 		Random2D sampler(&beckersPayload.rng, 1);
 		float2 uniformSample;
 		sampler.Next2D(&uniformSample);
@@ -157,7 +162,7 @@ RT_PROGRAM void closestHit() {
 		BeckersPayload newBeckersPayload;
 		newBeckersPayload.depth = beckersPayload.depth + 1;
 		newBeckersPayload.rng = beckersPayload.rng;
-		rtTrace(root, radianceRay, newBeckersPayload);
+		rtTrace(buildingWindows, radianceRay, newBeckersPayload);
 		//float nDotWi = fabsf(wi.z);
 		float nDotWi = fabsf(dot(wiW, hit.normal));
 		value = BRDF * nDotWi * newBeckersPayload.value / pdf;

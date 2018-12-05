@@ -204,10 +204,12 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="geometry\Polygon2D.h" />
     <ClInclude Include="geometry\Polygon3D.h" />
     <CudaCompile Include="cameras\Pinhole.cu" />
+    <CudaCompile Include="cameras\PointSensorBeckers.cu" />
     <CudaCompile Include="shapes\Mesh.cu" />
     <CudaCompile Include="shapes\Parallelogram.cu" />
     <CudaCompile Include="shapes\Sphere.cu" />
     <CudaCompile Include="shapes\Triangle.cu" />
+    <CudaCompile Include="tracers\Beckers.cu" />
     <CudaCompile Include="tracers\Whitted.cu" />
   </ItemGroup>
   <ItemGroup>
@@ -252,6 +254,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="brdfs\Lambertian.h" />
     <ClInclude Include="cameras\Pinhole.h" />
     <ClInclude Include="geometry\Primitive.h" />
+    <ClInclude Include="lights\EnvironmentLight.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\Transform.h" />
     <ClInclude Include="math\Vector3.h" />

@@ -21,7 +21,7 @@ rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(float3, sensorNormal, , );
 rtDeclareVariable(float3, point, , );
 rtDeclareVariable(float3, sensorPos, , );
-rtDeclareVariable(rtObject, root, , );
+rtDeclareVariable(rtObject, buildingWindows, , );
 rtDeclareVariable(unsigned int, NskyPatches, , );
 
 
@@ -53,7 +53,7 @@ RT_PROGRAM void sensor(void) {
 		Ray ray = make_Ray(sensorPos, dirW, RayType::BECKERS_RADIANCE, 0, RT_DEFAULT_MAX);
 		//rtPrintf("%f %f %f\n", dirW.x, dirW.y, dirW.z);
 
-		rtTrace(root, ray, pl);
+		rtTrace(buildingWindows, ray, pl);
 
 		if (fmaxf(pl.value) > 0.0) {
 			float3 value = pl.value * M_PIf / Ntot;
@@ -98,7 +98,7 @@ RT_PROGRAM void sensor2(void) {
 		float3 dirW = onb.LocalToWorld(dir);
 
 		Ray ray = make_Ray(sensorPos, dirW, RayType::BECKERS_RADIANCE, 0, RT_DEFAULT_MAX);
-		rtTrace(root, ray, pl);
+		rtTrace(buildingWindows, ray, pl);
 
 	
 

@@ -8,17 +8,20 @@ Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 	context->setEntryPointCount(2);
 	context->setStackSize(2800);
 
+	Scene optixScene(context);
+	int width = 10000;
+	int nSamples = width / 1000;
+	optixScene.nSamples = nSamples;
+	optixScene.width = width;
+	optixScene.NskyPatches = 146; //145 + 1
+	optixScene.NEnvironmentalPatches = 289; //288 + 1;	
+
 	vector<Material> materials;
 	loadMaterialsForOptimization(scene, context, materials);
 	int idxLight;
 	loadGeometryForOptimization(scene, context, materials, idxLight);
-	loadLightsForOptimization(scene, context, idxLight);
-
-	Scene optixScene;
-	int width = 1000;
-	optixScene.width = width;
-	loadSensorsForOptimization(context, width, optixScene);
-	Scene optixScene;
+	loadLightsForOptimization(scene, context, idxLight, optixScene);
+	loadSensorsForOptimization(context, optixScene);
 	return optixScene;
 
 }
@@ -37,8 +40,8 @@ void SceneBuilder::loadMaterialsForOptimization(const aiScene* scene,
 	Program anyHitBeckers = context->createProgramFromPTXFile(path, "anyHit");
 	Program missBeckers = context->createProgramFromPTXFile(path, "miss");
 
-	context->setMissProgram(RayType::REINHART_RADIANCE, missReinhart);
-	context->setMissProgram(RayType::BECKERS_RADIANCE, missBeckers);
+	context->setMissProgram(RayTypeOpt::REINHART_RADIANCE, missReinhart);
+	context->setMissProgram(RayTypeOpt::BECKERS_RADIANCE, missBeckers);
 
 	for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
 
@@ -49,10 +52,10 @@ void SceneBuilder::loadMaterialsForOptimization(const aiScene* scene,
 
 		if (IsMaterialEmissive(material))  {
 			Material optixMaterial = context->createMaterial();
-			optixMaterial->setClosestHitProgram(RayType::REINHART_RADIANCE, closestHitReinhart);
-			optixMaterial->setAnyHitProgram(RayType::REINHART_SHADOW, anyHitReinhart);
-			optixMaterial->setClosestHitProgram(RayType::BECKERS_RADIANCE, closestHitBeckers);
-			optixMaterial->setAnyHitProgram(RayType::BECKERS_SHADOW, anyHitBeckers);
+			optixMaterial->setClosestHitProgram(RayTypeOpt::REINHART_RADIANCE, closestHitReinhart);
+			optixMaterial->setAnyHitProgram(RayTypeOpt::REINHART_SHADOW, anyHitReinhart);
+			optixMaterial->setClosestHitProgram(RayTypeOpt::BECKERS_RADIANCE, closestHitBeckers);
+			optixMaterial->setAnyHitProgram(RayTypeOpt::BECKERS_SHADOW, anyHitBeckers);
 			aiColor3D emissivePower;
 			material->Get(AI_MATKEY_COLOR_EMISSIVE, emissivePower);
 			float Le[3] = { emissivePower.r, emissivePower.g, emissivePower.b };
@@ -66,10 +69,10 @@ void SceneBuilder::loadMaterialsForOptimization(const aiScene* scene,
 		if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS) {
 
 			Material optixMaterial = context->createMaterial();
-			optixMaterial->setClosestHitProgram(RayType::REINHART_RADIANCE, closestHitReinhart);
-			optixMaterial->setAnyHitProgram(RayType::REINHART_SHADOW, anyHitReinhart);
-			optixMaterial->setClosestHitProgram(RayType::BECKERS_RADIANCE, closestHitBeckers);
-			optixMaterial->setAnyHitProgram(RayType::BECKERS_SHADOW, anyHitBeckers);
+			optixMaterial->setClosestHitProgram(RayTypeOpt::REINHART_RADIANCE, closestHitReinhart);
+			optixMaterial->setAnyHitProgram(RayTypeOpt::REINHART_SHADOW, anyHitReinhart);
+			optixMaterial->setClosestHitProgram(RayTypeOpt::BECKERS_RADIANCE, closestHitBeckers);
+			optixMaterial->setAnyHitProgram(RayTypeOpt::BECKERS_SHADOW, anyHitBeckers);
 			Lambertian brdf(toFloat3(diffuseColor));
 		    float Le[3] = { 0.0f, 0.0f, 0.0f };
 			optixMaterial["Le"]->set3fv(Le);
@@ -107,7 +110,7 @@ Group SceneBuilder::GetGroup(optix::Context &context, const GeometryInstance &ge
 
 
 void SceneBuilder::loadLightsForOptimization(const aiScene* scene,
-	Context &context, int idxLight, float3 &p, float3& n) {
+	Context &context, int idxLight, Scene optixScene) {
 
 	aiMesh* mesh = scene->mMeshes[idxLight];
 	aiFace face = mesh->mFaces[0];
@@ -115,8 +118,11 @@ void SceneBuilder::loadLightsForOptimization(const aiScene* scene,
 		float3 p0 = toFloat3(mesh->mVertices[face.mIndices[0]]);
 		float3 p1 = toFloat3(mesh->mVertices[face.mIndices[1]]);
 		float3 p2 = toFloat3(mesh->mVertices[face.mIndices[2]]);
-		n = toFloat3(mesh->mNormals[0]);
+		float3 n = toFloat3(mesh->mNormals[0]);
+		optixScene.sensorNormal = -n;
+		optixScene.sensorPos = (p0 + p2) / 2.0f;
 		Parallelogram parallelogram(p0, p1, p2, n);
+
 
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 		EnvironmentLight light(parallelogram);
@@ -208,7 +214,9 @@ void SceneBuilder::loadMeshesForOptimization(const aiScene* scene,
 	Program bboxProg = context->createProgramFromPTXFile(path, "boundingBox");
 	Program intersecProg = context->createProgramFromPTXFile(path, "intersect");
 
-	int geometryIdx[3] = { 0, 1, 2 };
+	geometryIdx[0] = 0;
+	geometryIdx[1] = 1;
+	geometryIdx[2] = 2;
 	sortByNumFaces(scene, geometryIdx);
 
 	materialIdx[0] = scene->mMeshes[geometryIdx[0]]->mMaterialIndex;
@@ -279,14 +287,14 @@ void SceneBuilder::loadMeshesForOptimization(const aiScene* scene,
 
 }
 
-optix::Buffer SceneBuilder::loadSensorsForOptimization(Context &context, int width, Scene optixScene) {
+void SceneBuilder::loadSensorsForOptimization(Context &context, Scene optixScene) {
 
 	optix::Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
 	RNGBuffer->setFormat(RT_FORMAT_USER);
 	RNGBuffer->setElementSize(sizeof(RNG));
-	RNGBuffer->setSize(width);
+	RNGBuffer->setSize(optixScene.width);
 	RNG* rng = (RNG*)RNGBuffer->map();
-	for (unsigned int i = 0; i < width; i++) {
+	for (unsigned int i = 0; i < optixScene.width; i++) {
 		rng[i] = RNG(0u, i + 915711);
 	}
 	RNGBuffer->unmap();
@@ -306,13 +314,13 @@ optix::Buffer SceneBuilder::loadSensorsForOptimization(Context &context, int wid
 	//context["sensorPos"]->setFloat(-593.6f, -236.2f, 93.6f);
 	//context["sensorNormal"]->setFloat(0.966f, -0.255f, 0.0f);
 	*/
-	int nSamples = width / 100;
-	context["Ntot"]->setInt(width);
-	context["nSamples"]->setInt(nSamples);
+	
+	context["Ntot"]->setInt(optixScene.width);
+	context["nSamples"]->setInt(optixScene.nSamples);
 	optix::Buffer environmentMap = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
 	environmentMap->setFormat(RT_FORMAT_FLOAT3);
-	unsigned int NskyPatches = 146; //145 + 1
-	unsigned int NEnvironmentalPatches = 289; //288 + 1;
+	unsigned int NskyPatches = optixScene.NskyPatches; //145 + 1
+	unsigned int NEnvironmentalPatches = optixScene.NEnvironmentalPatches; //288 + 1;
 	//unsigned int NEnvironmentalPatches = 4097;
 	environmentMap->setSize(NEnvironmentalPatches, NskyPatches);
 	float* values = (float*)environmentMap->map();
@@ -325,7 +333,7 @@ optix::Buffer SceneBuilder::loadSensorsForOptimization(Context &context, int wid
 
 
 	path = "./PointSensorBeckers.ptx";
-	Program program = context->createProgramFromPTXFile(path, "sensor");
+	program = context->createProgramFromPTXFile(path, "sensor");
 	context->setRayGenerationProgram(1, program);
 
 	/*
@@ -338,7 +346,7 @@ optix::Buffer SceneBuilder::loadSensorsForOptimization(Context &context, int wid
 	optix::Buffer coeff = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
 	coeff->setFormat(RT_FORMAT_FLOAT3);
 	coeff->setSize(NEnvironmentalPatches);
-	float* values = (float*)coeff->map();
+	values = (float*)coeff->map();
 	for (unsigned int i = 0; i < NEnvironmentalPatches * 3; i++) {
 		values[i] = 0.0f;
 	}

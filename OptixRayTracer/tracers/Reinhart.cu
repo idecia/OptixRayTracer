@@ -79,7 +79,7 @@ RT_PROGRAM void closestHit() {
 		
 		float3 wiW = onb.LocalToWorld(wi);
 		Ray radianceRay;
-		radianceRay = make_Ray(hit.position + 0.00*hit.normal, wiW, RayType::REINHART_RADIANCE, 0, RT_DEFAULT_MAX);
+		radianceRay = make_Ray(hit.position + 0.00*hit.normal, wiW, RayType::BECKERS_RADIANCE, 0, RT_DEFAULT_MAX);
 		
 		ReinhartPayload newReinhartPayload;
 		newReinhartPayload.depth = reinhartPayload.depth + 1;
