@@ -50,7 +50,7 @@ RT_PROGRAM void sensor(void) {
 		//dirW = make_float3(0.945326f, 0.091734f, -0.312960f);
 	  //  dirW = make_float3( -0.456876, -0.88952, -0.004548);
 		//sensorPos2 = sensorPos2 - dirW;
-		Ray ray = make_Ray(sensorPos, dirW, RayType::REINHART_RADIANCE, 0, RT_DEFAULT_MAX);
+		Ray ray = make_Ray(sensorPos, dirW, RayTypeOpt::REINHART_RADIANCE, 0, RT_DEFAULT_MAX);
 		//rtPrintf("%f %f %f\n", dirW.x, dirW.y, dirW.z);
 
 		rtTrace(root, ray, pl);

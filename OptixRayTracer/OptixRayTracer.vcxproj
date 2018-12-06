@@ -96,12 +96,12 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\;$(OPTIX_PATH)\include\optixu;$(FREEGLUT_PATH)\include;$(OPTIX_PATH)\include;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\3rdparty\sutil;$(CUDA_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\;$(OPTIX_PATH)\include\optixu;$(FREEGLUT_PATH)\include;$(OPTIX_PATH)\include;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\ibpsa\OptixRayTracer\OptixRayTracer\3rdparty;C:\Users\Ignacio\Documents\Visual Studio 2013\Projects\OptixRayTracer\OptixRayTracer\3rdparty\sutil;$(CUDA_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;cuda.lib;optix.1.lib;optixu.1.lib;freeglut.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;cuda.lib;optix.1.lib;optixu.1.lib;freeglut.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\x64;$(OPTIX_PATH)\lib64;$(FREEGLUT_PATH)\win64\Release;$(ASSIMP_PATH)\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -109,7 +109,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
 copy "$(OPTIX_PATH)\bin64\optix.1.dll" "$(OutDir)"
 copy "$(FREEGLUT_PATH)\win64\Release\freeglut.dll" "$(OutDir)"
-copy "$(ASSIMP_PATH)\bin\x64\Assimp64.dll" "$(OutDir)"</Command>
+copy "$(ASSIMP_PATH)\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
@@ -173,6 +173,44 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="samplers\DiscretePDF.h" />
     <ClCompile Include="shapes\MatteTriangle.h" />
     <CudaCompile Include="cameras\Environmental.cu" />
+    <ClInclude Include="3rdparty\assimp\BaseImporter.h" />
+    <ClInclude Include="3rdparty\assimp\Bitmap.h" />
+    <ClInclude Include="3rdparty\assimp\BlobIOSystem.h" />
+    <ClInclude Include="3rdparty\assimp\ByteSwapper.h" />
+    <ClInclude Include="3rdparty\assimp\CreateAnimMesh.h" />
+    <ClInclude Include="3rdparty\assimp\DefaultIOStream.h" />
+    <ClInclude Include="3rdparty\assimp\DefaultIOSystem.h" />
+    <ClInclude Include="3rdparty\assimp\Defines.h" />
+    <ClInclude Include="3rdparty\assimp\Exceptional.h" />
+    <ClInclude Include="3rdparty\assimp\fast_atof.h" />
+    <ClInclude Include="3rdparty\assimp\GenericProperty.h" />
+    <ClInclude Include="3rdparty\assimp\Hash.h" />
+    <ClInclude Include="3rdparty\assimp\IOStreamBuffer.h" />
+    <ClInclude Include="3rdparty\assimp\irrXMLWrapper.h" />
+    <ClInclude Include="3rdparty\assimp\LineSplitter.h" />
+    <ClInclude Include="3rdparty\assimp\LogAux.h" />
+    <ClInclude Include="3rdparty\assimp\Macros.h" />
+    <ClInclude Include="3rdparty\assimp\MathFunctions.h" />
+    <ClInclude Include="3rdparty\assimp\MemoryIOWrapper.h" />
+    <ClInclude Include="3rdparty\assimp\ParsingUtils.h" />
+    <ClInclude Include="3rdparty\assimp\pbrmaterial.h" />
+    <ClInclude Include="3rdparty\assimp\Profiler.h" />
+    <ClInclude Include="3rdparty\assimp\qnan.h" />
+    <ClInclude Include="3rdparty\assimp\RemoveComments.h" />
+    <ClInclude Include="3rdparty\assimp\SceneCombiner.h" />
+    <ClInclude Include="3rdparty\assimp\SGSpatialSort.h" />
+    <ClInclude Include="3rdparty\assimp\SkeletonMeshBuilder.h" />
+    <ClInclude Include="3rdparty\assimp\SmoothingGroups.h" />
+    <ClInclude Include="3rdparty\assimp\SpatialSort.h" />
+    <ClInclude Include="3rdparty\assimp\StandardShapes.h" />
+    <ClInclude Include="3rdparty\assimp\StreamReader.h" />
+    <ClInclude Include="3rdparty\assimp\StreamWriter.h" />
+    <ClInclude Include="3rdparty\assimp\StringComparison.h" />
+    <ClInclude Include="3rdparty\assimp\StringUtils.h" />
+    <ClInclude Include="3rdparty\assimp\Subdivision.h" />
+    <ClInclude Include="3rdparty\assimp\TinyFormatter.h" />
+    <ClInclude Include="3rdparty\assimp\Vertex.h" />
+    <ClInclude Include="3rdparty\assimp\XMLTools.h" />
     <ClInclude Include="3rdparty\freeglut\include\GL\freeglut.h" />
     <ClInclude Include="3rdparty\freeglut\include\GL\freeglut_ext.h" />
     <ClInclude Include="3rdparty\freeglut\include\GL\freeglut_std.h" />
@@ -296,6 +334,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <None Include="3rdparty\assimp\matrix3x3.inl" />
     <None Include="3rdparty\assimp\matrix4x4.inl" />
     <None Include="3rdparty\assimp\quaternion.inl" />
+    <None Include="3rdparty\assimp\SmoothingGroups.inl" />
     <None Include="3rdparty\assimp\vector2.inl" />
     <None Include="3rdparty\assimp\vector3.inl" />
     <None Include="lib\freeglut.dll" />

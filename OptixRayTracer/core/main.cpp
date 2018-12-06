@@ -382,7 +382,7 @@ void optimize(int argc, char* argv[]) {
 
 	try {
 
-		string filename = "./LIGHTWELL.dae";
+		string filename = "./LIGHTWELL.obj";
 		scene = SceneBuilder::BuildFromFile(filename);
 		scene.ComputeEnv();
 		Buffer coeff = scene.GetEnvValues();

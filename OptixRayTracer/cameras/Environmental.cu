@@ -36,7 +36,7 @@ RT_PROGRAM void sensor(void) {
 		ONB onb(sensorNormal);
 		float3 dir = UniformHemisphereSample(unifSample.x, unifSample.y);
 		float3 dirW = onb.LocalToWorld(dir);
-		Ray ray = make_Ray(sensorPos, dirW, RayType::REINHART_RADIANCE, 0, RT_DEFAULT_MAX);
+		Ray ray = make_Ray(sensorPos, dirW, RayTypeOpt::REINHART_RADIANCE, 0, RT_DEFAULT_MAX);
 		rtTrace(root, ray, pl);
 		if (fmaxf(pl.value) > 0.0) {
 			uint2 index;
