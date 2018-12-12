@@ -22,7 +22,7 @@ rtDeclareVariable(int, Ntot, , );
 rtDeclareVariable(int, nSamples , , );
 
 RT_PROGRAM void sensor(void) {
-
+	//rtPrintf("ok");
 	ReinhartPayload pl;
 	pl.rng = rngs[pixelIdx];
 
@@ -38,6 +38,7 @@ RT_PROGRAM void sensor(void) {
 		float3 dirW = onb.LocalToWorld(dir);
 		Ray ray = make_Ray(sensorPos, dirW, RayTypeOpt::REINHART_RADIANCE, 0, RT_DEFAULT_MAX);
 		rtTrace(root, ray, pl);
+		//rtPrintf("%f %f %f %f %f %f\n", dir.x, dir.y, dir.z, sensorPos.x, sensorPos.y, sensorPos.z);
 		if (fmaxf(pl.value) > 0.0) {
 			uint2 index;
 			index.x = beckers(dir);

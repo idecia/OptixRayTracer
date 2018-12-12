@@ -56,7 +56,7 @@ RT_PROGRAM void intersect(int primIdx) {
 
 
 RT_PROGRAM void intersect(int primIdx) {
-
+	
 	int3 index = indexBuffer[primIdx];
 
 	double3 p0 = ToDouble(vertexBuffer[index.x]);

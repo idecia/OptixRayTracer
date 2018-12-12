@@ -63,7 +63,7 @@ private:
 		Context &context, const vector<Material> &materials, int& idxLight);
 
 	static void loadLightsForOptimization(const aiScene* scene,
-		Context &context, int idxLight, Scene optixScene);
+		Context &context, int idxLight, Scene &optixScene);
 
 	static void loadMeshes(const aiScene* scene,
 		Context &context, const vector<aiMesh*> &geometryMeshes,
@@ -72,10 +72,10 @@ private:
 	static GeometryInstance GetGeometryInstance(Context &context,
 		const Geometry &geometry, const Material &material);
 
-	static Group SceneBuilder::GetGroupFromNode(optix::Context &context, const aiScene* scene,
+	static Group GetGroupFromNode(optix::Context &context, const aiScene* scene,
 		aiNode* node, const vector<Geometry> &geometries, const vector<Material> &materials);
 
-	static Group GetGroup(optix::Context &context, const GeometryInstance &geometry);
+	static Group GetGroup(optix::Context &context, const vector<GeometryInstance> &instances);
 
 	static void loadCamera(const aiScene* scene, Context &context, int width, int height);
 
@@ -86,12 +86,13 @@ private:
 	static Scene LoadForOptimization(Context context, const aiScene* scene);
 
 	static void loadMeshesForOptimization(const aiScene* scene,
-		Context &context, vector<Geometry> &geometries, int geometryIdx[], int materialIdx[]);
+		Context &context, const vector<Material> &materials, vector<GeometryInstance> &city,
+		vector<GeometryInstance> &building, vector<GeometryInstance> &window, int &idxLight);
 
 	static void loadGeometryForOptimization(const aiScene* scene,
 		Context &context, const vector<Material> &materials);
 
-	static void loadSensorsForOptimization(Context &context, Scene optixScene);
+	static void loadSensorsForOptimization(Context &context, Scene &optixScene);
 
 };
 
@@ -270,6 +271,7 @@ Group SceneBuilder::GetGroupFromNode(optix::Context &context, const aiScene* sce
 			unsigned int meshIndex = node->mMeshes[i];
 			aiMesh* mesh = scene->mMeshes[meshIndex];
 			aiString name = mesh->mName; 
+			int nFaces = mesh->mNumFaces;
 			unsigned int materialIndex = mesh->mMaterialIndex;
 			Material geometryMaterial = materials.at(materialIndex);
 			GeometryInstance instance = GetGeometryInstance(context, geometries[meshIndex], geometryMaterial);

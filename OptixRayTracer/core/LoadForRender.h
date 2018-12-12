@@ -119,6 +119,7 @@ void SceneBuilder::loadGeometryForRender(const aiScene* scene,
 
 void SceneBuilder::loadCamera(const aiScene* scene, Context &context, int width, int height) {
 
+	//cuidado cuando se usa .obj pues no tiene datos osbre la camara y Assimp retorna null aqui.
 	aiNode* cameraNode = scene->mRootNode->FindNode(scene->mCameras[0]->mName);
 	aiCamera* camera = scene->mCameras[0];
 
