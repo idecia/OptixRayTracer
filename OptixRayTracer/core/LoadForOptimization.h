@@ -9,12 +9,12 @@ Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 	context->setStackSize(2800);
 
 	Scene optixScene(context);
-	int width = 1000;
-	int nSamples = 50;
+	int width = 10000;
+	int nSamples = 100;
 	optixScene.nSamples = nSamples;
 	optixScene.width = width;
 	optixScene.NskyPatches = 146; //145 + 1
-	optixScene.NEnvironmentalPatches = 289; //288 + 1;	
+	optixScene.NEnvironmentalPatches = 8193; //289; //288 + 1;	
 
 	vector<Material> materials;
 	loadMaterialsForOptimization(scene, context, materials);
