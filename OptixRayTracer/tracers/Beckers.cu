@@ -9,7 +9,7 @@
 #include "core/math.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 4
+#define MAX_DEPTH 25
 
 
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
@@ -133,12 +133,14 @@ BeckersPayload.value = value;
 RT_PROGRAM void closestHit() {
 
 	ONB onb(hit.normal);
-	ONB onbSensor(sensorNormal);
+	ONB onbWindow(-hit.normal);
 	float3 woW = -ray.direction;
 	float3 wo = onb.WorldToLocal(woW);
 	if (Le.x > 0) {
 		beckersPayload.value = make_float3(1.0);
-		beckersPayload.dirID = beckers(onbSensor.WorldToLocal(-woW));
+		beckersPayload.dirID = beckers(onbWindow.WorldToLocal(-woW));
+		//rtPrintf("%f  %f %f \n", ray.direction.x, ray.direction.y, ray.direction.z);
+		//rtPrintf("%d \n", beckersPayload.depth);
 		return;
 	}
 

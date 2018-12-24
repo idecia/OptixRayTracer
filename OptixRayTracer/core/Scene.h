@@ -18,6 +18,7 @@ public:
 	RT_FUNCTION Buffer GetEnvValues();
 	RT_FUNCTION void ComputeEnv();
 	RT_FUNCTION void ComputeDayLight();
+	RT_FUNCTION void ComputeDCSensors();
 
 	Context context;
 	int width;
@@ -83,6 +84,18 @@ RT_FUNCTION void Scene::ComputeEnv() {
 	context->compile();
     context->launch(0, width);
 	
+}
+
+RT_FUNCTION void Scene::ComputeDCSensors() {
+
+	context["sensorPos"]->setFloat(sensorPos);
+	context["sensorNormal"]->setFloat(sensorNormal);
+	context->setPrintEnabled(true);
+	context->validate();
+	context->compile();
+	context->launch(1, width);
+
+
 }
 
 

@@ -56,7 +56,8 @@ RT_PROGRAM void sensor(void) {
 		rtTrace(buildingWindows, ray, pl);
 
 		if (fmaxf(pl.value) > 0.0) {
-			float3 value = pl.value * M_PIf / Ntot;
+			//float3 value = pl.value * M_PIf / Ntot;
+			float3 value = pl.value;
 			//rtPrintf("%d %f %f\n", pl.patchID, (float)value.x, (float)value.x);
 			atomicAdd(&coeff[pl.dirID].x, (float)value.x);
 			atomicAdd(&coeff[pl.dirID].y, (float)value.y);

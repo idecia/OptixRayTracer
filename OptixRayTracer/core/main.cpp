@@ -384,7 +384,7 @@ void optimize(int argc, char* argv[]) {
 
 		string filename = "./LIGHTWELL.obj";
 		scene = SceneBuilder::BuildFromFile(filename);
-		scene.ComputeEnv();
+		/*scene.ComputeEnv();
 		Buffer coeff = scene.GetEnvValues();
 		float3* values = (float3*)coeff->map();
 		RTsize RTwidth; RTsize RTheight;
@@ -398,7 +398,24 @@ void optimize(int argc, char* argv[]) {
 			}
 			cout << "\n";
 		}
-		coeff->unmap();
+		coeff->unmap();*/
+		scene.sensorPos = make_float3(0.0, 0.0, 1000);
+		scene.sensorNormal = make_float3(0.0f, 0.0f, 1.0f);
+		scene.ComputeDCSensors();
+		Buffer coeff = scene.GetSensorValues();
+		float3* values = (float3*)coeff->map();
+		RTsize RTwidth; RTsize RTheight;
+		coeff->getSize(RTwidth, RTheight);
+		int width = static_cast<int>(RTwidth);
+		int height = static_cast<int>(RTheight);
+		for (int i = 0; i < width; i++)  {
+			for (int j = 0; j < height; j++) {
+				float3 v = values[j*width + i];
+				cout << "   " << v.x;
+			}
+			cout << "\n";
+		}
+		coeff->unmap(); 
 	
 	}
 	catch (optix::Exception e) {
