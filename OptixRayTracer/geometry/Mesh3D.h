@@ -37,7 +37,7 @@ public:
 };
 
 Mesh3D::Mesh3D()
-	:Primitive() {
+	:Primitive(), isTesselated(false) {
 
 }
 
@@ -70,7 +70,8 @@ Mesh3D::~Mesh3D() {
 
 	vector<Face*>::iterator it;
 	for (it = faces.begin(); it != faces.end(); it++) {
-		delete (*it);
+		Face* f = (*it);
+		delete f;
 	}
 }
 
@@ -94,13 +95,13 @@ Mesh3D* Extrude(const Polygon2D* poly, const float3 &direction) {
 		const float2 &v2 = vertices[i];
 		float3 v3 = make_float3(v2.x, v2.y, 0.0f);
 		mesh->AddVertex(v3 + direction);
-		top->AddIndex(i + n);
+		top->AddIndex(2*n - (i + 1) );
 
 	}
 	mesh->AddFace(top);
 
 	for (int i = 0; i < n; i++) {
-		Face* side = new Face(i, (i + 1)%n, (i + 1)%n + n, i + n);
+		Face* side = new Face(i, i + n, (i + 1) % n + n, (i + 1) % n);
 		mesh->AddFace(side);
 	}
 

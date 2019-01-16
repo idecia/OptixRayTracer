@@ -56,10 +56,12 @@ void ExportToOBJ(ofstream &file, GeometricObject* obj, Transformation objToWorld
 
 void ExportModel(string filepath, GeometricObject* rootObject) {
 
-	ofstream file(filepath);
+	ofstream file;
+	file.open(filepath);
 	Transformation identity;
 	int vertexOffset = 1;
 	ExportToOBJ(file, rootObject, identity, vertexOffset);
 	file.close();
 
+	
 }

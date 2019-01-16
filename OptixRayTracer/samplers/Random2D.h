@@ -36,7 +36,7 @@ RT_FUNCTION bool Random2D::Next2D(float2 *sample) {
    sample->x = rng->RandomFloat();
    sample->y = rng->RandomFloat();
    ++generatedSamples;
-   return (generatedSamples <= totalSamples);
+  return (generatedSamples <= totalSamples);
 
 }
 

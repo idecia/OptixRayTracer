@@ -24,6 +24,7 @@ Instance::Instance(GeometricObject* obj)
 	
 }
 
+
 vector<GeometricObject*> Instance::GetChilds() {
 
 	vector<GeometricObject*> objects;

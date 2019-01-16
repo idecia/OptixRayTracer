@@ -9,17 +9,18 @@ Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 	context->setStackSize(2800);
 
 	Scene optixScene(context);
-	int width = 1;
-	int nSamples = 10000;
+	int width = 100000;
+	int nSamples = 10;
+
 	optixScene.nSamples = nSamples;
 	optixScene.width = width;
-	optixScene.NskyPatches = 146; //145 + 1
-	optixScene.NEnvironmentalPatches = 289; //8193;  //288 + 1;	
+//	optixScene.NskyPatches = 146; //145 + 1
+	//optixScene.NEnvironmentalPatches = 289; //8193;  //288 + 1;	
 
 	vector<Material> materials;
 	loadMaterialsForOptimization(scene, context, materials);
 	int idxLight;
-	loadGeometryForOptimization(scene, context, materials, idxLight);
+	loadGeometryForOptimization(scene, context, materials, idxLight, optixScene);
 	loadLightsForOptimization(scene, context, idxLight, optixScene);
 	loadSensorsForOptimization(context, optixScene);
 	return optixScene;
@@ -84,6 +85,17 @@ void SceneBuilder::loadMaterialsForOptimization(const aiScene* scene,
 		}
 
 	}
+	Material blindMaterial = context->createMaterial();
+	blindMaterial->setClosestHitProgram(RayTypeOpt::REINHART_RADIANCE, closestHitReinhart);
+	blindMaterial->setAnyHitProgram(RayTypeOpt::REINHART_SHADOW, anyHitReinhart);
+	blindMaterial->setClosestHitProgram(RayTypeOpt::BECKERS_RADIANCE, closestHitBeckers);
+	blindMaterial->setAnyHitProgram(RayTypeOpt::BECKERS_SHADOW, anyHitBeckers);
+	Lambertian brdf(make_float3(0.8f));
+	float Le[3] = { 0.0f, 0.0f, 0.0f };
+	blindMaterial["Le"]->set3fv(Le);
+	blindMaterial["brdf"]->setUserData(sizeof(Lambertian), &brdf);
+	//optixMaterial["glass"]->setUint(0);
+	materials.push_back(blindMaterial);
 
 }
 
@@ -111,74 +123,91 @@ void SceneBuilder::loadLightsForOptimization(const aiScene* scene,
 	}
 }
 
-Group SceneBuilder::GetGroup(optix::Context &context, const vector<GeometryInstance> &instances) {
+GeometryGroup SceneBuilder::GetGroup(optix::Context &context, const vector<GeometryInstance> &instances, Scene &optixScene, string accelType) {
 
 	GeometryGroup geometryGroup = context->createGeometryGroup(instances.begin(), instances.end());
-	Acceleration acceleration = context->createAcceleration("Sbvh", "Bvh");
+	Acceleration acceleration = context->createAcceleration(accelType, accelType);
 	acceleration->setProperty("vertex_buffer_name", "vertexBuffer");
 	acceleration->setProperty("index_buffer_name", "indexBuffer");
+	//optix::Acceleration acceleration = context->createAcceleration("NoAccel", "NoAccel");
 	geometryGroup->setAcceleration(acceleration);
 	acceleration->markDirty();
+	optixScene.accelerations.push_back(acceleration);
 
-	Group group = context->createGroup();
-	group->setChildCount(1);
-	group->setChild(0, geometryGroup);
-	{
-		optix::Acceleration acceleration = context->createAcceleration("NoAccel", "NoAccel");
-		group->setAcceleration(acceleration);
-	}
-
-	return group;
+	return geometryGroup;
 
 }
 
 void SceneBuilder::loadGeometryForOptimization(const aiScene* scene,
-	Context &context, const vector<Material> &materials, int& idxLight) {
+	Context &context, const vector<Material> &materials, int& idxLight, Scene &optixScene) {
 
 	vector<Geometry> geometries;
 
 	vector<GeometryInstance> cityInst;
 	vector<GeometryInstance> buildingInst;
 	vector<GeometryInstance> windowInst;
+	vector<GeometryInstance> blindInst;
 
-	loadMeshesForOptimization(scene, context, materials, cityInst, buildingInst, windowInst, idxLight);
+	loadMeshesForOptimization(scene, context, materials, cityInst, buildingInst, windowInst, 
+		idxLight, optixScene.blindGeometry, optixScene.blindGeometryInstance);
+	blindInst.push_back(optixScene.blindGeometryInstance);
 
-	Group cityGroup = GetGroup(context, cityInst);
-	Group buildingGroup = GetGroup(context, buildingInst);
-	Group windowGroup = GetGroup(context, windowInst);
+	string trbvh = "Trbvh", sbvh = "Sbvh";
+	optixScene.blindGroup = GetGroup(context, blindInst, optixScene, trbvh);
+	GeometryGroup cityGroup = GetGroup(context, cityInst, optixScene, sbvh);
+	GeometryGroup buildingGroup = GetGroup(context, buildingInst, optixScene, sbvh);
+	GeometryGroup windowGroup = GetGroup(context, windowInst, optixScene, sbvh);
 
-	Group buildingWindowGroup = context->createGroup();
-	buildingWindowGroup->setChildCount(2);
-	buildingWindowGroup->setChild(0, buildingGroup);
-	buildingWindowGroup->setChild(1, windowGroup);
+	optixScene.buildingWindowGroup = context->createGroup();
+	optixScene.buildingWindowGroup->setChildCount(3);
+	optixScene.buildingWindowGroup->setChild(0, buildingGroup);
+	optixScene.buildingWindowGroup->setChild(1, windowGroup);
+	optixScene.buildingWindowGroup->setChild(2, optixScene.blindGroup);
 	{
 		//ver si es conveniente agregar una estructura de aceleracion aqui
 		optix::Acceleration acceleration = context->createAcceleration("NoAccel", "NoAccel");
-		buildingWindowGroup->setAcceleration(acceleration);
+		optixScene.buildingWindowGroup->setAcceleration(acceleration);
 		acceleration->markDirty();
+		optixScene.accelerations.push_back(acceleration);
 	}
-	context["buildingWindows"]->set(buildingWindowGroup);
+	context["buildingWindows"]->set(optixScene.buildingWindowGroup);
 
-	Group root = context->createGroup();
-	root->setChildCount(2);
-	root->setChild(0, buildingWindowGroup);
-	root->setChild(1, cityGroup);
+	optixScene.root = context->createGroup();
+	optixScene.root->setChildCount(2);
+	optixScene.root->setChild(0, optixScene.buildingWindowGroup);
+	optixScene.root->setChild(1, cityGroup);
 	{
+		//optix::Acceleration acceleration = context->createAcceleration("NoAccel", "NoAccel");
 		optix::Acceleration acceleration = context->createAcceleration("Sbvh", "Bvh");
-		root->setAcceleration(acceleration);
+		optixScene.root->setAcceleration(acceleration);
 		acceleration->markDirty(); 
+		optixScene.accelerations.push_back(acceleration);
 	}
-	context["root"]->set(root); //ver si esto esta bien
+	context["root"]->set(optixScene.root); //ver si esto esta bien
 
 }
 
 void SceneBuilder::loadMeshesForOptimization(const aiScene* scene,
 	Context &context, const vector<Material> &materials, vector<GeometryInstance> &city, 
-	vector<GeometryInstance> &building, vector<GeometryInstance> &window, int &idxLight) {
+	vector<GeometryInstance> &building, vector<GeometryInstance> &window, int &idxLight, Geometry& blind, 
+	GeometryInstance& blindGI) {
 
 	const char* path = "./Mesh.ptx";
 	Program bboxProg = context->createProgramFromPTXFile(path, "boundingBox");
 	Program intersecProg = context->createProgramFromPTXFile(path, "intersect");
+
+	const int MAX_NUM_BLIND_FACES = 1000;
+	const int MAX_NUM_BLIND_VERTICES = 1000;
+	blind = context->createGeometry();
+	blind->setPrimitiveCount(MAX_NUM_BLIND_FACES);
+	blind->setIntersectionProgram(intersecProg);
+	blind->setBoundingBoxProgram(bboxProg);
+	Buffer vertexBuffer = context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_FLOAT3, MAX_NUM_BLIND_VERTICES);
+	optix::Buffer indexBuffer = context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_INT3, MAX_NUM_BLIND_FACES);
+	blind["indexBuffer"]->setBuffer(indexBuffer);
+	blind["vertexBuffer"]->setBuffer(vertexBuffer);
+	blindGI = GetGeometryInstance(context, blind, materials[materials.size()-1]);
+
 
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
 
@@ -212,20 +241,24 @@ void SceneBuilder::loadMeshesForOptimization(const aiScene* scene,
 		geometry["vertexBuffer"]->setBuffer(vertexBuffer);
 		geometry["normalBuffer"]->setBuffer(normalBuffer);
 
+		//high_resolution_clock::time_point t1 = high_resolution_clock::now();
+	
+
 		memcpy(static_cast<void*>(vertexBuffer_Host),
 			static_cast<void*>(mesh->mVertices),
 			sizeof(optix::float3)*numVertices);
 		vertexBuffer->unmap();
 
-		/*for (int i = 1; i < numVertices; i++) {
+	/*	for (int i = 1; i < numVertices; i++) {
 		float x = mesh->mNormals[i].x;
 		float y = mesh->mNormals[i].y;
 		float z = mesh->mNormals[i].z;
-		x = mesh->mVertices[i].x;
-		y = mesh->mVertices[i].y;
-		z = mesh->mVertices[i].z;
-		}*/
-
+		float x2 = mesh->mVertices[i].x;
+		float y2 = mesh->mVertices[i].y;
+		float z2 = mesh->mVertices[i].z;
+		cout << x << " " << y << " " << z << "      " << x2 << " " << y2 << " " << z2 << endl;
+		}
+		*/
 		memcpy(static_cast<void*>(normalBuffer_Host),
 			static_cast<void*>(mesh->mNormals),
 			sizeof(optix::float3)*numVertices);
@@ -248,6 +281,9 @@ void SceneBuilder::loadMeshesForOptimization(const aiScene* scene,
 		}
 
 		indexBuffer->unmap();
+	/*	high_resolution_clock::time_point t2 = high_resolution_clock::now();
+		std::chrono::duration<double> elapsed = t2 - t1;
+		cout << elapsed.count() << "     " << mesh->mNumFaces <<"\n";*/
 
 	}
 
@@ -261,7 +297,7 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	RNGBuffer->setSize(optixScene.width);
 	RNG* rng = (RNG*)RNGBuffer->map();
 	for (unsigned int i = 0; i < optixScene.width; i++) {
-		rng[i] = RNG(0u, i + 123456);
+		rng[i] = RNG(0u, i);
 	}
 	RNGBuffer->unmap();
 	context["rngs"]->setBuffer(RNGBuffer);
@@ -269,7 +305,7 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	const char* path = "./Environmental.ptx";
 	Program program = context->createProgramFromPTXFile(path, "sensor");
 	context->setRayGenerationProgram(0, program);
-	context->setExceptionEnabled(RT_EXCEPTION_ALL, 1);
+	context->setExceptionEnabled(RT_EXCEPTION_ALL, 0);
 	Program exception = context->createProgramFromPTXFile(path, "exception");
 	context->setExceptionProgram(0, exception);
 
@@ -298,7 +334,6 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	optixScene.env = environmentMap;
 
 
-	/*
 	path = "./PointSensorBeckers.ptx";
 	program = context->createProgramFromPTXFile(path, "sensor");
 	context->setRayGenerationProgram(1, program);
@@ -315,8 +350,9 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	context["coeff"]->set(coeff);
 	optixScene.coeff = coeff;
 
-	*/
-
+	
+	/*
+	
     path = "./PointSensor.ptx";
 	program = context->createProgramFromPTXFile(path, "sensor");
 	context->setRayGenerationProgram(1, program);
@@ -329,7 +365,7 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 		values[i] = 0.0f;
 	}
 	coeff->unmap();
-	context["coeff"]->set(coeff);
+	context["coeff"]->set(coeff);*/
 
 	
 }

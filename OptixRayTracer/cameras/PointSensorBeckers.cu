@@ -9,6 +9,8 @@
 #include "core/ONB.h"
 #include "core/math.h"
 #include "samplers/Random2D.h"
+#include "skyes/Beckers288.h"
+#include "lights/EnvironmentLight.h"
 #include <optix_device.h>
 
 rtBuffer<RNG> rngs;
@@ -23,8 +25,9 @@ rtDeclareVariable(float3, point, , );
 rtDeclareVariable(float3, sensorPos, , );
 rtDeclareVariable(rtObject, buildingWindows, , );
 rtDeclareVariable(unsigned int, NskyPatches, , );
+rtDeclareVariable(EnvironmentLight, light, , );
 
-
+/*
 RT_PROGRAM void sensor(void) {
 
 
@@ -56,8 +59,8 @@ RT_PROGRAM void sensor(void) {
 		rtTrace(buildingWindows, ray, pl);
 
 		if (fmaxf(pl.value) > 0.0) {
-			//float3 value = pl.value * M_PIf / Ntot;
-			float3 value = pl.value;
+			float3 value = pl.value * M_PIf / Ntot;
+			//float3 value = pl.value;
 			//rtPrintf("%d %f %f\n", pl.patchID, (float)value.x, (float)value.x);
 			atomicAdd(&coeff[pl.dirID].x, (float)value.x);
 			atomicAdd(&coeff[pl.dirID].y, (float)value.y);
@@ -67,19 +70,50 @@ RT_PROGRAM void sensor(void) {
 
 
 	}
-	/*for (int i = 0; i < NskyPatches; i++) {
-	coeff[i].x /= ns[i];
-	coeff[i].y /= ns[i];
-	coeff[i].z /= ns[i];
-	coeff[i] = coeff[i] * M_PI;
-	//rtPrintf("%d %f\n", ns[i], coeff[i].x);
-	}*/
+
+	rngs[pixelIdx] = pl.rng;
+
+}*/
+
+
+
+RT_PROGRAM void sensor(void) {
+
+	
+	BeckersPayload pl;
+	pl.rng = rngs[pixelIdx];
+
+	Random2D sampler(&pl.rng, nSamples);
+	float2 unifSample; //= u[pixelIdx];
+	while (sampler.Next2D(&unifSample)) {
+
+		
+		pl.value = (M_PIf / Ntot) * make_float3(1.0f);
+		pl.depth = 0;
+
+		ONB onb(sensorNormal);
+		float3 dir = CosineHemisphereSample(unifSample.x, unifSample.y);
+		float3 dirW = onb.LocalToWorld(dir);
+
+		Ray ray = make_Ray(sensorPos, dirW, RayTypeOpt::BECKERS_RADIANCE, 0, RT_DEFAULT_MAX);
+		rtTrace(buildingWindows, ray, pl);
+
+	
+	
+	}
+
 	rngs[pixelIdx] = pl.rng;
 
 }
 
+RT_PROGRAM void exception() {
+
+	rtPrintExceptionDetails();
+
+}
+
 /*
-RT_PROGRAM void sensor2(void) {
+RT_PROGRAM void sensor(void) {
 
 
 	BeckersPayload pl;
@@ -90,29 +124,34 @@ RT_PROGRAM void sensor2(void) {
 
 	while (sampler.Next2D(&unifSample)) {
 
+
 	
-		pl.value = (M_PIf / Ntot) * make_float3(1.0f);
 		pl.depth = 0;
 
-		ONB onb(sensorNormal);
-		float3 dir = CosineHemisphereSample(unifSample.x, unifSample.y);
-		float3 dirW = onb.LocalToWorld(dir);
+		float3 wiW, L;
+		float pdf, tMax;
 
-		Ray ray = make_Ray(sensorPos, dirW, RayType::BECKERS_RADIANCE, 0, RT_DEFAULT_MAX);
-		rtTrace(buildingWindows, ray, pl);
-
-	
+		Random2D sampler(&pl.rng, 1);
+		float2 uniformSample;
+		sampler.Next2D(&uniformSample);
+		L = light.Sample(sensorPos, uniformSample, wiW, pdf, tMax);
+		ShadowPayload shadowPayload;
+		shadowPayload.attenuation = 1.0f;
+		Ray shadowRay = make_Ray(sensorPos, wiW, RayTypeOpt::BECKERS_SHADOW, 0.0, tMax-0.1);
+		rtTrace(buildingWindows, shadowRay, shadowPayload);
+		if (shadowPayload.attenuation > 0.0f) {
+			ONB o(-light.parallelogram.NormalAt(make_float3(1.0f)));
+			float3 v = o.WorldToLocal(wiW);
+			int dirID = beckers(o.WorldToLocal(wiW));
+			float cos = dot(wiW, sensorNormal) > 0 ? dot(wiW, sensorNormal) : 0.0f;
+			float value = cos/ pdf;
+			value = value / Ntot;
+			atomicAdd(&coeff[dirID].x, (float)value);
+			atomicAdd(&coeff[dirID].y, (float)value);
+			atomicAdd(&coeff[dirID].z, (float)value);
+		}
 
 	}
-
 	rngs[pixelIdx] = pl.rng;
 
-}
-*/
-
-
-RT_PROGRAM void exception() {
-
-	rtPrintExceptionDetails();
-
-}
+}*/

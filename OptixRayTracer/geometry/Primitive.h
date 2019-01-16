@@ -10,7 +10,7 @@ class Primitive : public GeometricObject {
 public:
 
 	Primitive();
-	bool IsPrimitive();
+	virtual bool IsPrimitive() const;
 	virtual const Mesh3D* Triangulate() = 0;
 	virtual ~Primitive();
 
@@ -23,7 +23,7 @@ Primitive::Primitive()
 }
 
 
-bool Primitive::IsPrimitive() {
+bool Primitive::IsPrimitive() const {
 
 	return true;
 }

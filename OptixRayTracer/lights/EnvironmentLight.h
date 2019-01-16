@@ -79,7 +79,7 @@ public:
 		float3 &wo, float &pdf, float  &tMax);
 
 
-private:
+//private:
 
 	Parallelogram parallelogram;
 

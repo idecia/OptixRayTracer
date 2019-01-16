@@ -52,6 +52,8 @@ RT_PROGRAM void sensor(void) {
 			atomicAdd(&env[index].y, (float)value.y);
 			atomicAdd(&env[index].z, (float)value.z); // falta multiplicar por 2pi/N
 		}
+		
+
 
 
 	}
@@ -62,10 +64,10 @@ RT_PROGRAM void sensor(void) {
 			uint2 index;
 			index.x = i;
 			index.y = j;
-			float3 v = env[index];
-			rtPrintf("%f    ", v.x);
+			env[index] = make_float3(j);
+			//rtPrintf("%f    ", v.x);
 		}
-		rtPrintf("\n");
+		//rtPrintf("\n");
 	}*/
 
 }

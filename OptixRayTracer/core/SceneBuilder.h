@@ -59,8 +59,8 @@ private:
 		Context &context, const vector<aiMesh*> geometryMeshes, 
 		const vector<Material> &materialsmaterials);
 
-	static void SceneBuilder::loadGeometryForOptimization(const aiScene* scene,
-		Context &context, const vector<Material> &materials, int& idxLight);
+	static void loadGeometryForOptimization(const aiScene* scene,
+		Context &context, const vector<Material> &materials, int& idxLight, Scene &optixScene);
 
 	static void loadLightsForOptimization(const aiScene* scene,
 		Context &context, int idxLight, Scene &optixScene);
@@ -75,7 +75,7 @@ private:
 	static Group GetGroupFromNode(optix::Context &context, const aiScene* scene,
 		aiNode* node, const vector<Geometry> &geometries, const vector<Material> &materials);
 
-	static Group GetGroup(optix::Context &context, const vector<GeometryInstance> &instances);
+	static GeometryGroup GetGroup(optix::Context &context, const vector<GeometryInstance> &instances, Scene &optixScene, string accelType);
 
 	static void loadCamera(const aiScene* scene, Context &context, int width, int height);
 
@@ -87,10 +87,8 @@ private:
 
 	static void loadMeshesForOptimization(const aiScene* scene,
 		Context &context, const vector<Material> &materials, vector<GeometryInstance> &city,
-		vector<GeometryInstance> &building, vector<GeometryInstance> &window, int &idxLight);
-
-	static void loadGeometryForOptimization(const aiScene* scene,
-		Context &context, const vector<Material> &materials);
+		vector<GeometryInstance> &building, vector<GeometryInstance> &window, int &idxLight, Geometry& blind,
+		GeometryInstance& blindGI);
 
 	static void loadSensorsForOptimization(Context &context, Scene &optixScene);
 

@@ -28,7 +28,7 @@ public:
 
 };
 
-Polygon2D::Polygon2D() { }
+Polygon2D::Polygon2D() {   }
 
 Polygon2D::Polygon2D(const vector<float2> &vertices) {
 	//TODO: Double Linked List instead of vector data structure?

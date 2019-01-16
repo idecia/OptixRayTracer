@@ -9,7 +9,7 @@
 #include "core/math.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 30
+#define MAX_DEPTH 5
 
 
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );

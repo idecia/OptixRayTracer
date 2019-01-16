@@ -7,7 +7,7 @@
 #include "core/ONB.h"
 #include <optix_device.h>
 
-#define MAX_DEPTH 4
+#define MAX_DEPTH 5
 
 rtDeclareVariable(uint2, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(HitRecord, hit, attribute hit, );
@@ -44,7 +44,7 @@ RT_PROGRAM void closestHit() {
 	  CALL_LIGHT_VIRTUAL_FUNCTION(L, = , light, Sample, hit.position, uniformSample, wiW, pdf, tMax);
       ShadowPayload shadowPayload;
       shadowPayload.attenuation = 1.0f;
-      Ray shadowRay = make_Ray(hit.position, wiW, RayType::SHADOW, 0.01, tMax);
+      Ray shadowRay = make_Ray(hit.position, wiW, RayType::SHADOW, 0.01, tMax-0.01);
       rtTrace(root, shadowRay, shadowPayload);
       if (shadowPayload.attenuation > 0.0f) {
 		 float3 wi   = onb.WorldToLocal(wiW);

@@ -121,6 +121,7 @@ copy "$(ASSIMP_PATH)\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"</Command>
       <Include>
       </Include>
       <UseHostInclude>true</UseHostInclude>
+      <CodeGeneration>compute_60,sm_60</CodeGeneration>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

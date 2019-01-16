@@ -25,11 +25,13 @@
 #include "geometry\Mesh3D.h"
 #include "geometry\Face.h"
 #include "exporters/obj.h"
+#include "blinds/RectangularBlind.h"
 #include <iostream>
 #include <stdio.h>
 #include <vector>
+#include <chrono>
 using namespace std;
-
+using namespace std::chrono;
 
 Scene scene;
 
@@ -399,10 +401,17 @@ void optimize(int argc, char* argv[]) {
 			cout << "\n";
 		}
 		coeff->unmap();*/
-		scene.sensorPos = make_float3(0.0, 0.0, 1000);
+		/*scene.sensorPos = make_float3(0.83, -3.58, 0.7);
+		//scene.sensorPos = make_float3(0.0, 0.0, 1000);
 		scene.sensorNormal = make_float3(0.0f, 0.0f, 1.0f);
+		//scene.context->launch(1, 1);
+		high_resolution_clock::time_point t1 = high_resolution_clock::now();
 		scene.ComputeDCSensors();
+		high_resolution_clock::time_point t2 = high_resolution_clock::now();
 		Buffer coeff = scene.GetSensorValues();
+	
+		std::chrono::duration<double> elapsed = t2 - t1;
+		cout << elapsed.count() << "\n";
 		float3* values = (float3*)coeff->map();
 		RTsize RTwidth; RTsize RTheight;
 		coeff->getSize(RTwidth, RTheight);
@@ -410,14 +419,15 @@ void optimize(int argc, char* argv[]) {
 		int height = static_cast<int>(RTheight);
 		for (int i = 0; i < width; i++)  {
 			for (int j = 0; j < height; j++) {
-				float3 v = values[j*width + i];
-				cout << "   " << v.x;
+			float3 v = values[j*width + i];
+cout << "   " << v.x;
 			}
 			cout << "\n";
 		}
-		coeff->unmap(); 
-	
+		coeff->unmap(); */
+		scene.Optimize();
 	}
+	
 	catch (optix::Exception e) {
 		std::cout << e.getErrorString();
 	}
@@ -504,9 +514,20 @@ int main(int argc, char* argv[]) {
 	ExportModel(".", m3D);*/
 
 
-	
- 
-  
+	/*
+	high_resolution_clock::time_point t1 = high_resolution_clock::now();
+	Mesh3D* mesh = NULL;
+	for (int i = 0; i < 1; i++) {
+		float w = 0.15, h = 0.01, l = 2, a = 0.7, p = 0;
+		int n = 10;
+		RectangularBlind Blind(w, h, l, a, p, n);
+		mesh = Blind.GetMesh();
+		//delete mesh;
+	}
+	high_resolution_clock::time_point t2 = high_resolution_clock::now();
+	std::chrono::duration<double> elapsed = t2 - t1;
+	cout << elapsed.count() << "\n";
+	ExportModel("model.obj", mesh);*/
 	
 
 	try {

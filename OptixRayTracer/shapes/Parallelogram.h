@@ -76,9 +76,12 @@ RT_FUNCTION float4 Parallelogram::GetPlane() const {
 
 RT_FUNCTION float3 Parallelogram::Sample(const float2 &sample) {
 
-   float3 side1 = p1 - p0;
-   float3 side2 = p2 - p0;
-   return p0 + side1 * sample.x + side2 * sample.y;
+ //  float3 side1 = p1 - p0;
+   //float3 side2 = p2 - p0;
+   //return p0 + side1 * sample.x + side2 * sample.y;
+	float3 side1 = p0 - p1;
+	float3 side2 = p2 - p1;
+	return p1 + side1 * sample.x + side2 * sample.y;
 
 }
 
@@ -96,8 +99,8 @@ RT_FUNCTION_HOST Geometry Parallelogram::GetOptixGeometry(Context context) {
 
 RT_FUNCTION float  Parallelogram::GetArea() const {
 
-   float3 side1 = p1 - p0;
-   float3 side2 = p2 - p0;
+	float3 side1 = p0 - p1;
+	float3 side2 = p2 - p1;
    return length(cross(side1, side2));
 
 }

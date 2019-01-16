@@ -15,6 +15,7 @@ rtBuffer<RNG> rngs;
 //rtBuffer<float2> u;
 rtBuffer<float3> coeff;
 //rtBuffer<double3> coeff;
+rtDeclareVariable(double, out, , );
 rtDeclareVariable(int, Ntot, ,);
 rtDeclareVariable(int, nSamples, , );
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
@@ -33,6 +34,7 @@ RT_PROGRAM void sensor(void) {
 
 	Random2D sampler(&pl.rng, nSamples);
 	float2 unifSample; //= u[pixelIdx];
+
 
 	while (sampler.Next2D(&unifSample)) {
 
@@ -56,24 +58,21 @@ RT_PROGRAM void sensor(void) {
 		rtTrace(root, ray, pl);
 		
 		if (fmaxf(pl.value) > 0.0) {
-			//float3 value = pl.value * M_PIf/Ntot;
-			float3 value = pl.value/Ntot;
+			float3 value = pl.value * M_PIf/Ntot;
+			//float3 value = pl.value/Ntot;
 			//rtPrintf("%d %f %f\n", pl.patchID, (float)value.x, (float)value.x);
+		
 			atomicAdd(&coeff[pl.patchID].x, (float)value.x);
 			atomicAdd(&coeff[pl.patchID].y, (float)value.y);
 			atomicAdd(&coeff[pl.patchID].z, (float)value.z);
+			//atomicAdd(&coeff[pl.patchID].z, (float)out);
+		
 			//ns[pl.patchID]++;
 		}
 		
 		
 	}
-	/*for (int i = 0; i < NskyPatches; i++) {
-		coeff[i].x /= ns[i];
-		coeff[i].y /= ns[i];
-		coeff[i].z /= ns[i];
-		coeff[i] = coeff[i] * M_PI;
-		//rtPrintf("%d %f\n", ns[i], coeff[i].x);
-	}*/
+
 	rngs[pixelIdx] = pl.rng;
 
 }
@@ -84,3 +83,5 @@ RT_PROGRAM void exception() {
 	rtPrintExceptionDetails();
 
 }
+
+

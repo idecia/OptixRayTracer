@@ -23,10 +23,10 @@ public:
 
 };
 
-Face::Face() { }
+Face::Face() { indices.reserve(3); }
 
 Face::Face(int a, int b, int c) {
-
+	indices.reserve(3);
 	indices.push_back(a);
 	indices.push_back(b);
 	indices.push_back(c);
