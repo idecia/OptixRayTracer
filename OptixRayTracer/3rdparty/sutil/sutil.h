@@ -65,24 +65,8 @@ struct APIError
     int          line;
 };
 
-// Display error message
-void  reportErrorMessage(
-        const char* message);               // Error mssg to be displayed
 
-// Queries provided RTcontext for last error message, displays it, then exits.
-void  handleError(
-        RTcontext context,                  // Context associated with the error
-        RTresult code,                      // Code returned by OptiX API call
-        const char* file,                   // Filename for error reporting
-        int line);                          // File lineno for error reporting
 
-// Query top level samples directory.
-// The pointer returned may point to a static array.
- const char* samplesDir();
-
-// Query directory containing PTX files for compiled sample CUDA files.
-// The pointer returned may point to a static array.
- const char* samplesPTXDir();
 
 // Create an output buffer with given specifications
 optix::Buffer  createOutputBuffer(

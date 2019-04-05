@@ -14,9 +14,9 @@
 #include "shapes/Triangle.h"
 #include "shapes/MatteTriangle.h"
 #include "shapes/MatteParallelogram.h"
-#include "3rdparty/sutil/sutil.h"
-#include "3rdparty/sutil/GL/glew.h"
-#include "3rdparty/freeglut/include/GL/freeglut.h"
+//#include "3rdparty/sutil/sutil.h"
+//#include "3rdparty/sutil/GL/glew.h"
+//#include "3rdparty/freeglut/include/GL/freeglut.h"
 #include "core/Scene.h"
 #include "core/SceneBuilder.h"
 #include "skyes/Beckers288.h"
@@ -301,27 +301,27 @@ void CreateRNGS(Context context, int width, int height) {
 }
 
 void glutInitialize(int* argc, char** argv,int width, int height)
-{
+{/*
    glutInit(argc, argv);
    glutInitDisplayMode(GLUT_RGB | GLUT_ALPHA | GLUT_DEPTH | GLUT_DOUBLE);
    glutInitWindowSize(width, height);
    glutInitWindowPosition(100, 100);
    glutCreateWindow("OptixRayTracer");
-   glutHideWindow();
+   glutHideWindow();*/
 }
 
 void glutDisplay()
 {
-
+	/*
    sutil::displayBufferGL(scene.GetOutputImage());
 
 
-   glutSwapBuffers();
+   glutSwapBuffers();*/
 }
 
 
 void glutRun()
-{
+{/*
    // Initialize GL state                                                            
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
@@ -341,17 +341,17 @@ void glutRun()
    // register glut callbacks
    glutDisplayFunc(glutDisplay);
 
-   glutMainLoop();
+   glutMainLoop();*/
 }
 
 void render(int argc, char* argv[]) {
-
+	/*
 	try {
 		//glutInitialize(&argc, argv,width,height);
 		sutil::initGlut(&argc, argv);
 
 
-		/* context = CreateContext();
+		context = CreateContext();
 		Pinhole camera = CreateCamera(context);
 		film = CreateFilm(context,width, height);
 		CreateLights(context);
@@ -360,7 +360,7 @@ void render(int argc, char* argv[]) {
 
 		context->setPrintEnabled(true);
 		context->validate();
-		context->launch(0, width, height);*/
+		context->launch(0, width, height);
 
 
 		string filename = "./cornell.dae";
@@ -376,7 +376,7 @@ void render(int argc, char* argv[]) {
 	}
 	catch (optix::Exception e) {
 		std::cout << e.getErrorString();
-	}
+	}*/
 
 }
 
@@ -434,12 +434,35 @@ cout << "   " << v.x;
 
 }
 
+void BruteForceDC(int argc, char* argv[]) {
+
+	try {
+
+		string filename = "./LIGHTWELL2.obj";
+		scene = SceneBuilder::BuildFromFile(filename);
+		scene.ComputeDCBruteForce();
+	}
+
+	catch (optix::Exception e) {
+		std::cout << e.getErrorString();
+	}
+
+}
+
+
 
 
 int main(int argc, char* argv[]) {
 
-
+	//float p = 0.2f, a = 0.785f, w = 0.15f,
+//		h = 0.01f, l = 2.0f;  int n = 10;
+	 // p = (1.5f - n*w) / (n - 1);
+//	RectangularBlind Blind(w, h, l, a, p, n); //ver esto
+	//RectangularBlind Blind(0.11, h, l, 0.45, p, n); //ver esto
+//	ExportModel("blindAngleOnlyA.obj", Blind.GetMesh());
+	//Mesh3D* mesh = Blind.GetMesh();
 	optimize(argc, argv);
+	//BruteForceDC(argc, argv);
 	/*
 	Polygon2D* p = new Polygon2D();
 	p->AddVertex(make_float2(0.0f, 0.0f));

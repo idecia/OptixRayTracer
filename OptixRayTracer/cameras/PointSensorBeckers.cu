@@ -96,6 +96,7 @@ RT_PROGRAM void sensor(void) {
 		float3 dirW = onb.LocalToWorld(dir);
 
 		Ray ray = make_Ray(sensorPos, dirW, RayTypeOpt::BECKERS_RADIANCE, 0, RT_DEFAULT_MAX);
+		//rtPrintf("%f %f %f %f %f %f\n", sensorPos.x, sensorPos.y, sensorPos.z, dirW.x, dirW.y, dirW.z);
 		rtTrace(buildingWindows, ray, pl);
 
 	

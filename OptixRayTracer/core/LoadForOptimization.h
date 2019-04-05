@@ -9,7 +9,7 @@ Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 	context->setStackSize(2800);
 
 	Scene optixScene(context);
-	int width = 100000;
+	int width = 20000;
 	int nSamples = 10;
 
 	optixScene.nSamples = nSamples;
@@ -297,7 +297,10 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	RNGBuffer->setSize(optixScene.width);
 	RNG* rng = (RNG*)RNGBuffer->map();
 	for (unsigned int i = 0; i < optixScene.width; i++) {
-		rng[i] = RNG(0u, i);
+		//rng[i] = RNG(0u, i + 357);
+		//rng[i] = RNG(0u, i + 357);
+		//rng[i] = RNG(0u, i + 537);
+		rng[i] = RNG(0u, i + 537);
 	}
 	RNGBuffer->unmap();
 	context["rngs"]->setBuffer(RNGBuffer);
@@ -351,21 +354,6 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	optixScene.coeff = coeff;
 
 	
-	/*
 	
-    path = "./PointSensor.ptx";
-	program = context->createProgramFromPTXFile(path, "sensor");
-	context->setRayGenerationProgram(1, program);
-	
-	optix::Buffer coeff = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
-	coeff->setFormat(RT_FORMAT_FLOAT3);
-	coeff->setSize(NskyPatches);
-    values = (float*)coeff->map();
-	for (unsigned int i = 0; i < NskyPatches * 3; i++) {
-		values[i] = 0.0f;
-	}
-	coeff->unmap();
-	context["coeff"]->set(coeff);*/
 
-	
 }

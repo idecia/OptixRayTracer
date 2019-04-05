@@ -78,6 +78,7 @@ RT_PROGRAM void closestHit() {
 	ONB onbWindow(-hit.normal);
 	float3 woW = -ray.direction;
 	float3 wo = onb.WorldToLocal(woW);
+	
 
 	if ((beckersPayload.depth == 0) && (Le.x > 0)) {
 	//	rtPrintf("%HIT LIGHT %f %f %f\n", hit.position.x, hit.position.y, hit.position.z);
@@ -107,7 +108,7 @@ RT_PROGRAM void closestHit() {
 		Ray shadowRay = make_Ray(hit.position, wiW, RayTypeOpt::BECKERS_SHADOW, 0.0, tMax-0.01);
 		rtTrace(buildingWindows, shadowRay, shadowPayload);
 		if (shadowPayload.attenuation > 0.0f) {
-		//	rtPrintf("%DIRECT LIGHT %f %f %f %f %f\n", L.x, pdf, wiW.x, wiW.y, wiW.z);
+			//rtPrintf("%DIRECT LIGHT %f %f %f %f %f\n", L.x, pdf, wiW.x, wiW.y, wiW.z);
 			float3 wi = onb.WorldToLocal(wiW);
 			float3 BRDF = brdf.Eval(wo, wi);
 			

@@ -111,6 +111,7 @@ void RectangularBlind::SetNumSlats(int n) {
  Mesh3D*  RectangularBlind::GetMesh() {
 
 
+
 	//float w = 0.01,h = 0.2 ,l = 3;
 	Polygon2D poly;
 	poly.AddVertex(make_float2(0.0f, 0.0f));
@@ -125,11 +126,13 @@ void RectangularBlind::SetNumSlats(int n) {
 	GeometricObject* blind = new Compound();
 	vector<Instance*> instances;
 	for (int i = 0; i < nSlats; i++) {
-		Instance* inst = new Instance(slat);
-		inst->Translate(make_float3(1.0f, -0.25f, 1.0f));
-		inst->Translate(make_float3(0.0f, 0.0f, i*(width + pad)));  
-		blind->AddChild(inst);
-		instances.push_back(inst);
+	//	if (i*(width + pad) <= (1.5 - width)) {
+			Instance* inst = new Instance(slat);
+			inst->Translate(make_float3(1.0f, -0.25f, 1.0f));
+			inst->Translate(make_float3(0.0f, 0.0f, i*(width + pad)));
+			blind->AddChild(inst);
+			instances.push_back(inst);
+		//}
 	}
 
 	Mesh3D* mesh =  GetWorldMesh(blind);

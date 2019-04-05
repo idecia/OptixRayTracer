@@ -46,7 +46,9 @@ RT_PROGRAM void sensor(void) {
 			//if (index.x == 242) {
 				//rtPrintf("- %f %f %f %f %d %d\n", dir.x, dir.y, dir.z, env[index].x, beckers(dir), index.y);
 			//}
-			float3 value = 2*M_PIf*pl.value/Ntot;
+			//ncell = 288; AREGLAR ESTO QUE ESTA HARCODEADO!
+			//float3 value = (288/2*M_PIf) * 2*M_PIf*pl.value/Ntot;
+			float3 value = (288 * pl.value) / Ntot;
 			//float3 value =pl.value ;
 			atomicAdd(&env[index].x, (float)value.x);
 			atomicAdd(&env[index].y, (float)value.y);

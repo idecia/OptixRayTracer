@@ -92,11 +92,25 @@ private:
 
 	static void loadSensorsForOptimization(Context &context, Scene &optixScene);
 
+	static Scene LoadForDC(Context context, const aiScene* scene);
+
+	static void loadMaterialsForDC(const aiScene* scene,
+		Context &context, vector<Material> &materials);
+
+
+	static void loadGeometryForDC(const aiScene* scene,
+		Context &context, const vector<aiMesh*> geometryMeshes,
+		const vector<Material> &materials);
+
+	static void loadSensorsForDC(Context &context, Scene &optixScene);
+
+
 };
 
 
 #include "LoadForRender.h"
 #include "LoadForOptimization.h"
+#include "LoadForDC.h"
 
 
 
@@ -134,7 +148,7 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 		return LoadForRender(context, scene);
 	}
 	else if (algorithm == DAYLIGHT) {
-		//return LoadForDaylight(context, scene);
+		return LoadForDC(context, scene);
 	}
 	else if (algorithm == ENVIRONMENT) {
 		//return LoadForEnvironment(context, scene);
