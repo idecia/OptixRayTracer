@@ -11,7 +11,7 @@
 #include <curand_kernel.h>
 
 
-#define MAX_DEPTH 5
+#define MAX_DEPTH 15
 
 
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );

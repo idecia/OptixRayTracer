@@ -123,7 +123,7 @@ RT_FUNCTION  Scene::Scene(Context context)
 	rng.seed(42u, 54u);
 
 
-	cout << UDI[0] << "    " << UDI[1] << endl;
+	
 	int z = 0;
 	for (int k = 0; k <= (nsteps - 1) + (ndeltas - 1); k++) {
 		for (int j = k; j >= 0; j--) {
@@ -211,30 +211,27 @@ RT_FUNCTION void Scene::ComputeDCBruteForce() {
 	context->launch(0, 0);
 	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
-	//for (int i = 0; i < 6; i++)
-		//for (int j = 0; j < 12; j++)  {
-			//float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 0.7); 
-			//float3 p = make_float3(1.0f - i*1.0, -1.25f - j*2.0f, 0.7f);
-
-			float3 p[3] = { make_float3(0.0, -0.5, 0.7), make_float3(0.0, -3.25, 0.7), make_float3(0.0, -6.0, 0.7) };
-			for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 6; i++) {
+		for (int j = 0; j < 12; j++)  {
+			    float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 27.7); 
+			   // float3 p = make_float3(1.0f - i*1.0, -1.25f - j*2.0f, 0.7f);
 				ResetSensorValues();
-				context["sensorPos"]->setFloat(p[i]);
+				context["sensorPos"]->setFloat(p);
 				context["sensorNormal"]->setFloat(make_float3(0.0f, 0.0f, 1.0f));
 				context->launch(0, width);
-				Buffer coeff = GetSensorValues();
-				float3* values = (float3*)coeff->map();
-				RTsize RTwidth; RTsize RTheight;
-				coeff->getSize(RTwidth, RTheight);
-				int width = static_cast<int>(RTwidth);
-				for (int j = 0; j < width; j++) {
-					float3 v = values[j];
-					cout << v.x << "   ";
-				}
-				cout << endl;
-				coeff->unmap();
+				//Buffer coeff = GetSensorValues();
+				//float3* values = (float3*)coeff->map();
+				//RTsize RTwidth; RTsize RTheight;
+				//coeff->getSize(RTwidth, RTheight);
+				//int width = static_cast<int>(RTwidth);
+				//for (int j = 0; j < width; j++) {
+				//	float3 v = values[j];
+				//	cout << v.x << "   ";
+				//}
+				//cout << endl;
+				//coeff->unmap();
 			}
-		//}
+		}
 			high_resolution_clock::time_point t2 = high_resolution_clock::now();
 			std::chrono::duration<double> elapsed = t2 - t1;
 			cout << elapsed.count() << "\n";
@@ -265,18 +262,18 @@ RT_FUNCTION void Scene::ComputeDCSensor(int i,  float3 position, float3 normal) 
 
 RT_FUNCTION void Scene::ComputeSensorPositionsAndNormals() {
 
-	/*for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 6; i++)
 		for (int j = 0; j < 12; j++) {
-			float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 0.7);
+			float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 27.7);
 			sensorPositions.push_back(p);
 			sensorNormals.push_back(make_float3(0.0f, 0.0f, 1.0f));
-		}*/
-	for (int i = 0; i < 3; i++)
+		}
+	/*for (int i = 0; i < 3; i++)
 		for (int j = 0; j < 3; j++) {
 			float3 p = make_float3(1.0f -i*1.0, -1.25f -j*2.0f, 0.7f);
 			sensorPositions.push_back(p);
 			sensorNormals.push_back(make_float3(0.0f, 0.0f, 1.0f));
-		}
+		}*/
 
 }
 
@@ -391,34 +388,29 @@ RT_FUNCTION void Scene::UpdateSolution(float x[], float xnew[]) {
 
 RT_FUNCTION void Scene::EvaluateSensors(float x[]) {
 
-	/*float  h = 0.01f, l = 2.0f, a = 0.0f;  int n = 10;
-	//float p = (1.5f - n*x[1]) / (n - 1);
-	float p = 0.0f;
-	//RectangularBlind Blind(x[1], h, l, x[0], p, n); //ver esto
-	RectangularBlind Blind(0.15, h, l, x[0], 0.0f, n); //ver esto
-	Mesh3D* mesh = Blind.GetMesh();
-	LoadBlindToOptix(mesh);
-	delete mesh;
-	for (int i = 0; i < sensorPositions.size(); i++) {
-		ComputeDCSensor(i, sensorPositions[i], sensorNormals[i]);
-	}
-	//optix::Matrix<Nsensors, NskyPatches-1> DC = SENS*ENV;
-	DC = SENS*ENV;
-	E = DC*SKYES;*/
-
 	float  h = 0.01f, l = 2.0f, a = 0.0f;  int n = 10;
 	float p = (1.5f - n*x[1]) / (n - 1);
-	RectangularBlind Blind(x[1], h, l, x[0], 0, n); //ver esto
+	//RectangularBlind Blind(x[1], h, l, x[0], 0, n); //ver esto
 	//RectangularBlind Blind(x[1], x[2], l, x[0], x[3], n); //ver esto
-	Mesh3D* mesh = Blind.GetMesh();
-	LoadBlindToOptix(mesh);
-	delete mesh;
+	//Mesh3D* mesh = Blind.GetMesh();
+	//LoadBlindToOptix(mesh);
+	//delete mesh;
 	for (int i = 0; i < sensorPositions.size(); i++) {
 		ComputeDCSensor(i, sensorPositions[i], sensorNormals[i]);
 	}
 	//optix::Matrix<Nsensors, NskyPatches-1> DC = SENS*ENV;
 	DC = SENS*ENV;
 	E = DC*SKYES;
+
+	for (int i = 0; i < Nsensors; i++) {
+		for (int j = 0; j < NskyPatches - 1; j++) {
+			//float v = DC[i*(NskyPatches-1) + j];
+			float v = DC(i, j);
+			cout << "   " << v;
+		}
+		cout << "\n";
+	}
+	cout << "\n\n";
 
 }
 
@@ -431,11 +423,11 @@ RT_FUNCTION void Scene::Optimize() {
 	ComputeSensorPositionsAndNormals();
 
 	context->launch(0, 0);
-	high_resolution_clock::time_point t1 = high_resolution_clock::now();
+	//high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	ComputeEnv();
-	high_resolution_clock::time_point t2 = high_resolution_clock::now();
-	std::chrono::duration<double> elapsed = t2 - t1;
-	cout << elapsed.count() << "\n";
+	//high_resolution_clock::time_point t2 = high_resolution_clock::now();
+	//std::chrono::duration<double> elapsed = t2 - t1;
+	//cout << elapsed.count() << "\n";
 
 
 
@@ -455,7 +447,7 @@ RT_FUNCTION void Scene::Optimize() {
 	//float x[numOfVars] = { M_PIf / 2.0f, 0.15, 0.01, 0.0 };
 	float x[numOfVars] = { 0.668928  ,     0.10603 };
 	float fitness = 0.0f; 
-	EvaluateSensors(x);
+	EvaluateSensors(x); /*
 	fitness = ComputeFitness(x, E);
 	cout << "INI:   " << fitness << endl;
 	int numFuncEval = 0;
@@ -505,7 +497,7 @@ RT_FUNCTION void Scene::Optimize() {
 
 	//high_resolution_clock::time_point t2 = high_resolution_clock::now();
 //	std::chrono::duration<double> elapsed = t2 - t1;
-	cout << elapsed.count() << "\n";
+	cout << elapsed.count() << "\n";*/
 
 	
 

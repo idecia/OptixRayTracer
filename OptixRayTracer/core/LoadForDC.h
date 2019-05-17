@@ -9,7 +9,7 @@ Scene SceneBuilder::LoadForDC(Context context, const aiScene* scene) {
 	context->setStackSize(2800);
 
 	Scene optixScene(context);
-	int width = 1000000;
+	int width = 1000000	;
 	int nSamples = 10;
 
 	optixScene.nSamples = nSamples;
@@ -109,7 +109,7 @@ void SceneBuilder::loadSensorsForDC(Context &context, Scene &optixScene) {
 	RNGBuffer->setSize(optixScene.width);
 	RNG* rng = (RNG*)RNGBuffer->map();
 	for (unsigned int i = 0; i < optixScene.width; i++) {
-		rng[i] = RNG(0u, i);
+		rng[i] = RNG(0u, i+123456);
 	}
 	RNGBuffer->unmap();
 	context["rngs"]->setBuffer(RNGBuffer);
