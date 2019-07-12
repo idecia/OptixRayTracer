@@ -49,9 +49,9 @@ public:
 	float3 sensorPos;
 	float3 sensorNormal;
 	static const unsigned int NskyPatches = 146;
-	static const unsigned int NEnvironmentalPatches = 289;
-	static const unsigned int Nsensors = 9;
-	static const unsigned int HoursPerYear = 8640;
+	static const unsigned int NEnvironmentalPatches = 73;
+	static const unsigned int Nsensors = 72;
+	static const unsigned int HoursPerYear = 3650;
 	vector<float3> sensorPositions;
 	vector<float3> sensorNormals;
 	vector<Acceleration> accelerations;
@@ -278,18 +278,20 @@ RT_FUNCTION void Scene::ComputeSensorPositionsAndNormals() {
 }
 
 RT_FUNCTION void Scene::ComputeSkyValues() {
-
+	
 	FILE * pFile;
-	pFile = fopen("URY_Montevideo.mtx", "r");
+	pFile = fopen("SkyMontevideo8_17.txt", "r");
+	
 	float3 p;
 	for (int i = 0; i < NskyPatches; i++) {
 		for (int j = 0; j < HoursPerYear; j++) {
-			fscanf(pFile, "%f\t%f\t%f\n", &p.x, &p.y, &p.z);
+			fscanf(pFile, "%f\n", &p.x);
 			if (i != 0) //salteamos los datos del parche 0 del cielo
 				//SKYES[(i-1)*HoursPerYear + j] = p.x;
 				SKYES(i-1,j) = p.x;
 		}
 	}
+	
 	fclose(pFile);
 }
 
@@ -401,7 +403,6 @@ RT_FUNCTION void Scene::EvaluateSensors(float x[]) {
 	//optix::Matrix<Nsensors, NskyPatches-1> DC = SENS*ENV;
 	DC = SENS*ENV;
 	E = DC*SKYES;
-
 	for (int i = 0; i < Nsensors; i++) {
 		for (int j = 0; j < NskyPatches - 1; j++) {
 			//float v = DC[i*(NskyPatches-1) + j];
@@ -418,7 +419,7 @@ RT_FUNCTION void Scene::EvaluateSensors(float x[]) {
 
 
 RT_FUNCTION void Scene::Optimize() {
-
+	
 	ComputeSkyValues();
 	ComputeSensorPositionsAndNormals();
 

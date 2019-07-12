@@ -384,7 +384,7 @@ void optimize(int argc, char* argv[]) {
 
 	try {
 
-		string filename = "./City.obj";
+		string filename = "./CityOfficeAForOptimization.obj";
 		scene = SceneBuilder::BuildFromFile(filename);
 		/*scene.ComputeEnv();
 		Buffer coeff = scene.GetEnvValues();
@@ -406,7 +406,7 @@ void optimize(int argc, char* argv[]) {
 		scene.sensorNormal = make_float3(0.0f, 0.0f, 1.0f);
 		//scene.context->launch(1, 1);
 		high_resolution_clock::time_point t1 = high_resolution_clock::now();
-		scene.ComputeDCSensors();
+		scene.ComputeDCSensors();>
 		high_resolution_clock::time_point t2 = high_resolution_clock::now();
 		Buffer coeff = scene.GetSensorValues();
 	
@@ -461,8 +461,8 @@ int main(int argc, char* argv[]) {
 	//RectangularBlind Blind(0.11, h, l, 0.45, p, n); //ver esto
 //	ExportModel("blindAngleOnlyA.obj", Blind.GetMesh());
 	//Mesh3D* mesh = Blind.GetMesh();
-	//optimize(argc, argv);
-	BruteForceDC(argc, argv);
+	optimize(argc, argv);
+	//BruteForceDC(argc, argv);
 	/*
 	Polygon2D* p = new Polygon2D();
 	p->AddVertex(make_float2(0.0f, 0.0f));
