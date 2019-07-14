@@ -1,15 +1,17 @@
 #pragma once
 
 #include "lights/EnvironmentLight.h"
+#include<ctime>
+using namespace std;
 
-Scene SceneBuilder::LoadForDC(Context context, const aiScene* scene) {
+Scene SceneBuilder::LoadForDC(Context context, const aiScene* scene, int seed) {
 
 	context->setRayTypeCount(2);
 	context->setEntryPointCount(1);
 	context->setStackSize(2800);
 
 	Scene optixScene(context);
-	int width = 1000000;
+	int width = 10000;
 	int nSamples = 10;
 
 	optixScene.nSamples = nSamples;
@@ -25,7 +27,7 @@ Scene SceneBuilder::LoadForDC(Context context, const aiScene* scene) {
 	ClassifyMeshes(scene, geometryMeshes, areaLightMeshes);
 	loadGeometryForDC(scene, context, geometryMeshes, materials);
 
-	loadSensorsForDC(context, optixScene);
+	loadSensorsForDC(context, optixScene, seed);
 	return optixScene;
 
 }
@@ -101,7 +103,7 @@ void SceneBuilder::loadGeometryForDC(const aiScene* scene,
 
 
 
-void SceneBuilder::loadSensorsForDC(Context &context, Scene &optixScene) {
+void SceneBuilder::loadSensorsForDC(Context &context, Scene &optixScene, int seed) {
 
 	optix::Buffer RNGBuffer = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
 	RNGBuffer->setFormat(RT_FORMAT_USER);
@@ -109,7 +111,7 @@ void SceneBuilder::loadSensorsForDC(Context &context, Scene &optixScene) {
 	RNGBuffer->setSize(optixScene.width);
 	RNG* rng = (RNG*)RNGBuffer->map();
 	for (unsigned int i = 0; i < optixScene.width; i++) {
-		rng[i] = RNG(0u, i);
+		rng[i] = RNG(seed, i );
 	}
 	RNGBuffer->unmap();
 	context["rngs"]->setBuffer(RNGBuffer);

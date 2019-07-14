@@ -32,7 +32,7 @@ public:
 		OPTIMIZATION
 	};
 
-	static Scene BuildFromFile(const string &filename);
+	static Scene BuildFromFile(const string &filename, int seed);
 
 private:
 
@@ -92,7 +92,7 @@ private:
 
 	static void loadSensorsForOptimization(Context &context, Scene &optixScene);
 
-	static Scene LoadForDC(Context context, const aiScene* scene);
+	static Scene LoadForDC(Context context, const aiScene* scene, int seed);
 
 	static void loadMaterialsForDC(const aiScene* scene,
 		Context &context, vector<Material> &materials);
@@ -102,7 +102,7 @@ private:
 		Context &context, const vector<aiMesh*> geometryMeshes,
 		const vector<Material> &materials);
 
-	static void loadSensorsForDC(Context &context, Scene &optixScene);
+	static void loadSensorsForDC(Context &context, Scene &optixScene, int seed);
 
 
 };
@@ -114,9 +114,9 @@ private:
 
 
 
-Scene SceneBuilder::BuildFromFile(const string &filename) {
+Scene SceneBuilder::BuildFromFile(const string &filename, int seed) {
 
-	ALGORITHM algorithm = ALGORITHM::OPTIMIZATION;
+	ALGORITHM algorithm = ALGORITHM::DAYLIGHT;
 
 	Assimp::Importer importer;
 
@@ -148,7 +148,7 @@ Scene SceneBuilder::BuildFromFile(const string &filename) {
 		return LoadForRender(context, scene);
 	}
 	else if (algorithm == DAYLIGHT) {
-		return LoadForDC(context, scene);
+		return LoadForDC(context, scene, seed);
 	}
 	else if (algorithm == ENVIRONMENT) {
 		//return LoadForEnvironment(context, scene);

@@ -385,7 +385,7 @@ void optimize(int argc, char* argv[]) {
 	try {
 
 		string filename = "./LIGHTWELL.obj";
-		scene = SceneBuilder::BuildFromFile(filename);
+		scene = SceneBuilder::BuildFromFile(filename, 0);
 		/*scene.ComputeEnv();
 		Buffer coeff = scene.GetEnvValues();
 		float3* values = (float3*)coeff->map();
@@ -437,9 +437,13 @@ cout << "   " << v.x;
 void BruteForceDC(int argc, char* argv[]) {
 
 	try {
-
-		string filename = "./LIGHTWELL2.obj";
-		scene = SceneBuilder::BuildFromFile(filename);
+	
+		int seed = 0;
+		if (argc > 1)
+			seed = atoi(argv[1]);
+		//cout << seed;
+		string filename = "./City.obj";
+		scene = SceneBuilder::BuildFromFile(filename, seed);
 		scene.ComputeDCBruteForce();
 	}
 
@@ -461,8 +465,8 @@ int main(int argc, char* argv[]) {
 	//RectangularBlind Blind(0.11, h, l, 0.45, p, n); //ver esto
 //	ExportModel("blindAngleOnlyA.obj", Blind.GetMesh());
 	//Mesh3D* mesh = Blind.GetMesh();
-	optimize(argc, argv);
-	//BruteForceDC(argc, argv);
+	//optimize(argc, argv);
+	BruteForceDC(argc, argv);
 	/*
 	Polygon2D* p = new Polygon2D();
 	p->AddVertex(make_float2(0.0f, 0.0f));

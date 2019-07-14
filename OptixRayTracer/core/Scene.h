@@ -123,7 +123,7 @@ RT_FUNCTION  Scene::Scene(Context context)
 	rng.seed(42u, 54u);
 
 
-	cout << UDI[0] << "    " << UDI[1] << endl;
+	//cout << UDI[0] << "    " << UDI[1] << endl;
 	int z = 0;
 	for (int k = 0; k <= (nsteps - 1) + (ndeltas - 1); k++) {
 		for (int j = k; j >= 0; j--) {
@@ -209,19 +209,17 @@ RT_FUNCTION void Scene::ComputeDCBruteForce() {
 	context->validate();
 	context->compile();
 	context->launch(0, 0);
+
 	high_resolution_clock::time_point t1 = high_resolution_clock::now();
-
-	//for (int i = 0; i < 6; i++)
-		//for (int j = 0; j < 12; j++)  {
-			//float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 0.7); 
+	for (int i = 0; i < 6; i++) {
+		for (int j = 0; j < 12; j++)  {
+			float3 p = make_float3(-1.25 + i*0.5, -0.5 - j*0.5, 27.7); 
 			//float3 p = make_float3(1.0f - i*1.0, -1.25f - j*2.0f, 0.7f);
-
-			float3 p[3] = { make_float3(0.0, -0.5, 0.7), make_float3(0.0, -3.25, 0.7), make_float3(0.0, -6.0, 0.7) };
-			for (int i = 0; i < 3; i++) {
 				ResetSensorValues();
-				context["sensorPos"]->setFloat(p[i]);
+				context["sensorPos"]->setFloat(p);
 				context["sensorNormal"]->setFloat(make_float3(0.0f, 0.0f, 1.0f));
 				context->launch(0, width);
+
 				Buffer coeff = GetSensorValues();
 				float3* values = (float3*)coeff->map();
 				RTsize RTwidth; RTsize RTheight;
@@ -234,10 +232,10 @@ RT_FUNCTION void Scene::ComputeDCBruteForce() {
 				cout << endl;
 				coeff->unmap();
 			}
-		//}
-			high_resolution_clock::time_point t2 = high_resolution_clock::now();
-			std::chrono::duration<double> elapsed = t2 - t1;
-			cout << elapsed.count() << "\n";
+		}
+		high_resolution_clock::time_point t2 = high_resolution_clock::now();
+		std::chrono::duration<double> elapsed = t2 - t1;
+		//cout << elapsed.count() << "\n";
 }
 
 RT_FUNCTION void Scene::ComputeDCSensor(int i,  float3 position, float3 normal) {

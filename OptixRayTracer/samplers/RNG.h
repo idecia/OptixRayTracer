@@ -35,7 +35,7 @@ RT_FUNCTION RNG::RNG() { }
 
 RT_FUNCTION RNG::RNG(uint32_t seed, uint32_t index) {
 
-   curand_init(WangHash(seed + index), 0, 0, &state);
+   curand_init(WangHash(seed + index), seed, 0, &state);
 
 }
 
