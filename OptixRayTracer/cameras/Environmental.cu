@@ -48,7 +48,7 @@ RT_PROGRAM void sensor(void) {
 			//}
 			//ncell = 288; AREGLAR ESTO QUE ESTA HARCODEADO!
 			//float3 value = (288/2*M_PIf) * 2*M_PIf*pl.value/Ntot;
-			float3 value = (288 * pl.value) / Ntot;
+			float3 value = (145 * pl.value) / Ntot;
 			//float3 value =pl.value ;
 			atomicAdd(&env[index].x, (float)value.x);
 			atomicAdd(&env[index].y, (float)value.y);

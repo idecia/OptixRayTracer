@@ -6,10 +6,10 @@ Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 
 	context->setRayTypeCount(4);
 	context->setEntryPointCount(2);
-	context->setStackSize(2800);
+	context->setStackSize(4800);
 
 	Scene optixScene(context);
-	int width = 20000;
+	int width = 1000000;
 	int nSamples = 10;
 
 	optixScene.nSamples = nSamples;
@@ -325,7 +325,7 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	optix::Buffer environmentMap = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
 	environmentMap->setFormat(RT_FORMAT_FLOAT3);
 	unsigned int NskyPatches = optixScene.NskyPatches; //145 + 1
-	unsigned int NEnvironmentalPatches = optixScene.NEnvironmentalPatches; //288 + 1;
+	unsigned int NEnvironmentalPatches = optixScene.NEnvironmentalPatches; 
 	//unsigned int NEnvironmentalPatches = 4097;
 	environmentMap->setSize(NEnvironmentalPatches, NskyPatches);
 	float* values = (float*)environmentMap->map();

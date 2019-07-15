@@ -116,7 +116,7 @@ private:
 
 Scene SceneBuilder::BuildFromFile(const string &filename, int seed) {
 
-	ALGORITHM algorithm = ALGORITHM::DAYLIGHT;
+	ALGORITHM algorithm = ALGORITHM::OPTIMIZATION;
 
 	Assimp::Importer importer;
 
