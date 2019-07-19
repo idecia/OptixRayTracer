@@ -24,7 +24,8 @@ rtDeclareVariable(BeckersPayload, beckersPayload, rtPayload, );
 rtDeclareVariable(ShadowPayload, shadowPayload, rtPayload, );
 rtDeclareVariable(rtObject, buildingWindows, , );
 rtDeclareVariable(EnvironmentLight, light, , );
-rtBuffer<float3> coeff;
+//rtBuffer<float3> coeff;
+rtBuffer<float> coeff;
 rtDeclareVariable(float3, Le, , );
 
 /*
@@ -81,9 +82,10 @@ RT_PROGRAM void closestHit() {
 		float3 value = beckersPayload.value;
 		//float3 value = make_float3(1.0f);
 		int dirID = beckers(onbWindow.WorldToLocal(-woW));
-		atomicAdd(&coeff[dirID].x, (float)value.x);
-		atomicAdd(&coeff[dirID].y, (float)value.y);
-		atomicAdd(&coeff[dirID].z, (float)value.z);
+		atomicAdd(&coeff[dirID], (float)value.x);
+		//atomicAdd(&coeff[dirID].x, (float)value.x);
+		//atomicAdd(&coeff[dirID].y, (float)value.y);
+		//atomicAdd(&coeff[dirID].z, (float)value.z);
 		return;
 	}
 	if ((Le.x > 0))
@@ -116,9 +118,10 @@ RT_PROGRAM void closestHit() {
 			int dirID = beckers(o.WorldToLocal(wiW));
 			//if (pdf == 0)
 			//rtPrintf("%DIRECT LIGHT entro %f %f %f %f %f %f\n", value.x, BRDF.x, nDotWi, L.x, pdf, coeff[dirID].x);
-			atomicAdd(&coeff[dirID].x, (float)value.x);
-			atomicAdd(&coeff[dirID].y, (float)value.y);
-			atomicAdd(&coeff[dirID].z, (float)value.z);
+			atomicAdd(&coeff[dirID], (float)value.x);
+			//atomicAdd(&coeff[dirID].x, (float)value.x);
+			//atomicAdd(&coeff[dirID].y, (float)value.y);
+			//atomicAdd(&coeff[dirID].z, (float)value.z);
 		}
 	}
 

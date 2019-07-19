@@ -13,7 +13,8 @@
 #include <optix_device.h>
 
 rtBuffer<RNG> rngs;
-rtBuffer<float3, 2> env ;
+//rtBuffer<float3, 2> env ;
+ rtBuffer<float, 2> env;
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
 rtDeclareVariable(float3, sensorNormal, , );
 rtDeclareVariable(float3, sensorPos, , );
@@ -44,15 +45,19 @@ RT_PROGRAM void sensor(void) {
 			index.x = beckers(dir);
 			index.y = pl.patchID;
 			//if (index.x == 242) {
-				//rtPrintf("- %f %f %f %f %d %d\n", dir.x, dir.y, dir.z, env[index].x, beckers(dir), index.y);
+			//rtPrintf("- %f %f %f %f %d %d\n", dir.x, dir.y, dir.z, env[index].x, beckers(dir), index.y);
 			//}
 			//ncell = 288; AREGLAR ESTO QUE ESTA HARCODEADO!
 			//float3 value = (288/2*M_PIf) * 2*M_PIf*pl.value/Ntot;
 			float3 value = (145 * pl.value) / Ntot;
 			//float3 value =pl.value ;
-			atomicAdd(&env[index].x, (float)value.x);
-			atomicAdd(&env[index].y, (float)value.y);
-			atomicAdd(&env[index].z, (float)value.z); // falta multiplicar por 2pi/N
+		//	if ((index.x >= 1650) && (index.x < 2201)) {
+				//index.x = index.x - 1650;
+				atomicAdd(&env[index], (float)value.x);
+		   // }
+			//atomicAdd(&env[index].x, (float)value.x);
+			//atomicAdd(&env[index].y, (float)value.y);
+			//atomicAdd(&env[index].z, (float)value.z); // falta multiplicar por 2pi/N
 		}
 		
 

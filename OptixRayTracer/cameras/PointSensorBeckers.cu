@@ -15,7 +15,8 @@
 
 rtBuffer<RNG> rngs;
 //rtBuffer<float2> u;
-rtBuffer<float3> coeff;
+rtBuffer<float> coeff;
+//rtBuffer<float3> coeff;
 //rtBuffer<double3> coeff;
 rtDeclareVariable(int, Ntot, , );
 rtDeclareVariable(int, nSamples, , );

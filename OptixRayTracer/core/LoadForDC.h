@@ -11,7 +11,7 @@ Scene SceneBuilder::LoadForDC(Context context, const aiScene* scene, int seed) {
 	context->setStackSize(2800);
 
 	Scene optixScene(context);
-	int width = 1000000;
+	int width = 10000000;
 	int nSamples = 10;
 
 	optixScene.nSamples = nSamples;
@@ -139,14 +139,15 @@ void SceneBuilder::loadSensorsForDC(Context &context, Scene &optixScene, int see
 
 
 	optix::Buffer coeff = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
-	coeff->setFormat(RT_FORMAT_FLOAT3);
+	//coeff->setFormat(RT_FORMAT_FLOAT3);
+	coeff->setFormat(RT_FORMAT_FLOAT);
 	coeff->setSize(NskyPatches);
 	float* values = (float*)coeff->map();
-	for (unsigned int i = 0; i < NskyPatches * 3; i++) {
+	for (unsigned int i = 0; i < NskyPatches ; i++) {
+	//for (unsigned int i = 0; i < NskyPatches * 3; i++) {
 		values[i] = 0.0f;
 	}
 	coeff->unmap();
-	context["coeff"]->set(coeff);
 	context["coeff"]->set(coeff);
 	optixScene.coeff = coeff;
 

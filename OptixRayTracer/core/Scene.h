@@ -48,7 +48,7 @@ public:
 	int height;
 	float3 sensorPos;
 	float3 sensorNormal;
-	static const unsigned int NskyPatches = 146;
+	static const unsigned int NskyPatches = 578;
 	static const unsigned int NEnvironmentalPatches = 146;
 	static const unsigned int Nsensors = 72;
 	static const unsigned int HoursPerYear = 3650;
@@ -179,17 +179,22 @@ RT_FUNCTION void Scene::ComputeEnv() {
     context->launch(0, width);
 
 	Buffer coeff = GetEnvValues();
-	float3* values = (float3*)coeff->map();
+	//float3* values = (float3*)coeff->map();
+	float* values = (float*)coeff->map();
 	RTsize RTwidth; RTsize RTheight;
 	coeff->getSize(RTwidth, RTheight);
 	int width = static_cast<int>(RTwidth);
 	int height = static_cast<int>(RTheight);
 	for (int i = 0; i < width; i++)  {
 		for (int j = 1; j < height; j++) {
-			float3 v = values[j*width + i];
+			//float3 v = values[j*width + i];
+			float v = values[j*width + i];
 			//ENV[i*(height-1) + j-1] = v.x;
-			ENV(i, j - 1) = v.x;
+			//ENV(i, j - 1) = v.x
+			ENV(i, j - 1) = v;
+			//cout << "   " << v;
 		}
+		//cout << endl;
 	}
 	coeff->unmap();
 
@@ -221,13 +226,16 @@ RT_FUNCTION void Scene::ComputeDCBruteForce() {
 				context["sensorNormal"]->setFloat(make_float3(0.0f, 0.0f, 1.0f));
 				context->launch(0, width);
 				Buffer coeff = GetSensorValues();
-				float3* values = (float3*)coeff->map();
+				float* values = (float*)coeff->map();
+				//float3* values = (float3*)coeff->map();
 				RTsize RTwidth; RTsize RTheight;
 				coeff->getSize(RTwidth, RTheight);
 				int width = static_cast<int>(RTwidth);
 				for (int j = 0; j < width; j++) {
-					float3 v = values[j];
-					cout << v.x << "   ";
+					//float3 v = values[j];
+					float v = values[j];
+					//cout << v.x << "   ";
+					cout << v << "   ";
 				}
 				cout << endl;
 				coeff->unmap();
@@ -249,15 +257,18 @@ RT_FUNCTION void Scene::ComputeDCSensor(int i,  float3 position, float3 normal) 
 	context->compile();
 	context->launch(1, width);
 	Buffer coeff = GetSensorValues();
-	float3* values = (float3*)coeff->map();
+	//float3* values = (float3*)coeff->map();
+	float* values = (float*)coeff->map();
 	RTsize RTwidth; RTsize RTheight;
 	coeff->getSize(RTwidth, RTheight);
 	int width = static_cast<int>(RTwidth);
 	for (int j = 0; j < width; j++) {
-		float3 v = values[j];
+		//float3 v = values[j];
+		float v = values[j];
 		//SENS[i*width + j] = v.x;
 		//cout << i << "   " << v.x << endl;
-		SENS(i,j) = v.x;
+		//SENS(i,j) = v.x;
+		SENS(i, j) = v;
 	}
 	coeff->unmap();
 }
@@ -399,14 +410,22 @@ RT_FUNCTION void Scene::EvaluateSensors(float x[]) {
 	//Mesh3D* mesh = Blind.GetMesh();
 	//LoadBlindToOptix(mesh);
 	//delete mesh;
-	for (int i = 0; i < sensorPositions.size(); i++) {
+	for (int i = 0; i < Nsensors; i++) {
 		ComputeDCSensor(i, sensorPositions[i], sensorNormals[i]);
 	}
 	//optix::Matrix<Nsensors, NskyPatches-1> DC = SENS*ENV;
+	/*for (int i = 0; i < Nsensors; i++) {
+		for (int j = 0; j < NEnvironmentalPatches; j++) {
+			//float v = DC[i*(NskyPatches-1) + j];
+			float v = SENS(i, j);
+			cout << "   " << v;
+		}
+		cout << "\n";
+	}*/
 	DC = SENS*ENV;
 	E = DC*SKYES;
 	for (int i = 0; i < Nsensors; i++) {
-		for (int j = 0; j < NskyPatches; j++) {
+		for (int j = 0; j < NskyPatches-1; j++) {
 			//float v = DC[i*(NskyPatches-1) + j];
 			float v = DC(i, j);
 			cout << "   " << v;
@@ -576,7 +595,7 @@ RT_FUNCTION void Scene::ResetSensorValues() {
 	RTsize RTwidth; RTsize RTheight;
 	coeff->getSize(RTwidth, RTheight);
 	int width = static_cast<int>(RTwidth);
-	for (unsigned int i = 0; i < width * 3; i++) {
+	for (unsigned int i = 0; i < width; i++) {
 		values[i] = 0.0f;
 	}
 	coeff->unmap();

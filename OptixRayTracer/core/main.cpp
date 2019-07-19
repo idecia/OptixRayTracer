@@ -441,7 +441,7 @@ void BruteForceDC(int argc, char* argv[]) {
 		if (argc > 1)
 			seed = atoi(argv[1]);
 		//cout << seed;
-		string filename = "./LIGHTWELL.obj";
+		string filename = "./CityOfficeAForOptimization1PM.obj";
 		scene = SceneBuilder::BuildFromFile(filename, seed);
 		scene.ComputeDCBruteForce();
 	}

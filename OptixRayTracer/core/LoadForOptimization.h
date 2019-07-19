@@ -9,7 +9,7 @@ Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 	context->setStackSize(4800);
 
 	Scene optixScene(context);
-	int width = 1000000;
+	int width = 5000000;
 	int nSamples = 10;
 
 	optixScene.nSamples = nSamples;
@@ -323,13 +323,15 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	context["Ntot"]->setInt(optixScene.width*optixScene.nSamples);
 	context["nSamples"]->setInt(optixScene.nSamples);
 	optix::Buffer environmentMap = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
-	environmentMap->setFormat(RT_FORMAT_FLOAT3);
+	//environmentMap->setFormat(RT_FORMAT_FLOAT3);
+	environmentMap->setFormat(RT_FORMAT_FLOAT);
 	unsigned int NskyPatches = optixScene.NskyPatches; //145 + 1
 	unsigned int NEnvironmentalPatches = optixScene.NEnvironmentalPatches; 
 	//unsigned int NEnvironmentalPatches = 4097;
 	environmentMap->setSize(NEnvironmentalPatches, NskyPatches);
 	float* values = (float*)environmentMap->map();
-	for (unsigned int i = 0; i < NEnvironmentalPatches*NskyPatches * 3; i++) {
+	for (unsigned int i = 0; i < NEnvironmentalPatches*NskyPatches ; i++) {
+	//for (unsigned int i = 0; i < NEnvironmentalPatches*NskyPatches * 3; i++) {
 		values[i] = 0.0f;
 	}
 	environmentMap->unmap();
@@ -341,12 +343,15 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	program = context->createProgramFromPTXFile(path, "sensor");
 	context->setRayGenerationProgram(1, program);
 
-
+	
 	optix::Buffer coeff = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
-	coeff->setFormat(RT_FORMAT_FLOAT3);
+	//coeff->setFormat(RT_FORMAT_FLOAT3);
+	coeff->setFormat(RT_FORMAT_FLOAT);
+	//coeff->setSize(NEnvironmentalPatches);
 	coeff->setSize(NEnvironmentalPatches);
 	values = (float*)coeff->map();
-	for (unsigned int i = 0; i < NEnvironmentalPatches * 3; i++) {
+	for (unsigned int i = 0; i < NEnvironmentalPatches ; i++) {
+	//for (unsigned int i = 0; i < NEnvironmentalPatches * 3; i++) {
 		values[i] = 0.0f;
 	}
 	coeff->unmap();

@@ -13,7 +13,8 @@
 
 rtBuffer<RNG> rngs;
 //rtBuffer<float2> u;
-rtBuffer<float3> coeff;
+//rtBuffer<float3> coeff;
+rtBuffer<float> coeff;
 //rtBuffer<double3> coeff;
 rtDeclareVariable(double, out, , );
 rtDeclareVariable(int, Ntot, ,);
@@ -60,10 +61,10 @@ RT_PROGRAM void sensor(void) {
 			float3 value = pl.value * M_PIf/Ntot;
 			//float3 value = pl.value/Ntot;
 			
-		
-			atomicAdd(&coeff[pl.patchID].x, (float)value.x);
-			atomicAdd(&coeff[pl.patchID].y, (float)value.y);
-			atomicAdd(&coeff[pl.patchID].z, (float)value.z);
+			atomicAdd(&coeff[pl.patchID], (float)value.x);
+			//atomicAdd(&coeff[pl.patchID].x, (float)value.x);
+		//	atomicAdd(&coeff[pl.patchID].y, (float)value.y);
+			//atomicAdd(&coeff[pl.patchID].z, (float)value.z);
 			//atomicAdd(&coeff[pl.patchID].z, (float)out);
 		
 			//ns[pl.patchID]++;
