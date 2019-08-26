@@ -13,26 +13,25 @@ class RectangularBlind {
 
 private:
 
-	float width; 
-	float height;
-	float longitude;
-	float angle;
-	float pad;
-	int nSlats;
-	float curvature;
+
 
 public:
 
-	RectangularBlind(float w, float h, float l, float a, float p, int n);
-	RectangularBlind(float w, float h, float l, float a, float p, int n, float c);
-	void SetWidth(float w);
-	void SetHeight(float h);
-	void SetLongitude(float l);
-	void SetAngle(float a);
-	void SetPad(float p);
-	void SetNumSlats(int n);
-	void SetCurvature(float c);
+	RectangularBlind(float w, float h, float l, float a, float p, int n, float H, float W, float L, float3 P);
+	RectangularBlind(float w, float h, float l, float a, float p, int n, float c, float H, float W, float L, float3 P);
 	 Mesh3D* GetMesh();
+	 float w;
+	 float t;
+	 float l;
+	 float a;
+	 float s;
+	 int N;
+	 float c;
+
+	 float  H;
+	 float W;
+	 float L;
+	 float3 P;
 
 
 };
@@ -81,43 +80,16 @@ Mesh3D* GetWorldMesh(GeometricObject* obj) {
 
 }
 
-RectangularBlind::RectangularBlind(float w, float h, float l, float a, float p, int n)
-	: width(w), height(h), longitude(l), angle(a), pad(p), nSlats(n)  {
+RectangularBlind::RectangularBlind(float w, float h, float l, float a, float p, int n, float H, float W, float L, float3 P)
+	: w(w), t(t), l(l), a(a), s(s), N(n), H(H), W(W), L(L), P(P)  {
 
 }
 
-RectangularBlind::RectangularBlind(float w, float h, float l, float a, float p, int n, float c)
-	: width(w), height(h), longitude(l), angle(a), pad(p), nSlats(n), curvature(c)  {
+RectangularBlind::RectangularBlind(float w, float h, float l, float a, float p, int n, float c, float H, float W, float L, float3 P)
+	: w(w), t(t), l(l), a(a), s(s), N(n), c(c), H(H), W(W), L(L), P(P)  {
 
 }
 
-void RectangularBlind::SetWidth(float w) {
-	width = w;
-}
-
-void RectangularBlind::SetHeight(float h) {
-	height = h;
-}
-
-void RectangularBlind::SetLongitude(float l) {
-	longitude = l;
-}
-
-void RectangularBlind::SetAngle(float a) {
-	angle = a;
-}
-
-void RectangularBlind::SetPad(float p) {
-	pad = p;
-}
-
-void RectangularBlind::SetNumSlats(int n) {
-	nSlats = n;
-}
-
-void RectangularBlind::SetCurvature(float c) {
-	curvature = c;
-}
 
 /*
  Mesh3D*  RectangularBlind::GetMesh() {
@@ -127,21 +99,21 @@ void RectangularBlind::SetCurvature(float c) {
 	//float w = 0.01,h = 0.2 ,l = 3;
 	Polygon2D poly;
 	poly.AddVertex(make_float2(0.0f, 0.0f));
-	poly.AddVertex(make_float2(0.0f, height));
-	poly.AddVertex(make_float2(width, height));
-	poly.AddVertex(make_float2(width, 0.0f));
-	Mesh3D* slat = Extrude(&poly, make_float3(0.0f, 0.0f, longitude));
+	poly.AddVertex(make_float2(0.0f, t));
+	poly.AddVertex(make_float2(w, t));
+	poly.AddVertex(make_float2(w, 0.0f));
+	Mesh3D* slat = Extrude(&poly, make_float3(0.0f, 0.0f, l));
 	//slat->Triangulate();
 	slat->RotateY(-M_PIf / 2.0f);
-	slat->RotateX(angle);
+	slat->RotateX(a);
 	
 	GeometricObject* blind = new Compound();
 	vector<Instance*> instances;
-	for (int i = 0; i < nSlats; i++) {
-	//	if (i*(width + pad) <= (1.5 - width)) {
+	for (int i = 0; i < N; i++) {
+	//	if (i*(w + s) <= (1.5 - w)) {
 			Instance* inst = new Instance(slat);
 			inst->Translate(make_float3(1.0f, -0.25f, 1.0f));
-			inst->Translate(make_float3(0.0f, 0.0f, i*(width + pad)));
+			inst->Translate(make_float3(0.0f, 0.0f, i*(w + s)));
 			blind->AddChild(inst);
 			instances.push_back(inst);
 		//}
@@ -165,11 +137,11 @@ Mesh3D*  RectangularBlind::GetMesh() {
 
 	Polygon2D poly;
 	float Rext;
-	if (curvature > 0) {
-		 Rext  = ((4 * curvature*curvature) + (width*width)) / (8 * curvature);
-		 float thetaMin = acos(width / (2 * Rext));
+	if (c > 0) {
+		 Rext  = ((4*c*c) + (w*w)) / (8*c);
+		float thetaMin = acos(w / (2 * Rext));
 		float thetaMax = M_PIf - thetaMin;
-		float nArcs = 200;
+		float nArcs = 5;
 		float thetastep = (thetaMax - thetaMin) / nArcs;
 		for (int i = 0; i <= nArcs; i++) {
 			float theta = thetaMax - i*thetastep;
@@ -177,7 +149,7 @@ Mesh3D*  RectangularBlind::GetMesh() {
 			float y = Rext*sin(theta);
 			poly.AddVertex(make_float2(x, y));
 		}
-		float Rint = Rext - height;
+		float Rint = Rext - t;
 		for (int i = 0; i <= nArcs; i++) {
 			float theta = thetaMin + i*thetastep;
 			float x = Rint*cos(theta);
@@ -187,30 +159,31 @@ Mesh3D*  RectangularBlind::GetMesh() {
 	}
 	else {
 		//float w = 0.01,h = 0.2 ,l = 3;
-		poly.AddVertex(make_float2(-width/2.0f, 0.0f));
-		poly.AddVertex(make_float2(-width/2.0f, height));
-		poly.AddVertex(make_float2(width/2.0f, height));
-		poly.AddVertex(make_float2(width/2.0f, 0.0f));
+		float wOver2 = w / 2.0f;
+		poly.AddVertex(make_float2(-wOver2, 0.0f));
+		poly.AddVertex(make_float2(-wOver2, t));
+		poly.AddVertex(make_float2(wOver2, t));
+		poly.AddVertex(make_float2(wOver2, 0.0f));
 	}
 
-	angle = acos(pad / (2 * Rext)) - acos(width / (2 * Rext));
+	a = acos(s/(2*Rext)) - acos(w/(2*Rext));
 
-	Mesh3D* slat = Extrude(&poly, make_float3(0.0f, 0.0f, longitude));
-	if (curvature > 0)
-		slat->Translate(make_float3(0.0f, -Rext, -longitude/2.0f));
+	Mesh3D* slat = Extrude(&poly, make_float3(0.0f, 0.0f, l));
+	if (c > 0)
+		slat->Translate(make_float3(0.0f, -Rext, -l/2.0f));
 	else
-		slat->Translate(make_float3(0.0f, -height, -longitude/2.0f));
+		slat->Translate(make_float3(0.0f, -t, -l/2.0f));
 
 	//slat->Triangulate();
 	slat->RotateY(-M_PIf / 2.0f);
-	slat->RotateX(angle);
+	slat->RotateX(a);
 
 	GeometricObject* blind = new Compound();
 	vector<Instance*> instances;
-	for (int i = 0; i < nSlats; i++) {
-		//	if (i*(width + pad) <= (1.5 - width)) {
+	for (int i = 0; i < N; i++) {
+		//	if (i*(w + s) <= (1.5 - w)) {
 		Instance* inst = new Instance(slat);
-		inst->Translate(make_float3(0.0f, 0.0f, i*(pad)));
+		inst->Translate(make_float3(0.0f, 0.0f, i*s));
 		blind->AddChild(inst);
 		instances.push_back(inst);
 		//}
