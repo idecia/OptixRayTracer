@@ -461,7 +461,9 @@ int main(int argc, char* argv[]) {
 //		h = 0.01f, l = 2.0f;  int n = 10;
 	 // p = (1.5f - n*w) / (n - 1);
 //	RectangularBlind Blind(w, h, l, a, p, n); //ver esto
-	RectangularBlind Blind(0.11, 0.001, 2.0, 0.5, 0.2, 10, 0.015); 
+	//RectangularBlind(float w , float h, float l, float a, float S, int n, float c, float H, float W, float L)
+	//RectangularBlind Blind(0.15, 0.005  , 2.0    , 0.5    , 0.2   , 10   , 0.02    ,   1.5  , 2      , 0.25); 
+	RectangularBlind Blind(0.15, 0.01, 2.0, 1.57, 0.2, 7, 0.07, 1.5, 2, 0.25);
 	ExportModel("blind.obj", Blind.GetMesh());
 	//Mesh3D* mesh = Blind.GetMesh(); 
 	//optimize(argc, argv);

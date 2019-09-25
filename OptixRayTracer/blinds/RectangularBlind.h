@@ -17,8 +17,8 @@ private:
 
 public:
 
-	RectangularBlind(float w, float h, float l, float a, float p, int n, float H, float W, float L, float3 P);
-	RectangularBlind(float w, float h, float l, float a, float p, int n, float c, float H, float W, float L, float3 P);
+	RectangularBlind(float w, float t, float l, float a, float s, int N, float H, float W, float L);
+	RectangularBlind(float w, float t, float l, float a, float s, int N, float c, float H, float W, float L);
 	 Mesh3D* GetMesh();
 	 float w;
 	 float t;
@@ -31,7 +31,6 @@ public:
 	 float  H;
 	 float W;
 	 float L;
-	 float3 P;
 
 
 };
@@ -80,13 +79,13 @@ Mesh3D* GetWorldMesh(GeometricObject* obj) {
 
 }
 
-RectangularBlind::RectangularBlind(float w, float h, float l, float a, float p, int n, float H, float W, float L, float3 P)
-	: w(w), t(t), l(l), a(a), s(s), N(n), H(H), W(W), L(L), P(P)  {
+RectangularBlind::RectangularBlind(float w, float t, float l, float a, float s, int N, float H, float W, float L)
+	: w(w), t(t), l(l), a(a), s(s), N(N), H(H), W(W), L(L)  {
 
 }
 
-RectangularBlind::RectangularBlind(float w, float h, float l, float a, float p, int n, float c, float H, float W, float L, float3 P)
-	: w(w), t(t), l(l), a(a), s(s), N(n), c(c), H(H), W(W), L(L), P(P)  {
+RectangularBlind::RectangularBlind(float w, float t, float l, float a, float s, int N, float c, float H, float W, float L)
+	: w(w), t(t), l(l), a(a), s(s), N(N), c(c), H(H), W(W), L(L) {
 
 }
 
@@ -137,6 +136,7 @@ Mesh3D*  RectangularBlind::GetMesh() {
 
 	Polygon2D poly;
 	float Rext;
+	float wOver2 = w / 2.0f;
 	if (c > 0) {
 		 Rext  = ((4*c*c) + (w*w)) / (8*c);
 		float thetaMin = acos(w / (2 * Rext));
@@ -159,14 +159,13 @@ Mesh3D*  RectangularBlind::GetMesh() {
 	}
 	else {
 		//float w = 0.01,h = 0.2 ,l = 3;
-		float wOver2 = w / 2.0f;
 		poly.AddVertex(make_float2(-wOver2, 0.0f));
 		poly.AddVertex(make_float2(-wOver2, t));
 		poly.AddVertex(make_float2(wOver2, t));
 		poly.AddVertex(make_float2(wOver2, 0.0f));
 	}
 
-	a = acos(s/(2*Rext)) - acos(w/(2*Rext));
+	//a = acos(s/(2*Rext)) - acos(w/(2*Rext));
 
 	Mesh3D* slat = Extrude(&poly, make_float3(0.0f, 0.0f, l));
 	if (c > 0)
@@ -177,13 +176,16 @@ Mesh3D*  RectangularBlind::GetMesh() {
 	//slat->Triangulate();
 	slat->RotateY(-M_PIf / 2.0f);
 	slat->RotateX(a);
+	float infDist = 2 * c*sinf(a) - w*cosf(a);
+	float pad = (H - infDist - s*(N - 1)) / 2.0f;
+	slat->Translate(make_float3(0.0f, -L / 2.0f, pad + infDist / 2.0f));
 
 	GeometricObject* blind = new Compound();
 	vector<Instance*> instances;
 	for (int i = 0; i < N; i++) {
 		//	if (i*(w + s) <= (1.5 - w)) {
 		Instance* inst = new Instance(slat);
-		inst->Translate(make_float3(0.0f, 0.0f, i*s));
+		inst->Translate(make_float3(0.0f, 0.0f, 1.0f + i*s));
 		blind->AddChild(inst);
 		instances.push_back(inst);
 		//}
