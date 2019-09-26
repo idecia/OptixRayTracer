@@ -461,10 +461,13 @@ int main(int argc, char* argv[]) {
 //		h = 0.01f, l = 2.0f;  int n = 10;
 	 // p = (1.5f - n*w) / (n - 1);
 //	RectangularBlind Blind(w, h, l, a, p, n); //ver esto
-	//RectangularBlind Blind(0.11, h, l, 0.45, p, n); //ver esto
-//	ExportModel("blindAngleOnlyA.obj", Blind.GetMesh());
-	//Mesh3D* mesh = Blind.GetMesh();
-	optimize(argc, argv);
+	//RectangularBlind(float w , float h, float l, float a, float S, int n, float c, float H, float W, float L)
+	//RectangularBlind Blind(0.15, 0.005  , 2.0    , 0.5    , 0.2   , 10   , 0.02    ,   1.5  , 2      , 0.25); 
+	RectangularBlind Blind(0.15, 0.001, 2.0, 0.0, 0.0001, 4, 0.03, 1.5, 2, 0.25);
+	Blind.RepairBlind();
+	ExportModel("blind.obj", Blind.GetMesh());
+	//Mesh3D* mesh = Blind.GetMesh(); 
+	//optimize(argc, argv);
 	//BruteForceDC(argc, argv);
 	/*
 	Polygon2D* p = new Polygon2D();
