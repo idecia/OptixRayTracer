@@ -48,8 +48,8 @@ public:
 	int height;
 	float3 sensorPos;
 	float3 sensorNormal;
-	static const unsigned int NskyPatches = 578;
-	static const unsigned int NEnvironmentalPatches = 146;
+	static const unsigned int NskyPatches = 146;
+	static const unsigned int NEnvironmentalPatches = 551;
 	static const unsigned int Nsensors = 72;
 	static const unsigned int HoursPerYear = 3650;
 	vector<float3> sensorPositions;
@@ -192,9 +192,9 @@ RT_FUNCTION void Scene::ComputeEnv() {
 			//ENV[i*(height-1) + j-1] = v.x;
 			//ENV(i, j - 1) = v.x
 			ENV(i, j - 1) = v;
-			//cout << "   " << v;
+			cout << "   " << v;
 		}
-		//cout << endl;
+		cout << endl;
 	}
 	coeff->unmap();
 
@@ -469,7 +469,7 @@ RT_FUNCTION void Scene::Optimize() {
 	//float x[numOfVars] = { M_PIf / 2.0f, 0.15, 0.01, 0.0 };
 	float x[numOfVars] = { 0.668928  ,     0.10603 };
 	float fitness = 0.0f; 
-	EvaluateSensors(x); /*
+	/*EvaluateSensors(x); 
 	fitness = ComputeFitness(x, E);
 	cout << "INI:   " << fitness << endl;
 	int numFuncEval = 0;
