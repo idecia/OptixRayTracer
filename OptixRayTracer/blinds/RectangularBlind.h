@@ -55,7 +55,7 @@ public:
 
 
  float RectangularBlind::wmin = 0.1f;
-  float RectangularBlind::wmax = 0.25f;
+  float RectangularBlind::wmax = 1.0f;
   float RectangularBlind::tmin = 0.005;
   float RectangularBlind::tmax = 0.01;
   float RectangularBlind::lmin = 1.0f;
@@ -182,8 +182,10 @@ void RectangularBlind::RepairBlind() {
 	c = min(c, cmax);
 	c = max(c, cmin);
 
-	if (2 * c > w)
+	if (2 * c > w) {
 		c = w / 2.0f;
+		Rext = ((4 * c*c) + (w*w)) / (8 * c);
+	}
 
 	if ((c > 0) && s < w) {
 		float aux = acos(s / (2.0f*Rext)) - acos(w / (2.0f*Rext));
