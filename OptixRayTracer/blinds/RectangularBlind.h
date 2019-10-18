@@ -66,7 +66,7 @@ public:
   float RectangularBlind::smax = 1.0f;
   float RectangularBlind::cmin = 0.0f;
   float RectangularBlind::cmax = wmax / 2.0f;
-  int RectangularBlind::NMax = 10;
+  int RectangularBlind::NMax = 20;
 
 
 void GetWorldMesh(GeometricObject* obj, Transformation objToWorld, int &vertexOffset, Mesh3D* mesh) {

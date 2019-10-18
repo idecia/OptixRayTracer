@@ -9,7 +9,7 @@ Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 	context->setStackSize(4800);
 
 	Scene optixScene(context);
-	int width = 10000000;
+	int width = 10000;
 	int nSamples = 10;
 
 	optixScene.nSamples = nSamples;
@@ -112,7 +112,7 @@ void SceneBuilder::loadLightsForOptimization(const aiScene* scene,
 		float3 p2 = toFloat3(mesh->mVertices[face.mIndices[2]]);
 		float3 n = toFloat3(mesh->mNormals[0]);
 		optixScene.sensorNormal = -n;
-		optixScene.sensorPos = ((p0 + p2) / 2.0f) + 0.1*optixScene.sensorNormal;
+		optixScene.sensorPos = ((p0 + p2) / 2.0f) + 0.0*optixScene.sensorNormal;
 		Parallelogram parallelogram(p0, p1, p2, n);
 
 
@@ -357,6 +357,20 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	coeff->unmap();
 	context["coeff"]->set(coeff);
 	optixScene.coeff = coeff;
+
+	optix::Buffer coeff2 = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
+	//coeff->setFormat(RT_FORMAT_FLOAT3);
+	coeff2->setFormat(RT_FORMAT_INT);
+	//coeff->setSize(NEnvironmentalPatches);
+	coeff2->setSize(NEnvironmentalPatches);
+	int* values2 = (int*)coeff2->map();
+	for (unsigned int i = 0; i < NEnvironmentalPatches; i++) {
+		//for (unsigned int i = 0; i < NEnvironmentalPatches * 3; i++) {
+		values2[i] = 0;
+	}
+	coeff2->unmap();
+	context["coeff2"]->set(coeff2);
+
 
 	
 	

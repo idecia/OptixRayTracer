@@ -28,7 +28,7 @@ rtDeclareVariable(rtObject, buildingWindows, , );
 rtDeclareVariable(unsigned int, NskyPatches, , );
 rtDeclareVariable(EnvironmentLight, light, , );
 
-/*
+
 RT_PROGRAM void sensor(void) {
 
 
@@ -63,9 +63,9 @@ RT_PROGRAM void sensor(void) {
 			float3 value = pl.value * M_PIf / Ntot;
 			//float3 value = pl.value;
 			//rtPrintf("%d %f %f\n", pl.patchID, (float)value.x, (float)value.x);
-			atomicAdd(&coeff[pl.dirID].x, (float)value.x);
-			atomicAdd(&coeff[pl.dirID].y, (float)value.y);
-			atomicAdd(&coeff[pl.dirID].z, (float)value.z);
+			atomicAdd(&coeff[pl.dirID], (float)value.x);
+			//atomicAdd(&coeff[pl.dirID].y, (float)value.y);
+			//atomicAdd(&coeff[pl.dirID].z, (float)value.z);
 			//ns[pl.patchID]++;
 		}
 
@@ -74,10 +74,10 @@ RT_PROGRAM void sensor(void) {
 
 	rngs[pixelIdx] = pl.rng;
 
-}*/
+}
 
 
-
+/*
 RT_PROGRAM void sensor(void) {
 
 	
@@ -106,7 +106,7 @@ RT_PROGRAM void sensor(void) {
 
 	rngs[pixelIdx] = pl.rng;
 
-}
+}*/
 
 RT_PROGRAM void exception() {
 

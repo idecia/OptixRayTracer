@@ -390,7 +390,7 @@ optix::Buffer SceneBuilder::loadSensors(const aiScene* scene, Context &context, 
 	RNGBuffer->setSize(width);
 	RNG* rng = (RNG*)RNGBuffer->map();
 	for (unsigned int i = 0; i < width; i++) {
-		rng[i] = RNG(0u, i);
+		rng[i] = RNG(0u, i+123456);
 	}
 	RNGBuffer->unmap();
 	context["rngs"]->setBuffer(RNGBuffer);
