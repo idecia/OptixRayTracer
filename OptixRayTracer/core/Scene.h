@@ -49,7 +49,7 @@ public:
 	float3 sensorPos;
 	float3 sensorNormal;
 	static const unsigned int NskyPatches = 146;
-	static const unsigned int NEnvironmentalPatches = 146;
+	static const unsigned int NEnvironmentalPatches = 2201;
 	static const unsigned int Nsensors = 72;
 	static const unsigned int HoursPerYear = 3650;
 	vector<float3> sensorPositions;
@@ -428,7 +428,7 @@ RT_FUNCTION void Scene::EvaluateSensors(float x[]) {
 		for (int j = 0; j < NEnvironmentalPatches; j++) {
 		//float v = DC[i*(NskyPatches-1) + j];
 		float v = SENS(i, j);
-		//cout << "   " << v;
+	//	cout << "   " << v;
 		}
 	//cout << "\n";
 	}
@@ -438,9 +438,9 @@ RT_FUNCTION void Scene::EvaluateSensors(float x[]) {
 		for (int j = 0; j < NskyPatches - 1; j++) {
 			//float v = DC[i*(NskyPatches-1) + j];
 			float v = DC(i, j);
-			//cout << "   " << v;
+			cout << "   " << v;
 		}
-		//cout << "\n";
+		cout << "\n";
 	}
 	cout << "\n\n";
 

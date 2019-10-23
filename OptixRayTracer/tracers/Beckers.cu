@@ -208,7 +208,7 @@ RT_PROGRAM void miss() {
 
 	beckersPayload.value = make_float3(1.0);
 	beckersPayload.dirID = 0;
-	if (beckersPayload.dirID == 0) {
+	//if (beckersPayload.dirID == 0) {
 	//float t = -ray.origin.y / ray.direction.y;
 	//rtPrintf(" %f %f %f %f %f %f \n", (ray.origin + t* ray.direction).x, (ray.origin + t* ray.direction).y, (ray.origin + t* ray.direction).z, ray.direction.x, ray.direction.y, ray.direction.z);
 
@@ -219,6 +219,6 @@ RT_PROGRAM void miss() {
 	//	rtPrintf("(%f %f %f)  (%f %f %f) %d %f \n   ", ray.origin.x, ray.origin.y, ray.origin.z, ray.direction.x, ray.direction.y, ray.direction.z, BeckersPayload.patchID, BeckersPayload.value.x);
 	//rtPrintf("%d\n",  BeckersPayload.patchID);
 
-	rtPrintf("%f %f %f   \n   ", ray.origin.x, ray.origin.y, ray.origin.z);
-	}
+		//rtPrintf("%f %f %f    \n   ", ray.origin.x, ray.origin.y, ray.origin.z );
+	//}
 }

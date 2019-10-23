@@ -42,9 +42,9 @@ RT_PROGRAM void sensor(void) {
 		Ray ray = make_Ray(sensorPos, dirW, RayTypeOpt::REINHART_RADIANCE, 0, RT_DEFAULT_MAX);
 		rtTrace(root, ray, pl);
 		//rtPrintf("%f %f %f %f %f %f\n", dir.x, dir.y, dir.z, sensorPos.x, sensorPos.y, sensorPos.z);
+		uint2 index;
+		index.x = beckers(dir);
 		if (fmaxf(pl.value) > 0.0) {
-			uint2 index;
-			index.x = beckers(dir);
 			index.y = pl.patchID;
 			//if (index.x == 242) {
 			//rtPrintf("- %f %f %f %f %d %d\n", dir.x, dir.y, dir.z, env[index].x, beckers(dir), index.y);
@@ -57,13 +57,12 @@ RT_PROGRAM void sensor(void) {
 		//	if ((index.x >= 1650) && (index.x < 2201)) {
 				//index.x = index.x - 1650;
 				atomicAdd(&env[index], (float)value.x);
-				atomicAdd(&coeff2[index.x], 1);
 		   // }
 			//atomicAdd(&env[index].x, (float)value.x);
 			//atomicAdd(&env[index].y, (float)value.y);
 			//atomicAdd(&env[index].z, (float)value.z); // falta multiplicar por 2pi/N
 		}
-		
+		atomicAdd(&coeff2[index.x], 1);
 
 
 
