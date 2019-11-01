@@ -11,7 +11,7 @@ Scene SceneBuilder::LoadForDC(Context context, const aiScene* scene, int seed) {
 	context->setStackSize(2800);
 
 	Scene optixScene(context);
-	int width = 10000000;
+	int width = 1000000;
 	int nSamples = 10;
 
 	optixScene.nSamples = nSamples;

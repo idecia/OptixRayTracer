@@ -49,7 +49,7 @@ public:
 	float3 sensorPos;
 	float3 sensorNormal;
 	static const unsigned int NskyPatches = 146;
-	static const unsigned int NEnvironmentalPatches = 2201;
+	static const unsigned int NEnvironmentalPatches = 146;
 	static const unsigned int Nsensors = 72;
 	static const unsigned int HoursPerYear = 3650;
 	vector<float3> sensorPositions;
@@ -417,9 +417,11 @@ RT_FUNCTION void Scene::EvaluateSensors(float x[]) {
 	float p = (1.5f - n*x[1]) / (n - 1);
 	//RectangularBlind Blind(x[1], h, l, x[0], 0, n); //ver esto
 	//RectangularBlind Blind(x[1], x[2], l, x[0], x[3], n); //ver esto
-	//Mesh3D* mesh = Blind.GetMesh();
-	//LoadBlindToOptix(mesh);
-	//delete mesh;
+	RectangularBlind Blind(1, 0.01, 2.0, 0.707, 0.4, 4, 0.0, 1.5, 2, 0.25);
+	Blind.RepairBlind();
+	Mesh3D* mesh = Blind.GetMesh();
+	LoadBlindToOptix(mesh);
+	delete mesh;
 	for (int i = 0; i < Nsensors; i++) {
 		ComputeDCSensor(i, sensorPositions[i], sensorNormals[i]);
 	}

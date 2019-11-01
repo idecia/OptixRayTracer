@@ -66,7 +66,7 @@ public:
   float RectangularBlind::smax = 1.0f;
   float RectangularBlind::cmin = 0.0f;
   float RectangularBlind::cmax = wmax / 2.0f;
-  int RectangularBlind::NMax = 20;
+  int RectangularBlind::NMax = 4;
 
 
 void GetWorldMesh(GeometricObject* obj, Transformation objToWorld, int &vertexOffset, Mesh3D* mesh) {
@@ -289,7 +289,7 @@ Mesh3D*  RectangularBlind::GetMesh() {
 	for (int i = 0; i < N; i++) {
 		//	if (i*(w + s) <= (1.5 - w)) {
 		Instance* inst = new Instance(slat);
-		inst->Translate(make_float3(0.0f, 0.0f, 1.0f + i*s));
+		inst->Translate(make_float3(0.0f, 0.0f, 28 + i*s));
 		blind->AddChild(inst);
 		instances.push_back(inst);
 		//}
