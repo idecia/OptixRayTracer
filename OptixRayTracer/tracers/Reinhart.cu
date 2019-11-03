@@ -90,10 +90,11 @@ RT_PROGRAM void closestHit() {
 		float nDotWi = fabsf(dot(wiW,hit.normal));
 		value = BRDF * nDotWi * newReinhartPayload.value / pdf;
 		reinhartPayload.patchID = newReinhartPayload.patchID;
-
+		reinhartPayload.rng = newReinhartPayload.rng;
 		//rtPrintf("%f %f %f\n", BRDF.x, BRDF.y, BRDF.z);
 	}
 	reinhartPayload.value = value;
+	
 }
 
 RT_PROGRAM void anyHit() {
@@ -108,7 +109,7 @@ RT_PROGRAM void miss() {
 	//reinhartPayload.value = make_double3(1.0,1.0,1.0);
 	
 		reinhartPayload.value = make_float3(1.0f);
-	reinhartPayload.patchID = reinhart(ray.direction, 2);
+	reinhartPayload.patchID = reinhart(ray.direction, 1);
 	//float t = -ray.origin.y / ray.direction.y;
 //rtPrintf(" %f %f %f %f %f %f %d\n", (ray.origin + t* ray.direction).x, (ray.origin + t* ray.direction).y, (ray.origin + t* ray.direction).z, ray.direction.x, ray.direction.y, ray.direction.z, reinhartPayload.depth);
 	//if (reinhartPayload.patchID == 0) {
