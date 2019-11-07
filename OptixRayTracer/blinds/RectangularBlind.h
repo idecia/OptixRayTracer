@@ -61,7 +61,7 @@ public:
   float RectangularBlind::lmin = 1.0f;
   float RectangularBlind::lmax = 2.0f;
   float RectangularBlind::amin = 0.0f;
-  float RectangularBlind::amax = M_PIf / 2.0f;
+  float RectangularBlind::amax = M_PIf;
   float RectangularBlind::smin = 0.0f;
   float RectangularBlind::smax = 1.0f;
   float RectangularBlind::cmin = 0.0f;
@@ -191,14 +191,18 @@ void RectangularBlind::RepairBlind() {
 		float aux = acos(s / (2.0f*Rext)) - acos(w / (2.0f*Rext));
 		if (a < aux)
 			a = aux;
+		if (a > (M_PIf - aux))
+			a = M_PIf - aux;
 	}
 
 	float h = 1.0f;
 	float aux;
-	if ((c > 0) && (sinf(a) < w / (2 * Rext)))
-		aux = L / (Rext*(1 - cosf(a)) + c*cosf(a) + (w / 2.0f)*sinf(a));
+	float a2 = a < (M_PIf / 2.0f) ? a : M_PIf - a;
+
+	if ((c > 0) && (sinf(a2) < w / (2 * Rext)))
+		aux = L / (Rext*(1 - cosf(a2)) + c*cosf(a2) + (w / 2.0f)*sinf(a2));
 	else
-		aux = L / (w*sinf(a));
+		aux = L / (w*sinf(a2));
 
 	if (aux < 1.0f)
 		h = aux;
@@ -208,10 +212,10 @@ void RectangularBlind::RepairBlind() {
 	Rext = h*Rext;
 
 	h = 1.0f;
-	if ((c > 0) && (cosf(a) < w / (2 * Rext)))
-		aux = H / (Rext*(1 - sinf(a)) + c*sinf(a) + (w / 2.0f)*cosf(a));
+	if ((c > 0) && (cosf(a2) < w / (2 * Rext)))
+		aux = H / (Rext*(1 - sinf(a2)) + c*sinf(a2) + (w / 2.0f)*cosf(a2));
 	else
-		aux = H / (w*cosf(a));
+		aux = H / (w*cosf(a2));
 
 	if (aux < 1.0f)
 		h = aux;
@@ -229,8 +233,9 @@ Mesh3D*  RectangularBlind::GetMesh() {
 
 	Polygon2D poly;
 	float wOver2 = w / 2.0f;
-	float sinAlpha = sinf(a);
-	float cosAlpha = cosf(a);
+	float a2 = a < (M_PIf / 2.0f) ? a : M_PIf - a;
+	float sinAlpha = sinf(a2);
+	float cosAlpha = cosf(a2);
 	float LBlind = w*sinAlpha;
 	float HBlind = w*cosAlpha;
 	if (c > 0) {
@@ -282,14 +287,14 @@ Mesh3D*  RectangularBlind::GetMesh() {
 	float shiftL = -L + c*cosAlpha + wOver2*sinAlpha;
 	float padH = (H - HBlind - s*(N - 1)) / 2.0f;
 	float padL = (L - LBlind) / 2.0f;
-	slat->Translate(make_float3(0.0f, shiftL +padL, padH + shiftH));
+	slat->Translate(make_float3(0.0f, (a<M_PIf/2.0f?shiftL:-L+LBlind - (shiftL+L)) + padL, padH + shiftH));
 
 	GeometricObject* blind = new Compound();
 	vector<Instance*> instances;
 	for (int i = 0; i < N; i++) {
 		//	if (i*(w + s) <= (1.5 - w)) {
 		Instance* inst = new Instance(slat);
-		inst->Translate(make_float3(0.0f, 0.0f, 28 + i*s));
+		inst->Translate(make_float3(0.0f, 0.0f, 1 + i*s));
 		blind->AddChild(inst);
 		instances.push_back(inst);
 		//}

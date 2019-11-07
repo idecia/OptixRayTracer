@@ -466,15 +466,16 @@ int main(int argc, char* argv[]) {
 	//RectangularBlind Blind(0.15, 0.005  , 2.0    , 0.5    , 0.2   , 10   , 0.02    ,   1.5  , 2      , 0.25); 
 	//RectangularBlind Blind(0.1, 0.005, 2.0, 0.0, 0.2, 10, 0.0, 1.5, 2, 0.25);
 	//RectangularBlind Blind(1, 0.01, 2.0, 0.707, 0.4, 4, 0.0, 1.5, 2, 0.25);
-	//Blind.RepairBlind();
-    //Mesh3D* m = Blind.GetMesh();
+	RectangularBlind Blind(0.5, 0.001, 2.0, 3.14, 0.3, 4, 0.2, 1.5, 2, 0.25);
+	Blind.RepairBlind();
+    Mesh3D* m = Blind.GetMesh();
 //	high_resolution_clock::time_point t2 = high_resolution_clock::now();
 	//std::chrono::duration<double> elapsed = t2 - t1;
 	//cout << elapsed.count() << "\n";
 
-	//ExportModel("blind.obj", m);
+	ExportModel("blind.obj", m);
 	//Mesh3D* mesh = Blind.GetMesh(); 
-	optimize(argc, argv);
+	//optimize(argc, argv);
 	//BruteForceDC(argc, argv);
 	/*
 	Polygon2D* p = new Polygon2D();
