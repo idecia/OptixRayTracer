@@ -441,7 +441,7 @@ void BruteForceDC(int argc, char* argv[]) {
 		if (argc > 1)
 			seed = atoi(argv[1]);
 		//cout << seed;
-		string filename = "./CityOfficeAForOptimization1PM.obj";
+		string filename = "./CityTwoOfficeWithBlind.obj";
 		scene = SceneBuilder::BuildFromFile(filename, seed);
 		scene.ComputeDCBruteForce();
 	}
@@ -457,17 +457,24 @@ void BruteForceDC(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
 
+	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	//float p = 0.2f, a = 0.785f, w = 0.15f,
 //		h = 0.01f, l = 2.0f;  int n = 10;
 	 // p = (1.5f - n*w) / (n - 1);
 //	RectangularBlind Blind(w, h, l, a, p, n); //ver esto
 	//RectangularBlind(float w , float h, float l, float a, float S, int n, float c, float H, float W, float L)
 	//RectangularBlind Blind(0.15, 0.005  , 2.0    , 0.5    , 0.2   , 10   , 0.02    ,   1.5  , 2      , 0.25); 
-	RectangularBlind Blind(0.15, 0.001, 2.0, 0.0, 0.1, 4, 0.03, 1.5, 2, 0.25);
-	Blind.RepairBlind();
-	ExportModel("blind.obj", Blind.GetMesh());
-	Mesh3D* mesh = Blind.GetMesh(); 
-	//optimize(argc, argv);
+	//RectangularBlind Blind(0.1, 0.005, 2.0, 0.0, 0.2, 10, 0.0, 1.5, 2, 0.25);
+	//RectangularBlind Blind(1, 0.01, 2.0, 0.707, 0.4, 4, 0.0, 1.5, 2, 0.25);
+	//Blind.RepairBlind();
+    //Mesh3D* m = Blind.GetMesh();
+//	high_resolution_clock::time_point t2 = high_resolution_clock::now();
+	//std::chrono::duration<double> elapsed = t2 - t1;
+	//cout << elapsed.count() << "\n";
+
+	//ExportModel("blind.obj", m);
+	//Mesh3D* mesh = Blind.GetMesh(); 
+	optimize(argc, argv);
 	//BruteForceDC(argc, argv);
 	/*
 	Polygon2D* p = new Polygon2D();

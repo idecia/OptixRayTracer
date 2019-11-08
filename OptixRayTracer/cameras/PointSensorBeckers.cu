@@ -28,7 +28,7 @@ rtDeclareVariable(rtObject, buildingWindows, , );
 rtDeclareVariable(unsigned int, NskyPatches, , );
 rtDeclareVariable(EnvironmentLight, light, , );
 
-/*
+
 RT_PROGRAM void sensor(void) {
 
 
@@ -54,6 +54,8 @@ RT_PROGRAM void sensor(void) {
 		//dirW = make_float3(0.945326f, 0.091734f, -0.312960f);
 		//  dirW = make_float3( -0.456876, -0.88952, -0.004548);
 		//sensorPos2 = sensorPos2 - dirW;
+
+
 		Ray ray = make_Ray(sensorPos, dirW, RayTypeOpt::BECKERS_RADIANCE, 0, RT_DEFAULT_MAX);
 		//rtPrintf("%f %f %f\n", dirW.x, dirW.y, dirW.z);
 
@@ -63,9 +65,9 @@ RT_PROGRAM void sensor(void) {
 			float3 value = pl.value * M_PIf / Ntot;
 			//float3 value = pl.value;
 			//rtPrintf("%d %f %f\n", pl.patchID, (float)value.x, (float)value.x);
-			atomicAdd(&coeff[pl.dirID].x, (float)value.x);
-			atomicAdd(&coeff[pl.dirID].y, (float)value.y);
-			atomicAdd(&coeff[pl.dirID].z, (float)value.z);
+			atomicAdd(&coeff[pl.dirID], (float)value.x);
+			//atomicAdd(&coeff[pl.dirID].y, (float)value.y);
+			//atomicAdd(&coeff[pl.dirID].z, (float)value.z);
 			//ns[pl.patchID]++;
 		}
 
@@ -74,10 +76,10 @@ RT_PROGRAM void sensor(void) {
 
 	rngs[pixelIdx] = pl.rng;
 
-}*/
+}
 
 
-
+/*
 RT_PROGRAM void sensor(void) {
 
 	
@@ -106,54 +108,10 @@ RT_PROGRAM void sensor(void) {
 
 	rngs[pixelIdx] = pl.rng;
 
-}
+}*/
 
 RT_PROGRAM void exception() {
 
 	rtPrintExceptionDetails();
 
 }
-
-/*
-RT_PROGRAM void sensor(void) {
-
-
-	BeckersPayload pl;
-	pl.rng = rngs[pixelIdx];
-
-	Random2D sampler(&pl.rng, nSamples);
-	float2 unifSample; //= u[pixelIdx];
-
-	while (sampler.Next2D(&unifSample)) {
-
-
-	
-		pl.depth = 0;
-
-		float3 wiW, L;
-		float pdf, tMax;
-
-		Random2D sampler(&pl.rng, 1);
-		float2 uniformSample;
-		sampler.Next2D(&uniformSample);
-		L = light.Sample(sensorPos, uniformSample, wiW, pdf, tMax);
-		ShadowPayload shadowPayload;
-		shadowPayload.attenuation = 1.0f;
-		Ray shadowRay = make_Ray(sensorPos, wiW, RayTypeOpt::BECKERS_SHADOW, 0.0, tMax-0.1);
-		rtTrace(buildingWindows, shadowRay, shadowPayload);
-		if (shadowPayload.attenuation > 0.0f) {
-			ONB o(-light.parallelogram.NormalAt(make_float3(1.0f)));
-			float3 v = o.WorldToLocal(wiW);
-			int dirID = beckers(o.WorldToLocal(wiW));
-			float cos = dot(wiW, sensorNormal) > 0 ? dot(wiW, sensorNormal) : 0.0f;
-			float value = cos/ pdf;
-			value = value / Ntot;
-			atomicAdd(&coeff[dirID].x, (float)value);
-			atomicAdd(&coeff[dirID].y, (float)value);
-			atomicAdd(&coeff[dirID].z, (float)value);
-		}
-
-	}
-	rngs[pixelIdx] = pl.rng;
-
-}*/

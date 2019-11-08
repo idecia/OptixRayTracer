@@ -300,7 +300,7 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 		//rng[i] = RNG(0u, i + 357);
 		//rng[i] = RNG(0u, i + 357);
 		//rng[i] = RNG(0u, i + 537);
-		rng[i] = RNG(0u, i + 537);
+		rng[i] = RNG(0u, i + 123);
 	}
 	RNGBuffer->unmap();
 	context["rngs"]->setBuffer(RNGBuffer);
@@ -372,7 +372,7 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	coeff2->unmap();
 	context["coeff2"]->set(coeff2);
 
-	
+
 	
 
 }

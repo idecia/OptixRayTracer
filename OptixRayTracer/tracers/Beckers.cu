@@ -11,7 +11,7 @@
 #include <curand_kernel.h>
 
 
-#define MAX_DEPTH 15
+#define MAX_DEPTH 5
 
 
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
@@ -67,7 +67,7 @@ RT_PROGRAM void closestHit() {
 }
 */
 
-
+/*
 RT_PROGRAM void closestHit() {
 
 	//rtPrintf("%DIRECT LIGHT entro %f\n", beckersPayload.value.x);
@@ -103,7 +103,7 @@ RT_PROGRAM void closestHit() {
 		L = light.Sample(hit.position, uniformSample, wiW, pdf, tMax);
 		ShadowPayload shadowPayload;
 		shadowPayload.attenuation = 1.0f;
-		Ray shadowRay = make_Ray(hit.position, wiW, RayTypeOpt::BECKERS_SHADOW, 0.0, tMax - 0.01);
+		Ray shadowRay = make_Ray(hit.position, wiW, RayTypeOpt::BECKERS_SHADOW, 0.0, tMax - 0.0001);
 		rtTrace(buildingWindows, shadowRay, shadowPayload);
 		if (shadowPayload.attenuation > 0.0f) {
 			//rtPrintf("%DIRECT LIGHT %f %f %f %f %f\n", L.x, pdf, wiW.x, wiW.y, wiW.z);
@@ -140,7 +140,7 @@ RT_PROGRAM void closestHit() {
 
 		float3 wiW = onb.LocalToWorld(wi);
 		Ray radianceRay;
-		radianceRay = make_Ray(hit.position + 0.00*hit.normal, wiW, RayTypeOpt::BECKERS_RADIANCE, 0, RT_DEFAULT_MAX);
+		radianceRay = make_Ray(hit.position + 0.00001*hit.normal, wiW, RayTypeOpt::BECKERS_RADIANCE, 0, RT_DEFAULT_MAX);
 		float nDotWi = fabsf(dot(wiW, hit.normal));
 		BeckersPayload newBeckersPayload;
 		newBeckersPayload.depth = beckersPayload.depth + 1;
@@ -150,49 +150,50 @@ RT_PROGRAM void closestHit() {
 		newBeckersPayload.value = beckersPayload.value * BRDF * nDotWi / pdf;
 		rtTrace(buildingWindows, radianceRay, newBeckersPayload);
 	}
-}
+}*/
 
-/*
+
 RT_PROGRAM void closestHit() {
-ONB onb(hit.normal);
-ONB onbWindow(-hit.normal);
-float3 woW = -ray.direction;
-float3 wo = onb.WorldToLocal(woW);
-if ((Le.x > 0) ) {
-beckersPayload.value = make_float3(1.0);
-beckersPayload.dirID = beckers(onbWindow.WorldToLocal(-woW));
-//rtPrintf("%f  %f %f \n", ray.direction.x, ray.direction.y, ray.direction.z);
-//rtPrintf("%d \n", beckersPayload.depth);
-return;
+
+	ONB onb(hit.normal);
+	ONB onbWindow(-hit.normal);
+	float3 woW = -ray.direction;
+	float3 wo = onb.WorldToLocal(woW);
+	if ((Le.x > 0) ) {
+		beckersPayload.value = make_float3(1.0);
+		beckersPayload.dirID = beckers(onbWindow.WorldToLocal(-woW));
+		//rtPrintf("%f  %f %f \n", ray.direction.x, ray.direction.y, ray.direction.z);
+		//rtPrintf("%d \n", beckersPayload.depth);
+		return;
+	}
+
+	float3 value = make_float3(0.0f);
+	if (beckersPayload.depth < MAX_DEPTH) {
+		Random2D sampler(&beckersPayload.rng, 1);
+		float2 uniformSample;
+		sampler.Next2D(&uniformSample);
+		float3 wi;
+		float pdf;
+		float3 BRDF;
+		BRDF = brdf.Sample(wo, &wi, &pdf, uniformSample);
+		//	rtPrintf("%f \n", brdf.getR().x);
+		float3 wiW = onb.LocalToWorld(wi);
+		Ray radianceRay;
+		radianceRay = make_Ray(hit.position + 0.0*hit.normal, wiW, RayTypeOpt::BECKERS_RADIANCE, 0.000001, RT_DEFAULT_MAX);
+		BeckersPayload newBeckersPayload;
+		newBeckersPayload.depth = beckersPayload.depth + 1;
+		newBeckersPayload.rng = beckersPayload.rng;
+		rtTrace(buildingWindows, radianceRay, newBeckersPayload);
+		//float nDotWi = fabsf(wi.z);
+		//float nDotWi = fabsf(dot(wiW, hit.normal));
+		float nDotWi = fmaxf(wi.z, 0.0f);
+		value = BRDF * nDotWi * newBeckersPayload.value / pdf;
+		beckersPayload.dirID = newBeckersPayload.dirID;
+		//rtPrintf("%f %f %f\n", BRDF.x, BRDF.y, BRDF.z);
+	}
+	beckersPayload.value = value;
 }
 
-float3 value = make_float3(0.0f);
-if (beckersPayload.depth < MAX_DEPTH) {
-Random2D sampler(&beckersPayload.rng, 1);
-float2 uniformSample;
-sampler.Next2D(&uniformSample);
-float3 wi;
-float pdf;
-float3 BRDF;
-BRDF = brdf.Sample(wo, &wi, &pdf, uniformSample);
-//	rtPrintf("%f \n", brdf.getR().x);
-float3 wiW = onb.LocalToWorld(wi);
-Ray radianceRay;
-radianceRay = make_Ray(hit.position + 0.00*hit.normal, wiW, RayTypeOpt::BECKERS_RADIANCE, 0.000001, RT_DEFAULT_MAX);
-BeckersPayload newBeckersPayload;
-newBeckersPayload.depth = beckersPayload.depth + 1;
-newBeckersPayload.rng = beckersPayload.rng;
-rtTrace(buildingWindows, radianceRay, newBeckersPayload);
-//float nDotWi = fabsf(wi.z);
-//float nDotWi = fabsf(dot(wiW, hit.normal));
-float nDotWi = fmaxf(wi.z, 0.0f);
-value = BRDF * nDotWi * newBeckersPayload.value / pdf;
-beckersPayload.dirID = newBeckersPayload.dirID;
-//rtPrintf("%f %f %f\n", BRDF.x, BRDF.y, BRDF.z);
-}
-beckersPayload.value = value;
-}
-*/
 
 RT_PROGRAM void anyHit() {
 
@@ -207,7 +208,7 @@ RT_PROGRAM void miss() {
 
 	beckersPayload.value = make_float3(1.0);
 	beckersPayload.dirID = 0;
-	//if (BeckersPayload.patchID == 0) {
+	//if (beckersPayload.dirID == 0) {
 	//float t = -ray.origin.y / ray.direction.y;
 	//rtPrintf(" %f %f %f %f %f %f \n", (ray.origin + t* ray.direction).x, (ray.origin + t* ray.direction).y, (ray.origin + t* ray.direction).z, ray.direction.x, ray.direction.y, ray.direction.z);
 
@@ -218,6 +219,6 @@ RT_PROGRAM void miss() {
 	//	rtPrintf("(%f %f %f)  (%f %f %f) %d %f \n   ", ray.origin.x, ray.origin.y, ray.origin.z, ray.direction.x, ray.direction.y, ray.direction.z, BeckersPayload.patchID, BeckersPayload.value.x);
 	//rtPrintf("%d\n",  BeckersPayload.patchID);
 
-	//rtPrintf("%f %f %f   \n   ", ray.origin.x, ray.origin.y, ray.origin.z);*/ 
+		//rtPrintf("%f %f %f    \n   ", ray.origin.x, ray.origin.y, ray.origin.z );
 	//}
 }

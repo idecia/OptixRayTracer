@@ -24,7 +24,7 @@ RT_PROGRAM void intersect(int primIdx) {
 	float3 p0 = vertexBuffer[index.x];
 	float3 p1 = vertexBuffer[index.y];
 	float3 p2 = vertexBuffer[index.z];
-
+	//rtPrintf("(%f, %f, %f) (%f, %f, %f) (%f, %f, %f) %d \n", p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, primIdx);
 	float3 E1 = p1 - p0;
 	float3 E2 = p2 - p0;
 
@@ -39,14 +39,15 @@ RT_PROGRAM void intersect(int primIdx) {
 
 	if (u < 0.0f || v < 0.0f || u + v > 1.0f) return;
 
+	
 	float t = dot(E2, S2) * invDivisor;
 	if (rtPotentialIntersection(t)) {
 		float eps = 0.001;
-		t = t < eps ? t : t - eps;
+		t = t < eps ? t/2.0f : t - eps;
 		float3 p = ray.origin + ray.direction * t;
 		//p = p0 + u*E1 + v*E2;
 		float3 normal = normalize(cross(E1, E2));
-		//rtPrintf("(%f, %f, %f)\n", normal.x, normal.y, normal.z);
+		
 		hit.position = p;
 		hit.normal = normal;
 		rtReportIntersection(0);
