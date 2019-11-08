@@ -466,6 +466,7 @@ int main(int argc, char* argv[]) {
 	//RectangularBlind Blind(0.15, 0.005  , 2.0    , 0.5    , 0.2   , 10   , 0.02    ,   1.5  , 2      , 0.25); 
 	//RectangularBlind Blind(0.1, 0.005, 2.0, 0.0, 0.2, 10, 0.0, 1.5, 2, 0.25);
 	//RectangularBlind Blind(1, 0.01, 2.0, 0.707, 0.4, 4, 0.0, 1.5, 2, 0.25);
+	//RectangularBlind Blind(0.4, 0.001, 2.0, 2, 0.3, 4, 0.05, 1.5, 2, 0.25);
 	//Blind.RepairBlind();
     //Mesh3D* m = Blind.GetMesh();
 //	high_resolution_clock::time_point t2 = high_resolution_clock::now();

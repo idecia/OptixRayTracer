@@ -9,7 +9,7 @@ Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 	context->setStackSize(4800);
 
 	Scene optixScene(context);
-	int width = 1000000;
+	int width = 20000;
 	int nSamples = 10;
 
 	optixScene.nSamples = nSamples;

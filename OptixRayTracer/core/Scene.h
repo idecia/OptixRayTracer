@@ -76,7 +76,7 @@ public:
 
 	static const int maxFuncEval = 500;
 	static const int minNumNeigh = 25;
-	static const int numOfVars = 2;
+	static const int numOfVars = 4;
 	static const int nsteps = 2;
 	static const int ndeltas = 5;
 	static const int Kmax = nsteps*ndeltas;
@@ -94,18 +94,16 @@ private:
 
 };
 
-
-const float Scene::xM[numOfVars] = { M_PIf / 2.0f, 0.15 };
-//const float Scene::xM[numOfVars] = { M_PIf/2.0f, 0.15f , 0.02f, 0.1f  };
-//const float Scene::xm[numOfVars] = { 0.0f      , 0.05f , 0.01f,  0.0f  };
-//const float Scene::xM[numOfVars] = { M_PIf / 2.0f  };
-const float Scene::xm[numOfVars] = { 0.0f, 0.05 };
-//const  int Scene::stepvalues[nsteps] = {1,2,3,3,4};
+//RectangularBlind::RectangularBlind(float w, float t, float l, float a, float s, int N, float c, float H, float W, float L)
+//RectangularBlind Blind(0.4, 0.001, 2.0, 2, 0.3, 4, 0.05, 1.5, 2, 0.25);
+//                                  w,     a,     s,     c
+const float Scene::xM[numOfVars] = { 0.25, M_PIf, 0.5 , 0.125 };
+const float Scene::xm[numOfVars] = { 0.0f, 0.0f , 0.0f, 0.0f  };
 const  int Scene::stepvalues[nsteps] = { 1, 2 };
 const float Scene::deltavalues[ndeltas] = { 0.1f, 0.15f, 0.3f, 0.5f, 0.8f };
 //const float Scene::UDI[2] = { 0.001f, 0.5f };
 //const float Scene::UDI[2] = { 0.08f, 1000.0f };
-const float Scene::UDI[2] = { 0.5f, 16.75f };
+const float Scene::UDI[2] = { 0.55f, 16.76f };
 //const float Scene::UDI[2] = { 0.558f, 16.75f };
 
 RT_FUNCTION  Scene::Scene() {
@@ -411,10 +409,7 @@ RT_FUNCTION void Scene::UpdateSolution(float x[], float xnew[]) {
 
 RT_FUNCTION void Scene::EvaluateSensors(float x[]) {
 
-	float  h = 0.01f, l = 2.0f, a = 0.0f;  int n = 10;
-	float p = (1.5f - n*x[1]) / (n - 1);
-	//RectangularBlind Blind(x[1], h, l, x[0], 0, n); //ver esto
-	//RectangularBlind Blind(x[1], x[2], l, x[0], x[3], n); //ver esto
+
 	RectangularBlind Blind(1, 0.01, 2.0, 0.707, 0.4, 4, 0.0, 1.5, 2, 0.25);
 	Blind.RepairBlind();
 	Mesh3D* mesh = Blind.GetMesh();
@@ -424,17 +419,17 @@ RT_FUNCTION void Scene::EvaluateSensors(float x[]) {
 		ComputeDCSensor(i, sensorPositions[i], sensorNormals[i]);
 	}
 	//optix::Matrix<Nsensors, NskyPatches-1> DC = SENS*ENV;
-	for (int i = 0; i < Nsensors; i++) {
+	/*for (int i = 0; i < Nsensors; i++) {
 		for (int j = 0; j < NEnvironmentalPatches; j++) {
 		//float v = DC[i*(NskyPatches-1) + j];
 		float v = SENS(i, j);
 	//	cout << "   " << v;
 		}
 	//cout << "\n";
-	}
+	}*/
 	DC = SENS*ENV;
 	E = DC*SKYES;
-	for (int i = 0; i < Nsensors; i++) {
+	/*for (int i = 0; i < Nsensors; i++) {
 		for (int j = 0; j < NskyPatches - 1; j++) {
 			//float v = DC[i*(NskyPatches-1) + j];
 			float v = DC(i, j);
@@ -442,7 +437,7 @@ RT_FUNCTION void Scene::EvaluateSensors(float x[]) {
 		}
 		cout << "\n";
 	}
-	cout << "\n\n";
+	cout << "\n\n";*/
 
 }
 
