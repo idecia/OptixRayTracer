@@ -21,7 +21,6 @@ rtDeclareVariable(float3, sensorPos, , );
 rtDeclareVariable(rtObject, root, , );
 rtDeclareVariable(int, Ntot, , );
 rtDeclareVariable(int, nSamples , , );
-
 rtBuffer<int, 1> coeff2;
 
 RT_PROGRAM void sensor(void) {
@@ -53,10 +52,13 @@ RT_PROGRAM void sensor(void) {
 			//float3 value = (288/2*M_PIf) * 2*M_PIf*pl.value/Ntot;
 			float3 value = (550 * pl.value) / Ntot;
 			value = pl.value;
+
 			//float3 value =pl.value ;
 		//	if ((index.x >= 1650) && (index.x < 2201)) {
 				//index.x = index.x - 1650;
 				atomicAdd(&env[index], (float)value.x);
+				atomicAdd(&coeff2[index.x], 1);
+
 		   // }
 			//atomicAdd(&env[index].x, (float)value.x);
 			//atomicAdd(&env[index].y, (float)value.y);

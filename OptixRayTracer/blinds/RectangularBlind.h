@@ -294,7 +294,7 @@ Mesh3D*  RectangularBlind::GetMesh() {
 	for (int i = 0; i < N; i++) {
 		//	if (i*(w + s) <= (1.5 - w)) {
 		Instance* inst = new Instance(slat);
-		inst->Translate(make_float3(0.0f, 0.0f, 1 + i*s));
+		inst->Translate(make_float3(0.0f, 0.0f, 28 + i*s));
 		blind->AddChild(inst);
 		instances.push_back(inst);
 		//}

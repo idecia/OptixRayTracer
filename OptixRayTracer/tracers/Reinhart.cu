@@ -90,10 +90,11 @@ RT_PROGRAM void closestHit() {
 		float nDotWi = fabsf(dot(wiW,hit.normal));
 		value = BRDF * nDotWi * newReinhartPayload.value / pdf;
 		reinhartPayload.patchID = newReinhartPayload.patchID;
-
+		reinhartPayload.rng = newReinhartPayload.rng;
 		//rtPrintf("%f %f %f\n", BRDF.x, BRDF.y, BRDF.z);
 	}
 	reinhartPayload.value = value;
+	
 }
 
 RT_PROGRAM void anyHit() {

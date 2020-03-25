@@ -28,7 +28,7 @@ rtDeclareVariable(rtObject, buildingWindows, , );
 rtDeclareVariable(unsigned int, NskyPatches, , );
 rtDeclareVariable(EnvironmentLight, light, , );
 
-/*
+
 RT_PROGRAM void sensor(void) {
 
 
@@ -77,9 +77,9 @@ RT_PROGRAM void sensor(void) {
 	rngs[pixelIdx] = pl.rng;
 
 }
-*/
 
 
+/*
 RT_PROGRAM void sensor(void) {
 
 	
@@ -108,11 +108,10 @@ RT_PROGRAM void sensor(void) {
 
 	rngs[pixelIdx] = pl.rng;
 
-}
+}*/
 
 RT_PROGRAM void exception() {
 
 	rtPrintExceptionDetails();
 
 }
-

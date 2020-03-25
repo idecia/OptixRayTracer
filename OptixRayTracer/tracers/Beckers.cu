@@ -11,7 +11,7 @@
 #include <curand_kernel.h>
 
 
-#define MAX_DEPTH 16
+#define MAX_DEPTH 5
 
 
 rtDeclareVariable(uint, pixelIdx, rtLaunchIndex, );
@@ -67,7 +67,7 @@ RT_PROGRAM void closestHit() {
 }
 */
 
-
+/*
 RT_PROGRAM void closestHit() {
 
 	//rtPrintf("%DIRECT LIGHT entro %f\n", beckersPayload.value.x);
@@ -103,7 +103,7 @@ RT_PROGRAM void closestHit() {
 		L = light.Sample(hit.position, uniformSample, wiW, pdf, tMax);
 		ShadowPayload shadowPayload;
 		shadowPayload.attenuation = 1.0f;
-		Ray shadowRay = make_Ray(hit.position, wiW, RayTypeOpt::BECKERS_SHADOW, 0.0, tMax - 0.001);
+		Ray shadowRay = make_Ray(hit.position, wiW, RayTypeOpt::BECKERS_SHADOW, 0.0, tMax - 0.0001);
 		rtTrace(buildingWindows, shadowRay, shadowPayload);
 		if (shadowPayload.attenuation > 0.0f) {
 		
@@ -140,7 +140,7 @@ RT_PROGRAM void closestHit() {
 
 		float3 wiW = onb.LocalToWorld(wi);
 		Ray radianceRay;
-		radianceRay = make_Ray(hit.position + 0.00*hit.normal, wiW, RayTypeOpt::BECKERS_RADIANCE, 0, RT_DEFAULT_MAX);
+		radianceRay = make_Ray(hit.position + 0.00001*hit.normal, wiW, RayTypeOpt::BECKERS_RADIANCE, 0, RT_DEFAULT_MAX);
 		float nDotWi = fabsf(dot(wiW, hit.normal));
 		BeckersPayload newBeckersPayload;
 		newBeckersPayload.depth = beckersPayload.depth + 1;
@@ -152,9 +152,9 @@ RT_PROGRAM void closestHit() {
 		beckersPayload.rng = newBeckersPayload.rng;
 	}
 
-}
+}*/
 
-/*
+
 RT_PROGRAM void closestHit() {
 
 	ONB onb(hit.normal);
@@ -195,7 +195,7 @@ RT_PROGRAM void closestHit() {
 	}
 	beckersPayload.value = value;
 }
-*/
+
 
 RT_PROGRAM void anyHit() {
 

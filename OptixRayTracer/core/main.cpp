@@ -473,9 +473,9 @@ int main(int argc, char* argv[]) {
 	//std::chrono::duration<double> elapsed = t2 - t1;
 	//cout << elapsed.count() << "\n";
 
-	ExportModel("blind.obj", m);
+	//ExportModel("blind.obj", m);
 	//Mesh3D* mesh = Blind.GetMesh(); 
-	//optimize(argc, argv);
+	optimize(argc, argv);
 	//BruteForceDC(argc, argv);
 	/*
 	Polygon2D* p = new Polygon2D();

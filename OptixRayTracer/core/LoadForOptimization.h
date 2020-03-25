@@ -9,7 +9,7 @@ Scene SceneBuilder::LoadForOptimization(Context context, const aiScene* scene) {
 	context->setStackSize(4800);
 
 	Scene optixScene(context);
-	int width = 1000000;
+	int width = 20000;
 	int nSamples = 10;
 
 	optixScene.nSamples = nSamples;
@@ -300,7 +300,7 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 		//rng[i] = RNG(0u, i + 357);
 		//rng[i] = RNG(0u, i + 357);
 		//rng[i] = RNG(0u, i + 537);
-		rng[i] = RNG(0u, i + 123456);
+		rng[i] = RNG(0u, i + 123);
 	}
 	RNGBuffer->unmap();
 	context["rngs"]->setBuffer(RNGBuffer);
@@ -343,6 +343,7 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	program = context->createProgramFromPTXFile(path, "sensor");
 	context->setRayGenerationProgram(1, program);
 
+
 	
 	optix::Buffer coeff = context->createBuffer(RT_BUFFER_INPUT_OUTPUT);
 	//coeff->setFormat(RT_FORMAT_FLOAT3);
@@ -372,7 +373,6 @@ void SceneBuilder::loadSensorsForOptimization(Context &context, Scene &optixScen
 	context["coeff2"]->set(coeff2);
 
 
-	
 	
 
 }
